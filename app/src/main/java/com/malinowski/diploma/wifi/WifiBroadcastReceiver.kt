@@ -42,10 +42,8 @@ class WifiBroadcastReceiver(
                     Log.e("RASPBERRY", "Permission denied")
                 }
                 Log.d("RASPBERRY", "P2P peers changed")
-
                 // The peer list has changed! We should probably do something about
                 // that.
-
             }
             WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION -> {
 

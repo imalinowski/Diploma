@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
@@ -38,9 +39,10 @@ class WifiDirectActivity : AppCompatActivity() {
 
     private val requestPermissionLauncher =
         registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            if(isGranted) processCLick()
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) {
+            //TODO process granted / not granted permissions
+            processCLick()
         }
 
     private val peerListListener = WifiP2pManager.PeerListListener { peerList ->
@@ -53,6 +55,8 @@ class WifiDirectActivity : AppCompatActivity() {
         if (peers.isEmpty()) {
             appendText("No devices found")
             return@PeerListListener
+        } else {
+            appendText("Peers : ${peers.joinToString()}")
         }
     }
 
@@ -72,12 +76,25 @@ class WifiDirectActivity : AppCompatActivity() {
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            requestPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_WIFI_STATE,
+                    Manifest.permission.CHANGE_WIFI_STATE,
+                    Manifest.permission.INTERNET,
+                )
+            )
             appendText("PERMISSION DENIED")
             return
         }
         manager.discoverPeers(channel, object : WifiP2pManager.ActionListener {
             override fun onSuccess() {
+                try {
+                    manager.requestPeers(channel, peerListListener)
+                } catch (e: SecurityException) {
+                    Log.e("RASPBERRY", "Permission denied")
+                }
                 appendText("discoverPeers success")
             }
 
