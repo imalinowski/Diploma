@@ -6,7 +6,6 @@ import android.content.Intent
 import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
 import android.util.Log
-import android.widget.Toast
 import com.malinowski.diploma.WifiDirectActivity
 
 
@@ -25,7 +24,7 @@ class WifiBroadcastReceiver(
             append("URI: ${intent.toUri(Intent.URI_INTENT_SCHEME)}\n")
             toString().also { log ->
                 Log.d(TAG, log)
-                Toast.makeText(context, log, Toast.LENGTH_LONG).show()
+                activity.appendText("$TAG : $log ")
             }
         }
         when (intent.action) {

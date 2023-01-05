@@ -1,14 +1,16 @@
 package com.malinowski.diploma
 
+import android.Manifest
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import com.malinowski.diploma.wifi.WifiBroadcastReceiver
 
 private const val TAG = "WifiDirectActivity"
@@ -34,6 +36,13 @@ class WifiDirectActivity : AppCompatActivity() {
 
     private val peers = mutableListOf<WifiP2pDevice>()
 
+    private val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if(isGranted) processCLick()
+        }
+
     private val peerListListener = WifiP2pManager.PeerListListener { peerList ->
         val refreshedPeers = peerList.deviceList
         if (refreshedPeers != peers) {
@@ -53,21 +62,35 @@ class WifiDirectActivity : AppCompatActivity() {
 
         initWP2P()
         searchDevicesBtn.setOnClickListener {
-            try {
-                manager.discoverPeers(channel, object : WifiP2pManager.ActionListener {
-                    override fun onSuccess() {
-                        appendText("discoverPeers success")
-                    }
-
-                    override fun onFailure(p0: Int) {
-                        appendText("discoverPeers failed")
-                    }
-                })
-            } catch (e: SecurityException) {
-                Toast.makeText(this, "Permission denied", Toast.LENGTH_LONG).show()
-            }
-            appendText("searching for devices ...")
+            processCLick()
         }
+    }
+
+    private fun processCLick() {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            appendText("PERMISSION DENIED")
+            return
+        }
+        manager.discoverPeers(channel, object : WifiP2pManager.ActionListener {
+            override fun onSuccess() {
+                appendText("discoverPeers success")
+            }
+
+            override fun onFailure(p0: Int) {
+                when (p0) {
+                    WifiP2pManager.P2P_UNSUPPORTED -> appendText("P2P_UNSUPPORTED ")
+                    WifiP2pManager.BUSY -> appendText("BUSY ")
+                    WifiP2pManager.ERROR -> appendText("ERROR ")
+                }
+                appendText("discoverPeers failed")
+            }
+        })
+        appendText("searching for devices ...")
     }
 
     private fun initWP2P() {
