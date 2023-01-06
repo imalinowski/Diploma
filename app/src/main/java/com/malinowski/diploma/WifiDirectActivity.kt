@@ -5,10 +5,12 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -40,8 +42,15 @@ class WifiDirectActivity : AppCompatActivity() {
     private val requestPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
-        ) {
-            //TODO process granted / not granted permissions
+        ) { permissionResult ->
+            permissionResult.forEach { (name, value) ->
+                if (!value) Toast.makeText(
+                    this,
+                    "$name нужно для работы приложения",
+                    Toast.LENGTH_LONG
+                ).show()
+                return@registerForActivityResult
+            }
             processCLick()
         }
 
@@ -77,13 +86,17 @@ class WifiDirectActivity : AppCompatActivity() {
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             requestPermissionLauncher.launch(
-                arrayOf(
+                mutableListOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.ACCESS_WIFI_STATE,
                     Manifest.permission.CHANGE_WIFI_STATE,
                     Manifest.permission.INTERNET,
-                )
+                ).apply {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        add(Manifest.permission.NEARBY_WIFI_DEVICES)
+                    }
+                }.toTypedArray()
             )
             appendText("PERMISSION DENIED")
             return
