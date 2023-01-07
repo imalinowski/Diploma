@@ -8,17 +8,24 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.malinowski.diploma.R
 import com.malinowski.diploma.model.WifiDirectActions
+import com.malinowski.diploma.model.WifiDirectActions.ShowToast
+import com.malinowski.diploma.model.getComponent
 import com.malinowski.diploma.viewmodel.WifiDirectState
 import com.malinowski.diploma.viewmodel.WifiDirectViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class WifiDirectActivity : AppCompatActivity() {
 
-    private val viewModel: WifiDirectViewModel by viewModels()
+    @Inject
+    lateinit var factory: ViewModelProvider.Factory
+
+    private val viewModel: WifiDirectViewModel by viewModels { factory }
 
     private val textView: TextView by lazy {
         findViewById(R.id.text)
@@ -34,9 +41,7 @@ class WifiDirectActivity : AppCompatActivity() {
         ) { permissionResult ->
             permissionResult.forEach { (name, value) ->
                 if (!value) {
-                    Toast.makeText(
-                        this, "$name нужно для работы приложения", Toast.LENGTH_LONG
-                    ).show()
+                    actions(ShowToast("$name нужно для работы приложения"))
                     return@registerForActivityResult
                 }
             }
@@ -46,6 +51,7 @@ class WifiDirectActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_wifi_direct)
+        getComponent().inject(this)
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 with(viewModel) {
@@ -68,7 +74,7 @@ class WifiDirectActivity : AppCompatActivity() {
             is WifiDirectActions.RequestPermissions -> {
                 requestPermissionLauncher.launch(action.permissions)
             }
-            is WifiDirectActions.ShowToast -> {
+            is ShowToast -> {
                 Toast.makeText(this, action.text, Toast.LENGTH_LONG).show()
             }
             null -> {}
