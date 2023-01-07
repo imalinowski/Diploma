@@ -1,4 +1,4 @@
-package com.malinowski.diploma.wifi
+package com.malinowski.diploma.model.wifi
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -6,16 +6,13 @@ import android.content.Intent
 import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
 import android.util.Log
-import com.malinowski.diploma.WifiDirectActivity
 
 
 private const val TAG = "RASPBERRY"
 
 class WifiBroadcastReceiver(
-    private val peerListListener: WifiP2pManager.PeerListListener,
-    private val manager: WifiP2pManager,
-    private val channel: WifiP2pManager.Channel,
-    private val activity: WifiDirectActivity,
+    private val requestPeers: () -> Unit,
+    private val appendText: (String) -> Unit,
 ) : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -24,7 +21,7 @@ class WifiBroadcastReceiver(
             append("URI: ${intent.toUri(Intent.URI_INTENT_SCHEME)}\n")
             toString().also { log ->
                 Log.d(TAG, log)
-                activity.appendText("$TAG : $log ")
+                appendText("$TAG : $log ")
             }
         }
         when (intent.action) {
@@ -32,12 +29,12 @@ class WifiBroadcastReceiver(
                 // Determine if Wi-Fi Direct mode is enabled or not, alert
                 // the Activity.
                 val state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1)
-                activity.isWifiP2pEnabled = state == WifiP2pManager.WIFI_P2P_STATE_ENABLED
-                activity.appendText("WifiP2PEnabled -> ${activity.isWifiP2pEnabled}")
+                val isWifiP2pEnabled = state == WifiP2pManager.WIFI_P2P_STATE_ENABLED
+                appendText("WifiP2PEnabled -> $isWifiP2pEnabled")
             }
             WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION -> {
                 try {
-                    manager.requestPeers(channel, peerListListener)
+                    requestPeers()
                 } catch (e: SecurityException) {
                     Log.e("RASPBERRY", "Permission denied")
                 }
@@ -54,7 +51,7 @@ class WifiBroadcastReceiver(
             WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION -> {
                 val data =
                     (intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE) as? WifiP2pDevice)
-                activity.appendText(data?.deviceName ?: "unknown")
+                appendText(data?.deviceName ?: "unknown")
             }
         }
     }
