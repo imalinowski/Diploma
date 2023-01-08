@@ -1,7 +1,8 @@
 package com.malinowski.diploma.di
 
 import android.content.Context
-import com.malinowski.diploma.view.WifiDirectActivity
+import com.malinowski.diploma.view.LogFragment
+import com.malinowski.diploma.view.MainActivity
 import dagger.BindsInstance
 import dagger.Component
 
@@ -13,7 +14,8 @@ import dagger.Component
 )
 interface ApplicationComponent {
 
-    fun inject(activity: WifiDirectActivity)
+    fun inject(activity: MainActivity)
+    fun inject(fragment: LogFragment)
 
     @Component.Factory
     interface Factory {

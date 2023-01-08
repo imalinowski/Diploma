@@ -2,6 +2,7 @@ package com.malinowski.diploma.model
 
 import android.app.Activity
 import android.app.Application
+import androidx.fragment.app.Fragment
 import com.malinowski.diploma.di.ApplicationComponent
 import com.malinowski.diploma.di.DaggerApplicationComponent
 
@@ -16,3 +17,5 @@ class App : Application() {
 }
 
 fun Activity.getComponent(): ApplicationComponent = (application as App).appComponent
+fun Fragment.getComponent(): ApplicationComponent =
+    (requireActivity().application as App).appComponent
