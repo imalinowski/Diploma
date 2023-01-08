@@ -1,6 +1,7 @@
 package com.malinowski.diploma.view
 
-import android.Manifest
+import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.Manifest.permission.NEARBY_WIFI_DEVICES
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -16,9 +17,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.malinowski.diploma.R
+import com.malinowski.diploma.databinding.ActivityWifiDirectBinding
 import com.malinowski.diploma.model.WifiDirectActions
 import com.malinowski.diploma.model.WifiDirectActions.ShowToast
 import com.malinowski.diploma.model.getComponent
+import com.malinowski.diploma.model.wifi.WifiDirectCore
 import com.malinowski.diploma.viewmodel.WifiDirectState
 import com.malinowski.diploma.viewmodel.WifiDirectViewModel
 import kotlinx.coroutines.launch
@@ -30,13 +33,16 @@ class WifiDirectActivity : AppCompatActivity() {
     lateinit var factory: ViewModelProvider.Factory
 
     private val viewModel: WifiDirectViewModel by viewModels { factory }
+    private lateinit var binding: ActivityWifiDirectBinding
 
-    private val textView: TextView by lazy {
-        findViewById(R.id.text)
+    private val logView: TextView by lazy {
+        binding.logsText
     }
-
     private val searchDevicesBtn: Button by lazy {
-        findViewById(R.id.searchDevicesBtn)
+        binding.searchDevicesBtn
+    }
+    private val clearLogs: Button by lazy {
+        binding.clearLogs
     }
 
     private val requestPermissionLauncher =
@@ -54,8 +60,10 @@ class WifiDirectActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_wifi_direct)
+        binding = ActivityWifiDirectBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         getComponent().inject(this)
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 with(viewModel) {
@@ -67,42 +75,19 @@ class WifiDirectActivity : AppCompatActivity() {
         searchDevicesBtn.setOnClickListener {
             searchForDevices()
         }
-    }
-
-    private fun checkPermission(permission: String): Boolean {
-        return ActivityCompat.checkSelfPermission(
-            this, permission
-        ) == PackageManager.PERMISSION_GRANTED
+        clearLogs.setOnClickListener {
+            viewModel.clearText()
+        }
     }
 
     private fun searchForDevices() {
-        if (!checkPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
-            requestPermissionLauncher.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_WIFI_STATE,
-                    Manifest.permission.CHANGE_WIFI_STATE,
-                    Manifest.permission.INTERNET,
-                )
-            )
-            viewModel.appendText("Permission Denied")
-            return
+        if (checkPermissions()) {
+            viewModel.searchForDevices()
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            !checkPermission(Manifest.permission.NEARBY_WIFI_DEVICES)
-        ) {
-            requestPermissionLauncher.launch(
-                arrayOf(Manifest.permission.NEARBY_WIFI_DEVICES)
-            )
-            viewModel.appendText("Permission Denied")
-            return
-        }
-        viewModel.searchForDevices()
     }
 
     private fun update(state: WifiDirectState) {
-        textView.text = state.logText
+        logView.text = state.logText
     }
 
     private fun actions(action: WifiDirectActions?) {
@@ -125,5 +110,28 @@ class WifiDirectActivity : AppCompatActivity() {
     public override fun onPause() {
         super.onPause()
         viewModel.unregisterReceiver()
+    }
+
+    // TODO deal with it
+    private fun checkPermissions(): Boolean {
+        fun checkPermission(permission: String): Boolean {
+            return ActivityCompat.checkSelfPermission(
+                this, permission
+            ) == PackageManager.PERMISSION_GRANTED
+        }
+
+        if (!checkPermission(ACCESS_FINE_LOCATION)) {
+            requestPermissionLauncher.launch(WifiDirectCore.WIFI_CORE_PERMISSIONS)
+            viewModel.appendText("Permission Denied")
+            return false
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            !checkPermission(NEARBY_WIFI_DEVICES)
+        ) {
+            requestPermissionLauncher.launch(WifiDirectCore.WIFI_CORE_PERMISSIONS_13)
+            viewModel.appendText("Permission Denied")
+            return false
+        }
+        return true
     }
 }

@@ -39,6 +39,10 @@ class WifiDirectViewModel @Inject constructor(
         }
     }
 
+    fun clearText() {
+        _uiState.value = _uiState.value.copy(logText = "")
+    }
+
     fun searchForDevices() {
         wifiDirectCore.discoverPeers()
     }

@@ -1,10 +1,12 @@
 package com.malinowski.diploma.model.wifi
 
+import android.Manifest
 import android.content.Context
 import android.content.IntentFilter
 import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
 import android.net.wifi.p2p.WifiP2pManager.Channel
+import android.os.Build
 import android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -75,4 +77,21 @@ class WifiDirectCore @Inject constructor(
         _stateFlow.value = "searching for devices ..."
     }
 
+    companion object {
+        val WIFI_CORE_PERMISSIONS by lazy {
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_WIFI_STATE,
+                Manifest.permission.CHANGE_WIFI_STATE,
+                Manifest.permission.INTERNET,
+            )
+        }
+        val WIFI_CORE_PERMISSIONS_13 by lazy {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                arrayOf(Manifest.permission.NEARBY_WIFI_DEVICES)
+            } else arrayOf()
+        }
+
+    }
 }
