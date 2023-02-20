@@ -39,6 +39,10 @@ class WifiDirectViewModel @Inject constructor(
         }
     }
 
+    fun requestPermissions(permission: Array<String>) {
+        _actions.value = WifiDirectActions.RequestPermissions(permission)
+    }
+
     fun clearText() {
         _uiState.value = _uiState.value.copy(logText = "")
     }

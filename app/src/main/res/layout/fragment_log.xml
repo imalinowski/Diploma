@@ -27,14 +27,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:text="@string/search_for_devices" />
+            android:text="@string/search_for_devices"
+            style="?android:attr/buttonBarButtonStyle" />
 
         <Button
             android:id="@+id/clear_logs"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:text="@string/clear_logs" />
+            android:text="@string/clear_logs"
+            style="?android:attr/buttonBarButtonStyle" />
 
     </LinearLayout>
 

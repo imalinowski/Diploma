@@ -10,8 +10,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -20,7 +18,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.malinowski.diploma.databinding.FragmentLogBinding
-import com.malinowski.diploma.model.WifiDirectActions
 import com.malinowski.diploma.model.getComponent
 import com.malinowski.diploma.model.wifi.WifiDirectCore
 import com.malinowski.diploma.viewmodel.WifiDirectState
@@ -47,19 +44,6 @@ class LogFragment : Fragment() {
         binding.clearLogs
     }
 
-    private val requestPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()
-        ) { permissionResult ->
-            permissionResult.forEach { (name, value) ->
-                if (!value) {
-                    actions(WifiDirectActions.ShowToast("$name нужно для работы приложения"))
-                    return@registerForActivityResult
-                }
-            }
-            searchForDevices()
-        }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         getComponent().inject(this)
@@ -78,10 +62,7 @@ class LogFragment : Fragment() {
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                with(viewModel) {
-                    launch { uiState.collect(::update) }
-                    launch { actions.collect(::actions) }
-                }
+                viewModel.uiState.collect(::update)
             }
         }
 
@@ -104,18 +85,6 @@ class LogFragment : Fragment() {
         logView.text = state.logText
     }
 
-    private fun actions(action: WifiDirectActions?) {
-        when (action) {
-            is WifiDirectActions.RequestPermissions -> {
-                requestPermissionLauncher.launch(action.permissions)
-            }
-            is WifiDirectActions.ShowToast -> {
-                Toast.makeText(context, action.text, Toast.LENGTH_LONG).show()
-            }
-            null -> {}
-        }
-    }
-
     // TODO deal with it
     private fun checkPermissions(): Boolean {
         fun checkPermission(permission: String): Boolean {
@@ -125,14 +94,14 @@ class LogFragment : Fragment() {
         }
 
         if (!checkPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
-            requestPermissionLauncher.launch(WifiDirectCore.WIFI_CORE_PERMISSIONS)
+            viewModel.requestPermissions(WifiDirectCore.WIFI_CORE_PERMISSIONS)
             viewModel.appendText("Permission Denied")
             return false
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             !checkPermission(Manifest.permission.NEARBY_WIFI_DEVICES)
         ) {
-            requestPermissionLauncher.launch(WifiDirectCore.WIFI_CORE_PERMISSIONS_13)
+            viewModel.requestPermissions(WifiDirectCore.WIFI_CORE_PERMISSIONS_13)
             viewModel.appendText("Permission Denied")
             return false
         }

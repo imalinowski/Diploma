@@ -35,7 +35,7 @@ class WifiDirectCore @Inject constructor(
             _stateFlow.value = "No devices found"
             return@PeerListListener
         } else {
-            _stateFlow.value = "Peers : ${peers.joinToString()}"
+            _stateFlow.value = "\n Peers : ${peers.joinToString("\n")}"
         }
     }
 
