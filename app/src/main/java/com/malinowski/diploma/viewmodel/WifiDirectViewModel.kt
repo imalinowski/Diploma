@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.malinowski.diploma.model.WifiDirectActions
 import com.malinowski.diploma.model.WifiDirectPeer
 import com.malinowski.diploma.model.wifi.WifiDirectCore
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -27,8 +28,10 @@ class WifiDirectViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            wifiDirectCore.stateFlow.collectLatest {
-                appendText(it)
+            async {
+                wifiDirectCore.stateFlow.collectLatest {
+                    appendText(it)
+                }
             }
             wifiDirectCore.peerFlow.collectLatest { peers ->
                 _uiState.value = _uiState.value.copy(
