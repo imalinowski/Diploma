@@ -30,6 +30,11 @@ class WifiDirectViewModel @Inject constructor(
             wifiDirectCore.stateFlow.collectLatest {
                 appendText(it)
             }
+            wifiDirectCore.peerFlow.collectLatest { peers ->
+                _uiState.value = _uiState.value.copy(
+                    peers = peers.map { WifiDirectPeer(it.deviceName) }
+                )
+            }
         }
     }
 

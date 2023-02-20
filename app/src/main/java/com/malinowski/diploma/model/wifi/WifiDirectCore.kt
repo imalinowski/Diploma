@@ -39,6 +39,8 @@ class WifiDirectCore @Inject constructor(
         } else {
             _logFlow.value = "\n Peers : ${peers.joinToString("\n")}"
         }
+
+        _peerFlow.value = peers
     }
 
     private val receiver: WifiBroadcastReceiver by lazy {
