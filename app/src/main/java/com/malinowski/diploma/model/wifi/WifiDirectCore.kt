@@ -19,10 +19,12 @@ class WifiDirectCore @Inject constructor(
     private val channel: Channel
 ) {
     //todo modify with custom events
-    private val _stateFlow = MutableStateFlow("")
-    val stateFlow = _stateFlow.asStateFlow()
+    private val _logFlow = MutableStateFlow("")
+    val stateFlow = _logFlow.asStateFlow()
 
     private val peers = mutableListOf<WifiP2pDevice>()
+    private val _peerFlow = MutableStateFlow(listOf<WifiP2pDevice>())
+    val peerFlow = _peerFlow.asStateFlow()
 
     private val peerListListener = WifiP2pManager.PeerListListener { peerList ->
         val refreshedPeers = peerList.deviceList
@@ -32,17 +34,17 @@ class WifiDirectCore @Inject constructor(
         }
 
         if (peers.isEmpty()) {
-            _stateFlow.value = "No devices found"
+            _logFlow.value = "No devices found"
             return@PeerListListener
         } else {
-            _stateFlow.value = "\n Peers : ${peers.joinToString("\n")}"
+            _logFlow.value = "\n Peers : ${peers.joinToString("\n")}"
         }
     }
 
     private val receiver: WifiBroadcastReceiver by lazy {
         WifiBroadcastReceiver(
             requestPeers = { manager.requestPeers(channel, peerListListener) },
-            appendText = { _stateFlow.value = it }
+            appendText = { _logFlow.value = it }
         )
     }
 
@@ -62,19 +64,19 @@ class WifiDirectCore @Inject constructor(
                 } catch (e: SecurityException) {
                     Log.e("RASPBERRY", "Permission denied")
                 }
-                _stateFlow.value = "discoverPeers success"
+                _logFlow.value = "discoverPeers success"
             }
 
             override fun onFailure(p0: Int) {
                 when (p0) {
-                    WifiP2pManager.P2P_UNSUPPORTED -> _stateFlow.value = "P2P_UNSUPPORTED"
-                    WifiP2pManager.BUSY -> _stateFlow.value = "BUSY "
-                    WifiP2pManager.ERROR -> _stateFlow.value = "ERROR "
+                    WifiP2pManager.P2P_UNSUPPORTED -> _logFlow.value = "P2P_UNSUPPORTED"
+                    WifiP2pManager.BUSY -> _logFlow.value = "BUSY "
+                    WifiP2pManager.ERROR -> _logFlow.value = "ERROR "
                 }
-                _stateFlow.value = "discoverPeers failed"
+                _logFlow.value = "discoverPeers failed"
             }
         })
-        _stateFlow.value = "searching for devices ..."
+        _logFlow.value = "searching for devices ..."
     }
 
     companion object {

@@ -3,6 +3,7 @@ package com.malinowski.diploma.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.malinowski.diploma.model.WifiDirectActions
+import com.malinowski.diploma.model.WifiDirectPeer
 import com.malinowski.diploma.model.wifi.WifiDirectCore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -10,15 +11,16 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class WifiDirectState(
-    val logText: String = ""
+data class WifiDirectUIState(
+    val logText: String = "",
+    val peers: List<WifiDirectPeer> = emptyList()
 )
 
 class WifiDirectViewModel @Inject constructor(
     private val wifiDirectCore: WifiDirectCore
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(WifiDirectState())
+    private val _uiState = MutableStateFlow(WifiDirectUIState())
     private val _actions: MutableStateFlow<WifiDirectActions?> = MutableStateFlow(null)
     val uiState = _uiState.asStateFlow()
     val actions = _actions.asStateFlow()
