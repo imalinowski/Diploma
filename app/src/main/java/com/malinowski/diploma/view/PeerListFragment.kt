@@ -62,6 +62,7 @@ class PeerListFragment : Fragment() {
     }
 
     private fun update(state: WifiDirectUIState) {
+
         adapter.submitList(state.peers)
     }
 
