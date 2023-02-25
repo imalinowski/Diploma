@@ -32,6 +32,8 @@ class WifiDirectCore @Inject constructor(
             peers.clear()
             peers.addAll(refreshedPeers)
         }
+        val testDevice = WifiP2pDevice().apply { deviceName = "test1sdkjfkjsdnfjksdfnkjknjsdjnfkkjnsdnfkknjsdf" }
+        peers.addAll(listOf(testDevice, testDevice, testDevice))
 
         if (peers.isEmpty()) {
             _logFlow.value = "No devices found"

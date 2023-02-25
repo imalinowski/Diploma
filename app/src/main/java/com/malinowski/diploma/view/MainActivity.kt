@@ -67,6 +67,7 @@ class MainActivity : AppCompatActivity() {
             }
             true
         }
+        binding.bottomNavigation.selectedItemId = R.id.page_1
 
     }
 

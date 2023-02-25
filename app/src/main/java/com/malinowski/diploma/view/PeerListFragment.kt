@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -17,7 +18,6 @@ import com.malinowski.diploma.databinding.FragmentPeerListBinding
 import com.malinowski.diploma.model.getComponent
 import com.malinowski.diploma.viewmodel.WifiDirectUIState
 import com.malinowski.diploma.viewmodel.WifiDirectViewModel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -62,7 +62,7 @@ class PeerListFragment : Fragment() {
     }
 
     private fun update(state: WifiDirectUIState) {
-
+        binding.noPeersFound.isVisible = state.peers.isEmpty()
         adapter.submitList(state.peers)
     }
 

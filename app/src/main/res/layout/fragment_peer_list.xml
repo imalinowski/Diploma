@@ -6,6 +6,7 @@
     tools:context=".view.PeerListFragment">
 
     <TextView
+        android:id="@+id/no_peers_found"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:text="@string/no_peers_found"
