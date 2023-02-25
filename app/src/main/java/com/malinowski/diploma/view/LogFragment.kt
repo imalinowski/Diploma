@@ -19,7 +19,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.malinowski.diploma.databinding.FragmentLogBinding
 import com.malinowski.diploma.model.getComponent
-import com.malinowski.diploma.model.wifi.WifiDirectCore
+import com.malinowski.diploma.model.wifi.WifiDirectCoreOld
 import com.malinowski.diploma.viewmodel.WifiDirectUIState
 import com.malinowski.diploma.viewmodel.WifiDirectViewModel
 import kotlinx.coroutines.launch
@@ -94,14 +94,14 @@ class LogFragment : Fragment() {
         }
 
         if (!checkPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
-            viewModel.requestPermissions(WifiDirectCore.WIFI_CORE_PERMISSIONS)
+            viewModel.requestPermissions(WifiDirectCoreOld.WIFI_CORE_PERMISSIONS)
             viewModel.appendText("Permission Denied")
             return false
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             !checkPermission(Manifest.permission.NEARBY_WIFI_DEVICES)
         ) {
-            viewModel.requestPermissions(WifiDirectCore.WIFI_CORE_PERMISSIONS_13)
+            viewModel.requestPermissions(WifiDirectCoreOld.WIFI_CORE_PERMISSIONS_13)
             viewModel.appendText("Permission Denied")
             return false
         }

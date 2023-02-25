@@ -4,8 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.malinowski.diploma.model.WifiDirectActions
 import com.malinowski.diploma.model.WifiDirectPeer
-import com.malinowski.diploma.model.wifi.WifiDirectCore
-import kotlinx.coroutines.async
+import com.malinowski.diploma.model.wifi.WifiDirectCoreOld
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -18,7 +17,7 @@ data class WifiDirectUIState(
 )
 
 class WifiDirectViewModel @Inject constructor(
-    private val wifiDirectCore: WifiDirectCore
+    private val wifiDirectCoreOld: WifiDirectCoreOld
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(WifiDirectUIState())
@@ -27,18 +26,24 @@ class WifiDirectViewModel @Inject constructor(
     val actions = _actions.asStateFlow()
 
     init {
+        wifiDirectCoreOld.registerReceiver()
         viewModelScope.launch {
-            async {
-                wifiDirectCore.stateFlow.collectLatest {
+            launch {
+                wifiDirectCoreOld.stateFlow.collectLatest {
                     appendText(it)
                 }
             }
-            wifiDirectCore.peerFlow.collectLatest { peers ->
+            wifiDirectCoreOld.peerFlow.collectLatest { peers ->
                 _uiState.value = _uiState.value.copy(
                     peers = peers.map { WifiDirectPeer(it.deviceName) }
                 )
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        wifiDirectCoreOld.unregisterReceiver()
     }
 
     fun appendText(text: String) {
@@ -58,14 +63,6 @@ class WifiDirectViewModel @Inject constructor(
     }
 
     fun searchForDevices() {
-        wifiDirectCore.discoverPeers()
-    }
-
-    fun registerReceiver() {
-        wifiDirectCore.registerReceiver()
-    }
-
-    fun unregisterReceiver() {
-        wifiDirectCore.unregisterReceiver()
+        wifiDirectCoreOld.discoverPeers()
     }
 }

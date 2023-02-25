@@ -83,14 +83,4 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    public override fun onResume() {
-        super.onResume()
-        viewModel.registerReceiver()
-    }
-
-    public override fun onPause() {
-        super.onPause()
-        viewModel.unregisterReceiver()
-    }
-
 }
