@@ -1,5 +1,6 @@
 package com.malinowski.diploma.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.malinowski.diploma.model.WifiDirectActions
@@ -30,7 +31,7 @@ class WifiDirectViewModel @Inject constructor(
         viewModelScope.launch {
             launch {
                 wifiDirectCoreOld.stateFlow.collectLatest {
-                    appendText(it)
+                    log(it)
                 }
             }
             wifiDirectCoreOld.peerFlow.collectLatest { peers ->
@@ -46,7 +47,7 @@ class WifiDirectViewModel @Inject constructor(
         wifiDirectCoreOld.unregisterReceiver()
     }
 
-    fun appendText(text: String) {
+    fun log(text: String) {
         _uiState.value = _uiState.value.let { state ->
             state.copy(
                 logText = state.logText + "\n ${System.currentTimeMillis()}: $text"

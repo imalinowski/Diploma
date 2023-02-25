@@ -82,22 +82,4 @@ class WifiDirectCoreOld @Inject constructor(
         })
         _logFlow.value = "searching for devices ..."
     }
-
-    companion object {
-        val WIFI_CORE_PERMISSIONS by lazy {
-            arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_WIFI_STATE,
-                Manifest.permission.CHANGE_WIFI_STATE,
-                Manifest.permission.INTERNET,
-            )
-        }
-        val WIFI_CORE_PERMISSIONS_13 by lazy {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                arrayOf(Manifest.permission.NEARBY_WIFI_DEVICES)
-            } else arrayOf()
-        }
-
-    }
 }
