@@ -1,16 +1,12 @@
 package com.malinowski.diploma.view
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -19,9 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.malinowski.diploma.databinding.FragmentLogBinding
 import com.malinowski.diploma.model.getComponent
-import com.malinowski.diploma.model.wifi.WIFI_CORE_PERMISSIONS
-import com.malinowski.diploma.model.wifi.WIFI_CORE_PERMISSIONS_13
-import com.malinowski.diploma.viewmodel.WifiDirectUIState
+import com.malinowski.diploma.viewmodel.WifiDirectState
 import com.malinowski.diploma.viewmodel.WifiDirectViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -63,50 +57,23 @@ class LogFragment : Fragment() {
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect(::update)
+                viewModel.state.collect(::update)
             }
         }
 
         searchDevicesBtn.setOnClickListener {
-            searchForDevices()
+            if (viewModel.checkPermissions(requireContext())) {
+                viewModel.searchForDevices()
+            }
         }
         clearLogs.setOnClickListener {
-            viewModel.clearText()
+            viewModel.clearLog()
         }
 
     }
 
-    private fun searchForDevices() {
-        if (checkPermissions()) {
-            viewModel.searchForDevices()
-        }
-    }
-
-    private fun update(state: WifiDirectUIState) {
+    private fun update(state: WifiDirectState) {
         logView.text = state.logText
-    }
-
-    // TODO deal with it
-    private fun checkPermissions(): Boolean {
-        fun checkPermission(permission: String): Boolean {
-            return ActivityCompat.checkSelfPermission(
-                requireContext(), permission
-            ) == PackageManager.PERMISSION_GRANTED
-        }
-
-        if (!checkPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
-            viewModel.requestPermissions(WIFI_CORE_PERMISSIONS)
-            viewModel.log("Permission Denied")
-            return false
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            !checkPermission(Manifest.permission.NEARBY_WIFI_DEVICES)
-        ) {
-            viewModel.requestPermissions(WIFI_CORE_PERMISSIONS_13)
-            viewModel.log("Permission Denied")
-            return false
-        }
-        return true
     }
 
     companion object {

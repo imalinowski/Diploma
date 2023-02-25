@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.malinowski.diploma.databinding.FragmentPeerListBinding
 import com.malinowski.diploma.model.getComponent
-import com.malinowski.diploma.viewmodel.WifiDirectUIState
+import com.malinowski.diploma.viewmodel.WifiDirectState
 import com.malinowski.diploma.viewmodel.WifiDirectViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -52,7 +52,7 @@ class PeerListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect(::update)
+                viewModel.state.collect(::update)
             }
         }
         peerRecyclerView.apply {
@@ -61,11 +61,13 @@ class PeerListFragment : Fragment() {
         }
 
         binding.swiperefresh.setOnRefreshListener {
-            viewModel.searchForDevices()
+            if (viewModel.checkPermissions(requireContext())) {
+                viewModel.searchForDevices()
+            }
         }
     }
 
-    private fun update(state: WifiDirectUIState) {
+    private fun update(state: WifiDirectState) {
         binding.swiperefresh.isRefreshing = false
         binding.noPeersFound.isVisible = state.peers.isEmpty()
         adapter.submitList(state.peers)

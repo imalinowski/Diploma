@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
 import androidx.lifecycle.Lifecycle
@@ -17,6 +18,7 @@ import com.malinowski.diploma.model.getComponent
 import com.malinowski.diploma.viewmodel.WifiDirectViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -32,7 +34,11 @@ class MainActivity : AppCompatActivity() {
         ) { permissionResult ->
             permissionResult.forEach { (name, value) ->
                 if (!value) {
-                    actions(WifiDirectActions.ShowToast("$name нужно для работы приложения"))
+                    actions(
+                        WifiDirectActions.ShowAlertDialog(
+                            text ="$name нужно для работы приложения"
+                        )
+                    )
                     return@registerForActivityResult
                 }
             }
@@ -78,6 +84,15 @@ class MainActivity : AppCompatActivity() {
             }
             is WifiDirectActions.ShowToast -> {
                 Toast.makeText(this, action.text, Toast.LENGTH_LONG).show()
+            }
+            is WifiDirectActions.ShowAlertDialog -> {
+                AlertDialog.Builder(this)
+                    .setTitle(action.title)
+                    .setMessage(action.text)
+                    .setPositiveButton(android.R.string.ok) { _, _ ->
+                        action.dialogAction()
+                    }
+                    .show()
             }
             null -> {}
         }
