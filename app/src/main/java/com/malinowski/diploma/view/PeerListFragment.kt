@@ -59,9 +59,14 @@ class PeerListFragment : Fragment() {
             adapter = this@PeerListFragment.adapter
             layoutManager = LinearLayoutManager(this@PeerListFragment.requireContext())
         }
+
+        binding.swiperefresh.setOnRefreshListener {
+            viewModel.searchForDevices()
+        }
     }
 
     private fun update(state: WifiDirectUIState) {
+        binding.swiperefresh.isRefreshing = false
         binding.noPeersFound.isVisible = state.peers.isEmpty()
         adapter.submitList(state.peers)
     }
