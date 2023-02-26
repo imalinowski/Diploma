@@ -1,12 +1,10 @@
 package com.malinowski.diploma.model.wifi
 
-import android.Manifest
 import android.content.Context
 import android.content.IntentFilter
 import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
 import android.net.wifi.p2p.WifiP2pManager.Channel
-import android.os.Build
 import android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -48,7 +46,7 @@ class WifiDirectCoreOld @Inject constructor(
     private val receiver: WifiBroadcastReceiver by lazy {
         WifiBroadcastReceiver(
             requestPeers = { manager.requestPeers(channel, peerListListener) },
-            appendText = { _logFlow.value = it }
+            log = { _logFlow.value = it }
         )
     }
 

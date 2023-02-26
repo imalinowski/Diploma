@@ -12,25 +12,25 @@ private const val TAG = "RASPBERRY"
 
 class WifiBroadcastReceiver(
     private val requestPeers: () -> Unit,
-    private val appendText: (String) -> Unit,
+    private val log: (String) -> Unit,
 ) : BroadcastReceiver() {
 
+    
     override fun onReceive(context: Context, intent: Intent) {
         StringBuilder().apply {
             append("Action: ${intent.action}\n")
             append("URI: ${intent.toUri(Intent.URI_INTENT_SCHEME)}\n")
             toString().also { log ->
                 Log.d(TAG, log)
-                appendText("$TAG : $log ")
+                log("$TAG : $log ")
             }
         }
         when (intent.action) {
             WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION -> {
-                // Determine if Wi-Fi Direct mode is enabled or not, alert
-                // the Activity.
+                // Determine if Wi-Fi Direct mode is enabled or not, alert the Activity.
                 val state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1)
                 val isWifiP2pEnabled = state == WifiP2pManager.WIFI_P2P_STATE_ENABLED
-                appendText("WifiP2PEnabled -> $isWifiP2pEnabled")
+                log("WifiP2PEnabled -> $isWifiP2pEnabled")
             }
             WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION -> {
                 try {
@@ -51,7 +51,7 @@ class WifiBroadcastReceiver(
             WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION -> {
                 val data =
                     (intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE) as? WifiP2pDevice)
-                appendText(data?.deviceName ?: "unknown")
+                log(data?.deviceName ?: "unknown")
             }
         }
     }

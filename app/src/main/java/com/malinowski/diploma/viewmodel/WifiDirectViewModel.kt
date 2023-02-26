@@ -8,10 +8,12 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.malinowski.diploma.model.WifiDirectActions
+import com.malinowski.diploma.model.WifiDirectActions.ShowAlertDialog
 import com.malinowski.diploma.model.WifiDirectPeer
 import com.malinowski.diploma.model.wifi.WIFI_CORE_PERMISSIONS
 import com.malinowski.diploma.model.wifi.WIFI_CORE_PERMISSIONS_13
-import com.malinowski.diploma.model.wifi.WifiDirectCoreOld
+import com.malinowski.diploma.model.wifi.WifiDirectCore
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -25,7 +27,7 @@ data class WifiDirectState(
 )
 
 class WifiDirectViewModel @Inject constructor(
-    private val wifiDirectCoreOld: WifiDirectCoreOld
+    private val wifiDirectCore: WifiDirectCore
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(WifiDirectState())
@@ -34,30 +36,23 @@ class WifiDirectViewModel @Inject constructor(
     val actions = _actions.asStateFlow()
 
     init {
-        wifiDirectCoreOld.registerReceiver()
+        wifiDirectCore.registerReceiver()
         viewModelScope.launch {
-            launch {
-                wifiDirectCoreOld.stateFlow.collectLatest {
-                    log(it)
-                }
-            }
-            wifiDirectCoreOld.peerFlow.collectLatest { peers ->
-                _state.value = _state.value.copy(
-                    peers = peers.map { WifiDirectPeer(it.deviceName) }
-                )
+            wifiDirectCore.logFlow.collectLatest {
+                log(it)
             }
         }
     }
 
     override fun onCleared() {
         super.onCleared()
-        wifiDirectCoreOld.unregisterReceiver()
+        wifiDirectCore.unRegisterReceiver()
     }
 
     private fun log(text: String) {
         _state.value = _state.value.let { state ->
             state.copy(
-                logText = state.logText + "\n ${System.currentTimeMillis()}: $text"
+                logText = "${state.logText}\n${System.currentTimeMillis()}: $text"
             )
         }
     }
@@ -67,7 +62,19 @@ class WifiDirectViewModel @Inject constructor(
     }
 
     fun searchForDevices() {
-        wifiDirectCoreOld.discoverPeers()
+        viewModelScope.launch {
+            val peers = async {
+                wifiDirectCore.discoverPeers()
+                    .map { WifiDirectPeer(it.deviceName) }
+            }
+            try {
+                _state.value = _state.value.copy(
+                    peers = peers.await()
+                )
+            } catch (e: Error) {
+                _actions.value = ShowAlertDialog(text = e.message ?: "")
+            }
+        }
     }
 
     fun checkPermissions(context: Context): Boolean {

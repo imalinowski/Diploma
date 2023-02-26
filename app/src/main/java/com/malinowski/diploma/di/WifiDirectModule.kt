@@ -4,11 +4,22 @@ import android.content.Context
 import android.content.IntentFilter
 import android.net.wifi.p2p.WifiP2pManager
 import androidx.appcompat.app.AppCompatActivity
+import com.malinowski.diploma.model.wifi.WifiDirectCore
+import com.malinowski.diploma.model.wifi.WifiDirectCoreImpl
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 
-@Module
+@Module(
+    includes = [WifiDirectModule.BindsModule::class]
+)
 class WifiDirectModule {
+
+    @Module
+    interface BindsModule {
+        @Binds
+        fun getWifiDirectCore(impl: WifiDirectCoreImpl): WifiDirectCore
+    }
 
     @Provides
     fun injectIntentFilter(): IntentFilter {
