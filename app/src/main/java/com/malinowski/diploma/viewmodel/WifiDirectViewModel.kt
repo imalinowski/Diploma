@@ -8,12 +8,12 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.malinowski.diploma.model.WifiDirectActions
-import com.malinowski.diploma.model.WifiDirectActions.ShowAlertDialog
 import com.malinowski.diploma.model.WifiDirectPeer
 import com.malinowski.diploma.model.wifi.WIFI_CORE_PERMISSIONS
 import com.malinowski.diploma.model.wifi.WIFI_CORE_PERMISSIONS_13
 import com.malinowski.diploma.model.wifi.WifiDirectCore
-import kotlinx.coroutines.async
+import com.malinowski.diploma.model.wifi.WifiDirectCoreImpl.WifiDirectResult.Error
+import com.malinowski.diploma.model.wifi.WifiDirectCoreImpl.WifiDirectResult.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -63,16 +63,14 @@ class WifiDirectViewModel @Inject constructor(
 
     fun searchForDevices() {
         viewModelScope.launch {
-            val peers = async {
-                wifiDirectCore.discoverPeers()
-                    .map { WifiDirectPeer(it.deviceName) }
-            }
-            try {
-                _state.value = _state.value.copy(
-                    peers = peers.await()
-                )
-            } catch (e: Error) {
-                _actions.value = ShowAlertDialog(text = e.message ?: "")
+            when (val result = wifiDirectCore.discoverPeers()) {
+                is Result -> _state.value =
+                    _state.value.copy(peers = result.list.map { WifiDirectPeer(it.deviceName) })
+                is Error ->
+                    _actions.value = WifiDirectActions.ShowAlertDialog(
+                        title = result.error::class.java.name,
+                        text = result.error.message ?: "error"
+                    )
             }
         }
     }

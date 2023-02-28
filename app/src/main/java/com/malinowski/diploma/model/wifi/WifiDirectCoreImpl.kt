@@ -4,23 +4,62 @@ import android.content.Context
 import android.content.IntentFilter
 import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import com.malinowski.diploma.model.wifi.WifiDirectCoreImpl.WifiDirectResult.Error
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.channels.trySendBlocking
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 class WifiDirectCoreImpl @Inject constructor(
     private val context: Context,
     private val intentFilter: IntentFilter,
     private val manager: WifiP2pManager,
-    private val channel: WifiP2pManager.Channel
+    private val managerChannel: WifiP2pManager.Channel
 ) : WifiDirectCore {
 
     private val _logFlow = MutableStateFlow("")
     override val logFlow = _logFlow.asStateFlow()
 
-    private val peerFlow = MutableSharedFlow<List<WifiP2pDevice>>()
+    private val peerFlow = callbackFlow {
+
+        val sendData: suspend (data: WifiDirectResult) -> Unit = { send(it) }
+        val closeChannel = { close() }
+        val context = coroutineContext
+
+        val peerListListener = WifiP2pManager.PeerListListener {
+            val peers = it.deviceList.toList()
+            _logFlow.value = "\n Peers : ${peers.joinToString("\n")}"
+            runBlocking(context) {
+                sendData(WifiDirectResult.Result(peers)) //todo make more clever
+            }
+            closeChannel()
+        }
+
+        manager.discoverPeers(managerChannel, object : WifiP2pManager.ActionListener {
+            override fun onSuccess() {
+                manager.requestPeers(managerChannel, peerListListener)
+            }
+
+            override fun onFailure(reason: Int) {
+                val message = when (reason) {
+                    WifiP2pManager.P2P_UNSUPPORTED -> "P2P_UNSUPPORTED"
+                    WifiP2pManager.BUSY -> "BUSY"
+                    else -> "ERROR"
+                }
+                this@callbackFlow.trySend(Error(Throwable(message)))
+            }
+        })
+        awaitClose()
+    }.catch {
+        emit(Error(it))
+    }.shareIn(
+        CoroutineScope(Dispatchers.IO),
+        SharingStarted.WhileSubscribed(replayExpirationMillis = CACHE_EXPIRATION_TIME),
+        replay = 1
+    )
 
     private val receiver: WifiBroadcastReceiver by lazy {
         WifiBroadcastReceiver(
@@ -37,26 +76,8 @@ class WifiDirectCoreImpl @Inject constructor(
         context.unregisterReceiver(receiver)
     }
 
-    override suspend fun discoverPeers(): List<WifiP2pDevice> {
-        val peerListListener = WifiP2pManager.PeerListListener {
-            if (!peerFlow.tryEmit(it.deviceList.toList()))
-                error("peers emit error")
-        }
-
-        manager.discoverPeers(channel, object : WifiP2pManager.ActionListener {
-            override fun onSuccess() {
-                manager.requestPeers(channel, peerListListener)
-            }
-
-            override fun onFailure(reason: Int) {
-                when (reason) {
-                    WifiP2pManager.P2P_UNSUPPORTED -> error("P2P_UNSUPPORTED")
-                    WifiP2pManager.BUSY -> error("BUSY")
-                    WifiP2pManager.ERROR -> error("ERROR")
-                }
-            }
-        })
-
+    override suspend fun discoverPeers(): WifiDirectResult {
+        _logFlow.value = "searching for devices ..."
         return peerFlow.first()
     }
 
@@ -64,4 +85,12 @@ class WifiDirectCoreImpl @Inject constructor(
         TODO("Not yet implemented")
     }
 
+    sealed class WifiDirectResult {
+        class Result(val list: List<WifiP2pDevice>) : WifiDirectResult()
+        class Error(val error: Throwable) : WifiDirectResult()
+    }
+
+    companion object {
+        private const val CACHE_EXPIRATION_TIME = 10000L
+    }
 }
