@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.IntentFilter
 import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
-import android.util.Log
 import com.malinowski.diploma.model.wifi.WifiDirectCoreImpl.WifiDirectResult.Error
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -19,9 +18,8 @@ class WifiDirectCoreImpl @Inject constructor(
     private val managerChannel: WifiP2pManager.Channel
 ) : WifiDirectCore, CoroutineScope {
 
-    private val job: Job = Job() // very smart shit
     override val coroutineContext: CoroutineContext
-        get() = job + Dispatchers.Default
+        get() = Job() + Dispatchers.Default
 
     private val _logFlow = MutableStateFlow("")
     override val logFlow = _logFlow.asStateFlow()
@@ -34,11 +32,7 @@ class WifiDirectCoreImpl @Inject constructor(
             val peers = it.deviceList.toList()
             _logFlow.value = "\n Peers : ${peers.joinToString("\n")}"
             launch {
-                Log.i(
-                    "RASPBERRY",
-                    "thread name :${Thread.currentThread().name} > peers : ${peers.size}"
-                )
-                channel.send(WifiDirectResult.Result(peers)) //todo make more clever
+                channel.send(WifiDirectResult.Result(peers))
             }
         }
 
@@ -54,7 +48,6 @@ class WifiDirectCoreImpl @Inject constructor(
                     else -> "ERROR"
                 }
                 launch {
-                    Log.i("RASPBERRY", "error thread name :${Thread.currentThread().name}")
                     channel.send(Error(Throwable(message)))
                 }
             }
@@ -63,7 +56,8 @@ class WifiDirectCoreImpl @Inject constructor(
         emit(channel.receive())
     }.catch {
         emit(Error(it))
-    }.shareIn(this,
+    }.shareIn( // for battery life performance
+        this,
         SharingStarted.WhileSubscribed(replayExpirationMillis = CACHE_EXPIRATION_TIME),
         replay = 1
     )
@@ -83,9 +77,9 @@ class WifiDirectCoreImpl @Inject constructor(
         context.unregisterReceiver(receiver)
     }
 
-    override suspend fun discoverPeers(): WifiDirectResult = coroutineScope {
+    override suspend fun discoverPeers(): WifiDirectResult {
         _logFlow.value = "searching for devices ..."
-        withContext(Dispatchers.Default) {
+        return withContext(Dispatchers.Default) {
             peerFlow.first()
         }
     }
