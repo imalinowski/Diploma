@@ -6,12 +6,9 @@ import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
 import android.util.Log
 import com.malinowski.diploma.model.wifi.WifiDirectCoreImpl.WifiDirectResult.Error
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -24,25 +21,23 @@ class WifiDirectCoreImpl @Inject constructor(
 
     private val job: Job = Job() // very smart shit
     override val coroutineContext: CoroutineContext
-        get() = job + Dispatchers.Main
+        get() = job + Dispatchers.Default
 
     private val _logFlow = MutableStateFlow("")
     override val logFlow = _logFlow.asStateFlow()
 
     private val peerFlow = flow {
 
-        val channel = Channel<WifiDirectResult>(capacity = Channel.BUFFERED)
+        val channel = Channel<WifiDirectResult>(capacity = Channel.RENDEZVOUS)
 
         val peerListListener = WifiP2pManager.PeerListListener {
             val peers = it.deviceList.toList()
             _logFlow.value = "\n Peers : ${peers.joinToString("\n")}"
-            Log.i(
-                "RASPBERRY",
-                "thread name :${Thread.currentThread().name}" +
-                        "\n peers : ${peers.size}"
-//                        "\n send result success : ${send.isSuccess}"
-            )
-            launch(Dispatchers.IO) {
+            launch {
+                Log.i(
+                    "RASPBERRY",
+                    "thread name :${Thread.currentThread().name} > peers : ${peers.size}"
+                )
                 channel.send(WifiDirectResult.Result(peers)) //todo make more clever
             }
         }
@@ -58,8 +53,8 @@ class WifiDirectCoreImpl @Inject constructor(
                     WifiP2pManager.BUSY -> "BUSY"
                     else -> "ERROR"
                 }
-                Log.i("RASPBERRY", "error thread name :${Thread.currentThread().name}")
-                launch(Dispatchers.IO) {
+                launch {
+                    Log.i("RASPBERRY", "error thread name :${Thread.currentThread().name}")
                     channel.send(Error(Throwable(message)))
                 }
             }
@@ -68,11 +63,7 @@ class WifiDirectCoreImpl @Inject constructor(
         emit(channel.receive())
     }.catch {
         emit(Error(it))
-    }.shareIn(
-        CoroutineScope(Dispatchers.IO),
-        SharingStarted.WhileSubscribed(replayExpirationMillis = CACHE_EXPIRATION_TIME),
-        replay = 1
-    )
+    }
 
     private val receiver: WifiBroadcastReceiver by lazy {
         WifiBroadcastReceiver(
@@ -89,9 +80,11 @@ class WifiDirectCoreImpl @Inject constructor(
         context.unregisterReceiver(receiver)
     }
 
-    override suspend fun discoverPeers(): WifiDirectResult {
+    override suspend fun discoverPeers(): WifiDirectResult = coroutineScope {
         _logFlow.value = "searching for devices ..."
-        return peerFlow.first()
+        withContext(Dispatchers.Default) {
+            peerFlow.first()
+        }
     }
 
     override suspend fun sendMessage(id: String) {
@@ -104,6 +97,6 @@ class WifiDirectCoreImpl @Inject constructor(
     }
 
     companion object {
-        private const val CACHE_EXPIRATION_TIME = 10000L
+        private const val CACHE_EXPIRATION_TIME = 100L
     }
 }
