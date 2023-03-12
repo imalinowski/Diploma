@@ -4,38 +4,47 @@ import android.content.Context
 import android.content.IntentFilter
 import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
+import android.util.Log
 import com.malinowski.diploma.model.wifi.WifiDirectCoreImpl.WifiDirectResult.Error
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.channels.trySendBlocking
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 class WifiDirectCoreImpl @Inject constructor(
     private val context: Context,
     private val intentFilter: IntentFilter,
     private val manager: WifiP2pManager,
     private val managerChannel: WifiP2pManager.Channel
-) : WifiDirectCore {
+) : WifiDirectCore, CoroutineScope {
+
+    private val job: Job = Job() // very smart shit
+    override val coroutineContext: CoroutineContext
+        get() = job + Dispatchers.Main
 
     private val _logFlow = MutableStateFlow("")
     override val logFlow = _logFlow.asStateFlow()
 
-    private val peerFlow = callbackFlow {
+    private val peerFlow = flow {
 
-        val sendData: suspend (data: WifiDirectResult) -> Unit = { send(it) }
-        val closeChannel = { close() }
-        val context = coroutineContext
+        val channel = Channel<WifiDirectResult>(capacity = Channel.BUFFERED)
 
         val peerListListener = WifiP2pManager.PeerListListener {
             val peers = it.deviceList.toList()
             _logFlow.value = "\n Peers : ${peers.joinToString("\n")}"
-            runBlocking(context) {
-                sendData(WifiDirectResult.Result(peers)) //todo make more clever
+            Log.i(
+                "RASPBERRY",
+                "thread name :${Thread.currentThread().name}" +
+                        "\n peers : ${peers.size}"
+//                        "\n send result success : ${send.isSuccess}"
+            )
+            launch(Dispatchers.IO) {
+                channel.send(WifiDirectResult.Result(peers)) //todo make more clever
             }
-            closeChannel()
         }
 
         manager.discoverPeers(managerChannel, object : WifiP2pManager.ActionListener {
@@ -49,10 +58,14 @@ class WifiDirectCoreImpl @Inject constructor(
                     WifiP2pManager.BUSY -> "BUSY"
                     else -> "ERROR"
                 }
-                this@callbackFlow.trySend(Error(Throwable(message)))
+                Log.i("RASPBERRY", "error thread name :${Thread.currentThread().name}")
+                launch(Dispatchers.IO) {
+                    channel.send(Error(Throwable(message)))
+                }
             }
         })
-        awaitClose()
+
+        emit(channel.receive())
     }.catch {
         emit(Error(it))
     }.shareIn(
