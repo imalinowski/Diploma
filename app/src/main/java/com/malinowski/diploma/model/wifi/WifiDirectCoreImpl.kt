@@ -28,7 +28,7 @@ class WifiDirectCoreImpl @Inject constructor(
 
     private val peerFlow = flow {
 
-        val channel = Channel<WifiDirectResult>(capacity = Channel.RENDEZVOUS)
+        val channel = Channel<WifiDirectResult>()
 
         val peerListListener = WifiP2pManager.PeerListListener {
             val peers = it.deviceList.toList()
@@ -63,7 +63,10 @@ class WifiDirectCoreImpl @Inject constructor(
         emit(channel.receive())
     }.catch {
         emit(Error(it))
-    }
+    }.shareIn(this,
+        SharingStarted.WhileSubscribed(replayExpirationMillis = CACHE_EXPIRATION_TIME),
+        replay = 1
+    )
 
     private val receiver: WifiBroadcastReceiver by lazy {
         WifiBroadcastReceiver(
@@ -97,6 +100,6 @@ class WifiDirectCoreImpl @Inject constructor(
     }
 
     companion object {
-        private const val CACHE_EXPIRATION_TIME = 100L
+        private const val CACHE_EXPIRATION_TIME = 1000L
     }
 }
