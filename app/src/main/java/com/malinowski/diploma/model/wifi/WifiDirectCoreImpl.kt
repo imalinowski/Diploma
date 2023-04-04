@@ -2,6 +2,8 @@ package com.malinowski.diploma.model.wifi
 
 import android.content.Context
 import android.content.IntentFilter
+import android.net.wifi.WpsInfo
+import android.net.wifi.p2p.WifiP2pConfig
 import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
 import com.malinowski.diploma.model.wifi.WifiDirectCoreImpl.WifiDirectResult.Error
@@ -24,12 +26,12 @@ class WifiDirectCoreImpl @Inject constructor(
     private val _logFlow = MutableStateFlow("")
     override val logFlow = _logFlow.asStateFlow()
 
+    private var peers: List<WifiP2pDevice> = emptyList()
+
     private val peerFlow = flow {
-
         val channel = Channel<WifiDirectResult>()
-
         val peerListListener = WifiP2pManager.PeerListListener {
-            val peers = it.deviceList.toList()
+            peers = it.deviceList.toList()
             _logFlow.value = "\n Peers : ${peers.joinToString("\n")}"
             launch {
                 channel.send(WifiDirectResult.Result(peers))
@@ -84,7 +86,43 @@ class WifiDirectCoreImpl @Inject constructor(
         }
     }
 
-    override suspend fun sendMessage(id: String) {
+    private var lastTimeCall: Long = 0
+    override suspend fun connect(address: String): Boolean = withContext(Dispatchers.Default) {
+        if (System.currentTimeMillis() - lastTimeCall < CACHE_EXPIRATION_TIME) {
+            return@withContext false
+        } else {
+            lastTimeCall = System.currentTimeMillis()
+        }
+
+        val channel = Channel<Boolean>()
+
+        val device = peers.find { it.deviceAddress == address }
+            ?: throw IllegalStateException("device with address $address Not Found!")
+
+        val config = WifiP2pConfig().apply {
+            deviceAddress = device.deviceAddress
+            wps.setup = WpsInfo.PBC
+        }
+
+        manager.connect(managerChannel, config, object : WifiP2pManager.ActionListener {
+            override fun onSuccess() {
+                launch {
+                    channel.send(true)
+                }
+            }
+
+            override fun onFailure(p0: Int) {
+                launch {
+                    channel.send(false)
+                }
+            }
+
+        })
+
+        channel.receive()
+    }
+
+    override suspend fun sendMessage() {
         TODO("Not yet implemented")
     }
 

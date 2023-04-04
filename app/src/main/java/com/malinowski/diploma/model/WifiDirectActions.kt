@@ -8,4 +8,6 @@ sealed class WifiDirectActions {
         val text: String,
         val dialogAction: () -> Unit = {}
     ) : WifiDirectActions()
+
+    object OpenChat : WifiDirectActions()
 }

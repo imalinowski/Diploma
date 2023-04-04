@@ -31,5 +31,7 @@ interface WifiDirectCore {
 
     suspend fun discoverPeers(): WifiDirectCoreImpl.WifiDirectResult
 
-    suspend fun sendMessage(id: String)
+    suspend fun connect(address: String): Boolean
+
+    suspend fun sendMessage()
 }

@@ -14,6 +14,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.malinowski.diploma.R
 import com.malinowski.diploma.databinding.ActivityMainBinding
 import com.malinowski.diploma.model.WifiDirectActions
+import com.malinowski.diploma.model.WifiDirectActions.OpenChat
 import com.malinowski.diploma.model.getComponent
 import com.malinowski.diploma.viewmodel.WifiDirectViewModel
 import kotlinx.coroutines.launch
@@ -93,6 +94,9 @@ class MainActivity : AppCompatActivity() {
                         action.dialogAction()
                     }
                     .show()
+            }
+            OpenChat -> {
+                Toast.makeText(this, "Open Chat", Toast.LENGTH_LONG).show()
             }
             null -> {}
         }

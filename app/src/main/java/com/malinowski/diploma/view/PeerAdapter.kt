@@ -8,8 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.malinowski.diploma.databinding.RecyclerViewPeerItemBinding
 import com.malinowski.diploma.model.WifiDirectPeer
 
-class PeerAdapter :
-    ListAdapter<WifiDirectPeer, PeerAdapter.ViewHolder>(InterestingItemDiffUtilCallback()) {
+class PeerAdapter(
+    val clickCallback: (WifiDirectPeer) -> Unit
+) : ListAdapter<WifiDirectPeer, PeerAdapter.ViewHolder>(InterestingItemDiffUtilCallback()) {
 
     class ViewHolder(val binding: RecyclerViewPeerItemBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -26,7 +27,13 @@ class PeerAdapter :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val peer = getItem(position)
-        holder.binding.title.text = peer.name
+        with(holder.binding) {
+            title.text = peer.name
+            button.setOnClickListener {
+                clickCallback(peer)
+            }
+        }
+
     }
 
     class InterestingItemDiffUtilCallback : DiffUtil.ItemCallback<WifiDirectPeer>() {

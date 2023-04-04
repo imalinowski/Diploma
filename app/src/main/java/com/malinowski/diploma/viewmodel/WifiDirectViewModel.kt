@@ -65,12 +65,28 @@ class WifiDirectViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = wifiDirectCore.discoverPeers()) {
                 is Result -> _state.value =
-                    _state.value.copy(peers = result.list.map { WifiDirectPeer(it.deviceName) })
+                    _state.value.copy(peers = result.list.map {
+                        WifiDirectPeer(it.deviceName, it.deviceAddress)
+                    })
                 is Error ->
                     _actions.value = WifiDirectActions.ShowAlertDialog(
                         title = result.error::class.java.name,
                         text = result.error.message ?: "error"
                     )
+            }
+        }
+    }
+
+    fun connectDevice(address: String) {
+        viewModelScope.launch {
+            try {
+                if (wifiDirectCore.connect(address)) {
+                    _actions.value = WifiDirectActions.OpenChat
+                }
+            } catch (e: Exception) {
+                _actions.value = WifiDirectActions.ShowAlertDialog(
+                    text = e.message ?: "Error Device Connect"
+                )
             }
         }
     }

@@ -33,7 +33,9 @@ class PeerListFragment : Fragment() {
     private val peerRecyclerView: RecyclerView by lazy {
         binding.peerRecycler
     }
-    private val adapter = PeerAdapter()
+    private val adapter = PeerAdapter { device ->
+        viewModel.connectDevice(device.address)
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
