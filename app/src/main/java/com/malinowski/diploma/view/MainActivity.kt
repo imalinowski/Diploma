@@ -1,5 +1,6 @@
 package com.malinowski.diploma.view
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -17,6 +18,7 @@ import com.malinowski.diploma.model.WifiDirectActions
 import com.malinowski.diploma.model.WifiDirectActions.OpenChat
 import com.malinowski.diploma.model.getComponent
 import com.malinowski.diploma.viewmodel.WifiDirectViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -37,7 +39,7 @@ class MainActivity : AppCompatActivity() {
                 if (!value) {
                     actions(
                         WifiDirectActions.ShowAlertDialog(
-                            text ="$name нужно для работы приложения"
+                            text = "$name нужно для работы приложения"
                         )
                     )
                     return@registerForActivityResult
@@ -53,7 +55,7 @@ class MainActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.actions.collect(::actions)
+                viewModel.actions.collectLatest { actions(it) }
             }
         }
 
@@ -95,8 +97,10 @@ class MainActivity : AppCompatActivity() {
                     }
                     .show()
             }
-            OpenChat -> {
-                Toast.makeText(this, "Open Chat", Toast.LENGTH_LONG).show()
+            is OpenChat -> {
+                startActivity(Intent(this, ChatActivity::class.java).apply {
+                    putExtra(NAME, action.name)
+                })
             }
             null -> {}
         }

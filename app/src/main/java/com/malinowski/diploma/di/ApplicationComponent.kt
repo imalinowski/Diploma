@@ -1,6 +1,7 @@
 package com.malinowski.diploma.di
 
 import android.content.Context
+import com.malinowski.diploma.view.ChatActivity
 import com.malinowski.diploma.view.LogFragment
 import com.malinowski.diploma.view.MainActivity
 import com.malinowski.diploma.view.PeerListFragment
@@ -18,6 +19,7 @@ interface ApplicationComponent {
     fun inject(activity: MainActivity)
     fun inject(fragment: LogFragment)
     fun inject(fragment: PeerListFragment)
+    fun inject(fragment: ChatActivity)
 
     @Component.Factory
     interface Factory {

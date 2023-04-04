@@ -9,5 +9,5 @@ sealed class WifiDirectActions {
         val dialogAction: () -> Unit = {}
     ) : WifiDirectActions()
 
-    object OpenChat : WifiDirectActions()
+    class OpenChat(val name: String) : WifiDirectActions()
 }

@@ -77,11 +77,11 @@ class WifiDirectViewModel @Inject constructor(
         }
     }
 
-    fun connectDevice(address: String) {
+    fun connectDevice(peer: WifiDirectPeer) {
         viewModelScope.launch {
             try {
-                if (wifiDirectCore.connect(address)) {
-                    _actions.value = WifiDirectActions.OpenChat
+                if (wifiDirectCore.connect(peer.address)) {
+                    _actions.value = WifiDirectActions.OpenChat(peer.name)
                 }
             } catch (e: Exception) {
                 _actions.value = WifiDirectActions.ShowAlertDialog(

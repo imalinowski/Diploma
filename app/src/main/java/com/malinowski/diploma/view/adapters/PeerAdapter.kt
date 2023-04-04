@@ -1,4 +1,4 @@
-package com.malinowski.diploma.view
+package com.malinowski.diploma.view.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
