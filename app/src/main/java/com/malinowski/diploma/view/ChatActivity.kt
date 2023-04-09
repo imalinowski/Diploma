@@ -23,4 +23,5 @@ class ChatActivity : AppCompatActivity() {
         binding.chatName.text = name ?: "Chat Name is Empty"
     }
 
+    // todo bug with reopen
 }
