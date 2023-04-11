@@ -67,12 +67,16 @@ class WifiDirectCoreImpl @Inject constructor(
             onSuccess = { launch { channel.send(WifiDirectResult.Success(true)) } },
             onFail = { code, _ ->
                 launch {
-                    if (code == CONNECTION_REQUEST_ACCEPT)
+                    if (code == CONNECTION_REQUEST_ACCEPT && connect)
                         channel.send(WifiDirectResult.Success(true))
                     else channel.send(WifiDirectResult.Success(false))
                 }
             }
         )
+
+        manager.requestConnectionInfo(managerChannel) { info ->
+            if (info != null) _logFlow.value = info.toString()
+        }
 
         if (connect) {
             manager.connect(managerChannel, config, actionListener)
@@ -117,7 +121,7 @@ class WifiDirectCoreImpl @Inject constructor(
     }
 
     override suspend fun connectCancel(address: String): WifiDirectResult<Boolean> {
-        _logFlow.value = "connect to $address ..."
+        _logFlow.value = "disConnect from $address ..."
         return withContext(Dispatchers.Default) {
             connectFlow(false, address).first()
         }
