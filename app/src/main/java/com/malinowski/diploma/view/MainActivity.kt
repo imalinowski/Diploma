@@ -1,6 +1,5 @@
 package com.malinowski.diploma.view
 
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -59,25 +58,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.bottomNavigation.setOnItemSelectedListener {
-            when (it.itemId) {
-                R.id.page_1 -> {
-                    supportFragmentManager.commit(allowStateLoss = true) {
-                        replace(R.id.fragment_container_view, PeerListFragment.newInstance())
-                        addToBackStack(null)
-                    }
-                }
-                R.id.page_2 -> {
-                    supportFragmentManager.commit(allowStateLoss = true) {
-                        replace(R.id.fragment_container_view, LogFragment.newInstance())
-                        addToBackStack(null)
-                    }
-                }
-            }
-            true
+        supportFragmentManager.commit(allowStateLoss = true) {
+            replace(R.id.app_fragment_container, MainFragment.newInstance())
+            addToBackStack(null)
         }
-        binding.bottomNavigation.selectedItemId = R.id.page_1
-
     }
 
     private fun actions(action: WifiDirectActions?) {
@@ -98,9 +82,13 @@ class MainActivity : AppCompatActivity() {
                     .show()
             }
             is OpenChat -> {
-                startActivity(Intent(this, ChatActivity::class.java).apply {
-                    putExtra(NAME, action.name)
-                })
+                supportFragmentManager.commit {
+                    replace(
+                        R.id.app_fragment_container,
+                        ChatFragment.newInstance(action.name)
+                    )
+                    addToBackStack(null)
+                }
             }
             null -> {}
         }
