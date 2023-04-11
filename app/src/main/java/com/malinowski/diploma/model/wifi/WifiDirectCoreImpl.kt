@@ -6,7 +6,8 @@ import android.net.wifi.WpsInfo
 import android.net.wifi.p2p.WifiP2pConfig
 import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
-import com.malinowski.diploma.model.wifi.WifiDirectCoreImpl.WifiDirectResult.Error
+import android.net.wifi.p2p.WifiP2pManager.*
+import android.util.Log
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
@@ -30,35 +31,57 @@ class WifiDirectCoreImpl @Inject constructor(
 
     private val peerFlow = flow {
         val channel = Channel<WifiDirectResult>()
-        val peerListListener = WifiP2pManager.PeerListListener {
+
+        val peerListListener = PeerListListener {
             peers = it.deviceList.toList()
             _logFlow.value = "\n Peers : ${peers.joinToString("\n")}"
-            launch {
-                channel.send(WifiDirectResult.Result(peers))
-            }
+            launch { channel.send(WifiDirectResult.Result(peers)) }
         }
 
-        manager.discoverPeers(managerChannel, object : WifiP2pManager.ActionListener {
-            override fun onSuccess() {
-                manager.requestPeers(managerChannel, peerListListener)
-            }
-
-            override fun onFailure(reason: Int) {
-                val message = when (reason) {
-                    WifiP2pManager.P2P_UNSUPPORTED -> "P2P_UNSUPPORTED"
-                    WifiP2pManager.BUSY -> "BUSY"
-                    else -> "ERROR"
-                }
-                launch {
-                    channel.send(Error(Throwable(message)))
-                }
-            }
-        })
+        manager.discoverPeers(managerChannel, actionListener(
+            onSuccess = { manager.requestPeers(managerChannel, peerListListener) },
+            onFail = { _, it -> launch { channel.send(WifiDirectResult.Error(Throwable(it))) } }
+        ))
 
         emit(channel.receive())
     }.catch {
-        emit(Error(it))
+        emit(WifiDirectResult.Error(it))
     }.shareIn( // for battery life performance
+        this,
+        SharingStarted.WhileSubscribed(replayExpirationMillis = CACHE_EXPIRATION_TIME),
+        replay = 1
+    )
+
+    private fun connectFlow(connect: Boolean, deviceName: String) = flow {
+        val channel = Channel<Boolean>()
+
+        val device = peers.find { it.deviceAddress == deviceName }
+            ?: throw IllegalStateException("device with address $deviceName Not Found!")
+
+        val config = WifiP2pConfig().apply {
+            deviceAddress = device.deviceAddress
+            wps.setup = WpsInfo.PBC
+        }
+
+        val actionListener = actionListener(
+            onSuccess = { launch { channel.send(true) } },
+            onFail = { code, _ ->
+                launch {
+                    if (code == CONNECTION_REQUEST_ACCEPT)
+                        channel.send(true)
+                    else channel.send(false)
+                }
+            }
+        )
+
+        if (connect) {
+            manager.connect(managerChannel, config, actionListener)
+        } else {
+            manager.cancelConnect(managerChannel, actionListener)
+        }
+
+        emit(channel.receive())
+    }.shareIn(
         this,
         SharingStarted.WhileSubscribed(replayExpirationMillis = CACHE_EXPIRATION_TIME),
         replay = 1
@@ -66,7 +89,7 @@ class WifiDirectCoreImpl @Inject constructor(
 
     private val receiver: WifiBroadcastReceiver by lazy {
         WifiBroadcastReceiver(
-            requestPeers = { },
+            requestPeers = { /* called when CHANGED_ACTION */ },
             log = { _logFlow.value = it }
         )
     }
@@ -86,49 +109,42 @@ class WifiDirectCoreImpl @Inject constructor(
         }
     }
 
-    private var lastTimeCall: Long = 0
-    override suspend fun connect(address: String): Boolean = withContext(Dispatchers.Default) {
-        if (System.currentTimeMillis() - lastTimeCall < CACHE_EXPIRATION_TIME) {
-            return@withContext false
-        } else {
-            lastTimeCall = System.currentTimeMillis()
+    override suspend fun connect(address: String): Boolean {
+        _logFlow.value = "connect to $address ..."
+        return withContext(Dispatchers.Default) {
+            connectFlow(true, address).first()
         }
+    }
 
-        val channel = Channel<Boolean>()
-
-        val device = peers.find { it.deviceAddress == address }
-            ?: throw IllegalStateException("device with address $address Not Found!")
-
-        val config = WifiP2pConfig().apply {
-            deviceAddress = device.deviceAddress
-            wps.setup = WpsInfo.PBC
+    override suspend fun connectCancel(address: String): Boolean {
+        _logFlow.value = "connect to $address ..."
+        return withContext(Dispatchers.Default) {
+            connectFlow(false, address).first()
         }
-
-        manager.connect(managerChannel, config, object : WifiP2pManager.ActionListener {
-            override fun onSuccess() {
-                launch {
-                    channel.send(true)
-                }
-            }
-
-            override fun onFailure(p0: Int) {
-                launch {
-                    channel.send(false)
-                }
-            }
-
-        })
-
-        channel.receive()
     }
 
     override suspend fun sendMessage() {
         TODO("Not yet implemented")
     }
 
-    sealed class WifiDirectResult {
-        class Result(val list: List<WifiP2pDevice>) : WifiDirectResult()
-        class Error(val error: Throwable) : WifiDirectResult()
+    private fun actionListener(
+        onSuccess: () -> Unit,
+        onFail: (Int, String) -> Unit
+    ) = object : ActionListener {
+        override fun onSuccess() {
+            onSuccess()
+        }
+
+        override fun onFailure(reason: Int) {
+            val message = when (reason) {
+                P2P_UNSUPPORTED -> "P2P_UNSUPPORTED"
+                BUSY -> "BUSY"
+                CONNECTION_REQUEST_ACCEPT -> "CONNECTION_REQUEST_ACCEPT"
+                else -> "ERROR"
+            }
+            Log.e("RASPBERRY", "Error : $reason $message")
+            onFail(reason, message)
+        }
     }
 
     companion object {

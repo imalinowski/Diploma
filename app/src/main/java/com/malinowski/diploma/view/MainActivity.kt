@@ -85,7 +85,7 @@ class MainActivity : AppCompatActivity() {
                 supportFragmentManager.commit {
                     replace(
                         R.id.app_fragment_container,
-                        ChatFragment.newInstance(action.name)
+                        ChatFragment.newInstance(action.peer)
                     )
                     addToBackStack(null)
                 }

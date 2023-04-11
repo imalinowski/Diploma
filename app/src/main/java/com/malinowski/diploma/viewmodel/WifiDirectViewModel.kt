@@ -12,8 +12,7 @@ import com.malinowski.diploma.model.WifiDirectPeer
 import com.malinowski.diploma.model.wifi.WIFI_CORE_PERMISSIONS
 import com.malinowski.diploma.model.wifi.WIFI_CORE_PERMISSIONS_13
 import com.malinowski.diploma.model.wifi.WifiDirectCore
-import com.malinowski.diploma.model.wifi.WifiDirectCoreImpl.WifiDirectResult.Error
-import com.malinowski.diploma.model.wifi.WifiDirectCoreImpl.WifiDirectResult.Result
+import com.malinowski.diploma.model.wifi.WifiDirectResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -64,11 +63,11 @@ class WifiDirectViewModel @Inject constructor(
     fun searchForDevices() {
         viewModelScope.launch {
             when (val result = wifiDirectCore.discoverPeers()) {
-                is Result -> _state.value =
+                is WifiDirectResult.Result -> _state.value =
                     _state.value.copy(peers = result.list.map {
                         WifiDirectPeer(it.deviceName, it.deviceAddress)
                     })
-                is Error ->
+                is WifiDirectResult.Error ->
                     _actions.value = WifiDirectActions.ShowAlertDialog(
                         title = result.error::class.java.name,
                         text = result.error.message ?: "error"
@@ -81,11 +80,23 @@ class WifiDirectViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 if (wifiDirectCore.connect(peer.address)) {
-                    _actions.value = WifiDirectActions.OpenChat(peer.name)
+                    _actions.value = WifiDirectActions.OpenChat(peer)
+                } else {
+                    _actions.value = WifiDirectActions.ShowToast("Connect Failed")
                 }
             } catch (e: Exception) {
                 _actions.value = WifiDirectActions.ShowAlertDialog(
                     text = e.message ?: "Error Device Connect"
+                )
+            }
+        }
+    }
+
+    fun connectCancel(address: String){
+        viewModelScope.launch {
+            if(!wifiDirectCore.connectCancel(address)) {
+                _actions.value = WifiDirectActions.ShowAlertDialog(
+                    text = "Error Device DisConnect"
                 )
             }
         }

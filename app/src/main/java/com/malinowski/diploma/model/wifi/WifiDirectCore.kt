@@ -29,9 +29,11 @@ interface WifiDirectCore {
 
     fun unRegisterReceiver()
 
-    suspend fun discoverPeers(): WifiDirectCoreImpl.WifiDirectResult
+    suspend fun discoverPeers(): WifiDirectResult
 
     suspend fun connect(address: String): Boolean
+
+    suspend fun connectCancel(address: String): Boolean
 
     suspend fun sendMessage()
 }

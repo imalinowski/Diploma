@@ -24,7 +24,6 @@ class LogFragment : Fragment() {
 
     @Inject
     lateinit var factory: ViewModelProvider.Factory
-
     private val viewModel: WifiDirectViewModel by activityViewModels { factory }
 
     private lateinit var binding: FragmentLogBinding

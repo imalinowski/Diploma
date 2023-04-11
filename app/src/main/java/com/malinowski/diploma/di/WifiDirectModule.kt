@@ -9,6 +9,7 @@ import com.malinowski.diploma.model.wifi.WifiDirectCoreImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import javax.inject.Singleton
 
 @Module(
     includes = [WifiDirectModule.BindsModule::class]
@@ -17,6 +18,7 @@ class WifiDirectModule {
 
     @Module
     interface BindsModule {
+
         @Binds
         fun getWifiDirectCore(impl: WifiDirectCoreImpl): WifiDirectCore
     }

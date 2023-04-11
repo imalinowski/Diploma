@@ -17,6 +17,7 @@ interface ApplicationComponent {
     fun inject(fragment: MainFragment)
     fun inject(fragment: LogFragment)
     fun inject(fragment: PeerListFragment)
+    fun inject(fragment: ChatFragment)
 
     @Component.Factory
     interface Factory {
