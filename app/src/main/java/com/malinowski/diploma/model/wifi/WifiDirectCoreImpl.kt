@@ -30,12 +30,12 @@ class WifiDirectCoreImpl @Inject constructor(
     private var peers: List<WifiP2pDevice> = emptyList()
 
     private val peerFlow = flow {
-        val channel = Channel<WifiDirectResult>()
+        val channel = Channel<WifiDirectResult<List<WifiP2pDevice>>>()
 
         val peerListListener = PeerListListener {
             peers = it.deviceList.toList()
             _logFlow.value = "\n Peers : ${peers.joinToString("\n")}"
-            launch { channel.send(WifiDirectResult.Result(peers)) }
+            launch { channel.send(WifiDirectResult.Success(peers)) }
         }
 
         manager.discoverPeers(managerChannel, actionListener(
@@ -53,7 +53,7 @@ class WifiDirectCoreImpl @Inject constructor(
     )
 
     private fun connectFlow(connect: Boolean, deviceName: String) = flow {
-        val channel = Channel<Boolean>()
+        val channel = Channel<WifiDirectResult<Boolean>>()
 
         val device = peers.find { it.deviceAddress == deviceName }
             ?: throw IllegalStateException("device with address $deviceName Not Found!")
@@ -64,12 +64,12 @@ class WifiDirectCoreImpl @Inject constructor(
         }
 
         val actionListener = actionListener(
-            onSuccess = { launch { channel.send(true) } },
+            onSuccess = { launch { channel.send(WifiDirectResult.Success(true)) } },
             onFail = { code, _ ->
                 launch {
                     if (code == CONNECTION_REQUEST_ACCEPT)
-                        channel.send(true)
-                    else channel.send(false)
+                        channel.send(WifiDirectResult.Success(true))
+                    else channel.send(WifiDirectResult.Success(false))
                 }
             }
         )
@@ -102,21 +102,21 @@ class WifiDirectCoreImpl @Inject constructor(
         context.unregisterReceiver(receiver)
     }
 
-    override suspend fun discoverPeers(): WifiDirectResult {
+    override suspend fun discoverPeers(): WifiDirectResult<List<WifiP2pDevice>> {
         _logFlow.value = "searching for devices ..."
         return withContext(Dispatchers.Default) {
             peerFlow.first()
         }
     }
 
-    override suspend fun connect(address: String): Boolean {
+    override suspend fun connect(address: String): WifiDirectResult<Boolean> {
         _logFlow.value = "connect to $address ..."
         return withContext(Dispatchers.Default) {
             connectFlow(true, address).first()
         }
     }
 
-    override suspend fun connectCancel(address: String): Boolean {
+    override suspend fun connectCancel(address: String): WifiDirectResult<Boolean> {
         _logFlow.value = "connect to $address ..."
         return withContext(Dispatchers.Default) {
             connectFlow(false, address).first()
@@ -137,9 +137,10 @@ class WifiDirectCoreImpl @Inject constructor(
 
         override fun onFailure(reason: Int) {
             val message = when (reason) {
+                CONNECTION_REQUEST_ACCEPT -> "CONNECTION_REQUEST_ACCEPT"
                 P2P_UNSUPPORTED -> "P2P_UNSUPPORTED"
                 BUSY -> "BUSY"
-                CONNECTION_REQUEST_ACCEPT -> "CONNECTION_REQUEST_ACCEPT"
+                NO_SERVICE_REQUESTS -> "NO_SERVICE_REQUESTS"
                 else -> "ERROR"
             }
             Log.e("RASPBERRY", "Error : $reason $message")

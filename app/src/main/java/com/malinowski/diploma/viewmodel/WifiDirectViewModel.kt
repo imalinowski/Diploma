@@ -63,8 +63,8 @@ class WifiDirectViewModel @Inject constructor(
     fun searchForDevices() {
         viewModelScope.launch {
             when (val result = wifiDirectCore.discoverPeers()) {
-                is WifiDirectResult.Result -> _state.value =
-                    _state.value.copy(peers = result.list.map {
+                is WifiDirectResult.Success -> _state.value =
+                    _state.value.copy(peers = result.data.map {
                         WifiDirectPeer(it.deviceName, it.deviceAddress)
                     })
                 is WifiDirectResult.Error ->
@@ -78,26 +78,25 @@ class WifiDirectViewModel @Inject constructor(
 
     fun connectDevice(peer: WifiDirectPeer) {
         viewModelScope.launch {
-            try {
-                if (wifiDirectCore.connect(peer.address)) {
+            when (val result = wifiDirectCore.connect(peer.address)) {
+                is WifiDirectResult.Success ->
                     _actions.value = WifiDirectActions.OpenChat(peer)
-                } else {
-                    _actions.value = WifiDirectActions.ShowToast("Connect Failed")
-                }
-            } catch (e: Exception) {
-                _actions.value = WifiDirectActions.ShowAlertDialog(
-                    text = e.message ?: "Error Device Connect"
-                )
+                is WifiDirectResult.Error ->
+                    _actions.value = WifiDirectActions.ShowToast(
+                        result.error.message ?: "Connect Failed"
+                    )
             }
         }
     }
 
-    fun connectCancel(address: String){
+    fun connectCancel(address: String) {
         viewModelScope.launch {
-            if(!wifiDirectCore.connectCancel(address)) {
-                _actions.value = WifiDirectActions.ShowAlertDialog(
-                    text = "Error Device DisConnect"
-                )
+            when (val result = wifiDirectCore.connectCancel(address)) {
+                is WifiDirectResult.Success -> {}
+                is WifiDirectResult.Error ->
+                    _actions.value = WifiDirectActions.ShowToast(
+                        result.error.message ?: "Error Device DisConnect"
+                    )
             }
         }
     }
