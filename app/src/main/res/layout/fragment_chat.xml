@@ -23,9 +23,11 @@
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/message_recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="60dp"
+        android:layout_marginBottom="60dp"
         tools:listitem="@layout/recycler_view_message_item" />
 
     <LinearLayout
@@ -40,13 +42,12 @@
             android:id="@+id/message_edit"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="start"
+            android:gravity="start|center"
             android:hint="@string/type_message"
             android:paddingHorizontal="15dp"
             android:textColor="@color/white"
             android:textColorHint="@color/white"
-            android:textSize="25sp"
-            android:textStyle="bold"
+            android:textSize="20sp"
             android:layout_weight="1"/>
 
         <Button

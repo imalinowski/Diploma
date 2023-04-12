@@ -8,13 +8,16 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.malinowski.diploma.databinding.FragmentChatBinding
 import com.malinowski.diploma.model.WifiDirectPeer
 import com.malinowski.diploma.model.getComponent
+import com.malinowski.diploma.view.adapters.MessageAdapter
+import com.malinowski.diploma.view.adapters.PeerAdapter
 import com.malinowski.diploma.viewmodel.WifiDirectViewModel
 import javax.inject.Inject
 
-class ChatFragment : Fragment() {
+class ChatFragment private constructor(): Fragment() {
 
     @Inject
     lateinit var factory: ViewModelProvider.Factory
@@ -22,7 +25,9 @@ class ChatFragment : Fragment() {
 
     private lateinit var binding: FragmentChatBinding
 
-    private var peer: WifiDirectPeer? = null
+    private lateinit var peer: WifiDirectPeer
+
+    private val adapter = MessageAdapter()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -32,7 +37,7 @@ class ChatFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            peer = it.getParcelable(NAME)
+            peer = it.getParcelable(NAME)!!
         }
     }
 
@@ -46,12 +51,18 @@ class ChatFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.chatName.text = peer?.name ?: "No Name"
+
+        binding.chatName.text = peer.name
+        binding.messageRecycler.apply {
+            adapter = this@ChatFragment.adapter
+            layoutManager = LinearLayoutManager(this@ChatFragment.requireContext())
+        }
+        adapter.submitList(viewModel.getMessages(peer))
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        viewModel.connectCancel(peer?.address ?: "")
+        viewModel.connectCancel(peer.address)
     }
 
     companion object {

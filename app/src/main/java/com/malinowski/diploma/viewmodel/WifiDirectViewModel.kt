@@ -7,6 +7,7 @@ import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.malinowski.diploma.model.Message
 import com.malinowski.diploma.model.WifiDirectActions
 import com.malinowski.diploma.model.WifiDirectPeer
 import com.malinowski.diploma.model.wifi.WIFI_CORE_PERMISSIONS
@@ -54,6 +55,24 @@ class WifiDirectViewModel @Inject constructor(
                 logText = "${state.logText}\n${System.currentTimeMillis()}: $text"
             )
         }
+    }
+
+    fun getMessages(peer: WifiDirectPeer): List<Message> {
+        val sampleName = "Vasya"
+        val loremIpsum = "Lorem Ipsum is simply dummy text of the printing and typesetting industry."
+        return listOf(
+            Message(author = peer.name, text = loremIpsum),
+            Message(author = sampleName, text = loremIpsum),
+            Message(author = peer.name, text = loremIpsum),
+            Message(author = sampleName, text = loremIpsum),
+            Message(author = peer.name, text = loremIpsum),
+            Message(author = sampleName, text = loremIpsum),
+            Message(author = sampleName, text = loremIpsum),
+            Message(author = peer.name, text = loremIpsum),
+            Message(author = sampleName, text = loremIpsum),
+            Message(author = peer.name, text = loremIpsum),
+            Message(author = sampleName, text = loremIpsum),
+        )
     }
 
     fun clearLog() {
