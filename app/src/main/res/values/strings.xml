@@ -7,4 +7,6 @@
     <string name="peer">peer</string>
     <string name="no_peers_found">No Peers Found</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="type_message">type message...</string>
+    <string name="send">send</string>
 </resources>
