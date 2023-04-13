@@ -7,17 +7,22 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.malinowski.diploma.databinding.FragmentChatBinding
+import com.malinowski.diploma.model.WifiDirectActions
 import com.malinowski.diploma.model.WifiDirectPeer
 import com.malinowski.diploma.model.getComponent
 import com.malinowski.diploma.view.adapters.MessageAdapter
-import com.malinowski.diploma.view.adapters.PeerAdapter
 import com.malinowski.diploma.viewmodel.WifiDirectViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class ChatFragment private constructor(): Fragment() {
+class ChatFragment private constructor() : Fragment() {
 
     @Inject
     lateinit var factory: ViewModelProvider.Factory
@@ -58,6 +63,26 @@ class ChatFragment private constructor(): Fragment() {
             layoutManager = LinearLayoutManager(this@ChatFragment.requireContext())
         }
         adapter.submitList(viewModel.getMessages(peer))
+
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.actions.collectLatest { actions(it) }
+            }
+        }
+
+        binding.send.setOnClickListener {
+            val message = binding.messageEdit.text.toString()
+            viewModel.sendMessage(message)
+        }
+    }
+
+    private fun actions(action: WifiDirectActions?) {
+        when (action) {
+            is WifiDirectActions.ReceiveMessage -> {
+                adapter.submitList(listOf(action.message))
+            }
+            else -> {}
+        }
     }
 
     override fun onDestroy() {

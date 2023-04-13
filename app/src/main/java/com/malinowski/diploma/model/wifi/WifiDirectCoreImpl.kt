@@ -5,9 +5,12 @@ import android.content.IntentFilter
 import android.net.wifi.WpsInfo
 import android.net.wifi.p2p.WifiP2pConfig
 import android.net.wifi.p2p.WifiP2pDevice
+import android.net.wifi.p2p.WifiP2pInfo
 import android.net.wifi.p2p.WifiP2pManager
 import android.net.wifi.p2p.WifiP2pManager.*
 import android.util.Log
+import com.malinowski.diploma.model.wifi.WifiDirectData.LogData
+import com.malinowski.diploma.model.wifi.WifiDirectData.MessageData
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
@@ -24,17 +27,20 @@ class WifiDirectCoreImpl @Inject constructor(
     override val coroutineContext: CoroutineContext
         get() = Job() + Dispatchers.Default
 
-    private val _logFlow = MutableStateFlow("")
+    private val _logFlow: MutableStateFlow<WifiDirectData?> = MutableStateFlow(null)
     override val logFlow = _logFlow.asStateFlow()
 
     private var peers: List<WifiP2pDevice> = emptyList()
+
+    private var server: WifiDirectServer? = null
+    private var client: WifiDirectClient? = null
 
     private val peerFlow = flow {
         val channel = Channel<WifiDirectResult<List<WifiP2pDevice>>>()
 
         val peerListListener = PeerListListener {
             peers = it.deviceList.toList()
-            _logFlow.value = "\n Peers : ${peers.joinToString("\n")}"
+            _logFlow.value = LogData("\n Peers : ${peers.joinToString("\n")}")
             launch { channel.send(WifiDirectResult.Success(peers)) }
         }
 
@@ -52,6 +58,23 @@ class WifiDirectCoreImpl @Inject constructor(
         replay = 1
     )
 
+    private val connectInfoListener: (WifiP2pInfo?) -> Unit = { info ->
+        if (info != null) {
+            _logFlow.value = LogData(info.toString())
+
+            val inetAddress = info.groupOwnerAddress
+            if (info.groupFormed && info.isGroupOwner) {
+                server = WifiDirectServer {
+                    _logFlow.value = MessageData(it)
+                }
+            } else if (info.groupFormed && info.isGroupOwner) {
+                client = WifiDirectClient(inetAddress.hostAddress!!) {
+                    _logFlow.value = MessageData(it)
+                }
+            }
+        }
+    }
+
     private fun connectFlow(connect: Boolean, deviceName: String) = flow {
         val channel = Channel<WifiDirectResult<Boolean>>()
 
@@ -67,22 +90,17 @@ class WifiDirectCoreImpl @Inject constructor(
             onSuccess = { launch { channel.send(WifiDirectResult.Success(true)) } },
             onFail = { code, _ ->
                 launch {
-                    if (code == CONNECTION_REQUEST_ACCEPT && connect)
-                        channel.send(WifiDirectResult.Success(true))
-                    else channel.send(WifiDirectResult.Success(false))
+                    channel.send(WifiDirectResult.Success(code == 0 && connect))
                 }
             }
         )
-
-        manager.requestConnectionInfo(managerChannel) { info ->
-            if (info != null) _logFlow.value = info.toString()
-        }
 
         if (connect) {
             manager.connect(managerChannel, config, actionListener)
         } else {
             manager.cancelConnect(managerChannel, actionListener)
         }
+        manager.requestConnectionInfo(managerChannel, connectInfoListener)
 
         emit(channel.receive())
     }.shareIn(
@@ -94,7 +112,7 @@ class WifiDirectCoreImpl @Inject constructor(
     private val receiver: WifiBroadcastReceiver by lazy {
         WifiBroadcastReceiver(
             requestPeers = { /* called when CHANGED_ACTION */ },
-            log = { _logFlow.value = it }
+            log = { _logFlow.value = LogData(it) }
         )
     }
 
@@ -107,28 +125,29 @@ class WifiDirectCoreImpl @Inject constructor(
     }
 
     override suspend fun discoverPeers(): WifiDirectResult<List<WifiP2pDevice>> {
-        _logFlow.value = "searching for devices ..."
+        _logFlow.value = LogData("searching for devices ...")
         return withContext(Dispatchers.Default) {
             peerFlow.first()
         }
     }
 
     override suspend fun connect(address: String): WifiDirectResult<Boolean> {
-        _logFlow.value = "connect to $address ..."
+        _logFlow.value = LogData("connect to $address ...")
         return withContext(Dispatchers.Default) {
             connectFlow(true, address).first()
         }
     }
 
     override suspend fun connectCancel(address: String): WifiDirectResult<Boolean> {
-        _logFlow.value = "disConnect from $address ..."
+        _logFlow.value = LogData("disConnect from $address ...")
         return withContext(Dispatchers.Default) {
             connectFlow(false, address).first()
         }
     }
 
-    override suspend fun sendMessage() {
-        TODO("Not yet implemented")
+    override suspend fun sendMessage(message: String) {
+        client?.write(message)
+        server?.write(message)
     }
 
     private fun actionListener(

@@ -24,7 +24,7 @@ internal val WIFI_CORE_PERMISSIONS_13 by lazy {
 
 interface WifiDirectCore {
 
-    val logFlow: Flow<String>
+    val logFlow: Flow<WifiDirectData?>
 
     fun registerReceiver()
 
@@ -36,5 +36,5 @@ interface WifiDirectCore {
 
     suspend fun connectCancel(address: String): WifiDirectResult<Boolean>
 
-    suspend fun sendMessage()
+    suspend fun sendMessage(message: String)
 }

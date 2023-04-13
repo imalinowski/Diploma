@@ -10,10 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.malinowski.diploma.model.Message
 import com.malinowski.diploma.model.WifiDirectActions
 import com.malinowski.diploma.model.WifiDirectPeer
-import com.malinowski.diploma.model.wifi.WIFI_CORE_PERMISSIONS
-import com.malinowski.diploma.model.wifi.WIFI_CORE_PERMISSIONS_13
-import com.malinowski.diploma.model.wifi.WifiDirectCore
-import com.malinowski.diploma.model.wifi.WifiDirectResult
+import com.malinowski.diploma.model.wifi.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -39,7 +36,11 @@ class WifiDirectViewModel @Inject constructor(
         wifiDirectCore.registerReceiver()
         viewModelScope.launch {
             wifiDirectCore.logFlow.collectLatest {
-                log(it)
+                when (it) {
+                    is WifiDirectData.LogData -> log(it.log)
+                    is WifiDirectData.MessageData -> TODO()
+                    null -> {}
+                }
             }
         }
     }
@@ -59,7 +60,8 @@ class WifiDirectViewModel @Inject constructor(
 
     fun getMessages(peer: WifiDirectPeer): List<Message> {
         val sampleName = "Vasya"
-        val loremIpsum = "Lorem Ipsum is simply dummy text of the printing and typesetting industry."
+        val loremIpsum =
+            "Lorem Ipsum is simply dummy text of the printing and typesetting industry."
         return listOf(
             Message(author = peer.name, text = loremIpsum),
             Message(author = sampleName, text = loremIpsum),
@@ -117,6 +119,12 @@ class WifiDirectViewModel @Inject constructor(
                         result.error.message ?: "Error Device DisConnect"
                     )
             }
+        }
+    }
+
+    fun sendMessage(message: String){
+        viewModelScope.launch {
+            wifiDirectCore.sendMessage(message)
         }
     }
 
