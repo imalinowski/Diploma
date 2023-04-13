@@ -1,5 +1,6 @@
 package com.malinowski.diploma.model.wifi
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.IntentFilter
 import android.net.wifi.WpsInfo
@@ -10,7 +11,6 @@ import android.net.wifi.p2p.WifiP2pManager
 import android.net.wifi.p2p.WifiP2pManager.*
 import android.util.Log
 import com.malinowski.diploma.model.wifi.WifiDirectData.LogData
-import com.malinowski.diploma.model.wifi.WifiDirectData.MessageData
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
@@ -32,16 +32,15 @@ class WifiDirectCoreImpl @Inject constructor(
 
     private var peers: List<WifiP2pDevice> = emptyList()
 
-    private var server: WifiDirectServer? = null
-    private var client: WifiDirectClient? = null
+    private var wifiDirectSocket: WifiDirectSocket? = null
 
     private val peerFlow = flow {
-        val channel = Channel<WifiDirectResult<List<WifiP2pDevice>>>()
+        val channel = Channel<WifiDirectResult>()
 
         val peerListListener = PeerListListener {
             peers = it.deviceList.toList()
             _logFlow.value = LogData("\n Peers : ${peers.joinToString("\n")}")
-            launch { channel.send(WifiDirectResult.Success(peers)) }
+            launch { channel.send(WifiDirectResult.Peers(peers)) }
         }
 
         manager.discoverPeers(managerChannel, actionListener(
@@ -59,24 +58,22 @@ class WifiDirectCoreImpl @Inject constructor(
     )
 
     private val connectInfoListener: (WifiP2pInfo?) -> Unit = { info ->
-        if (info != null) {
+        if (info != null && info.groupFormed) {
             _logFlow.value = LogData(info.toString())
-
-            val inetAddress = info.groupOwnerAddress
-            if (info.groupFormed && info.isGroupOwner) {
-                server = WifiDirectServer {
-                    _logFlow.value = MessageData(it)
-                }
-            } else if (info.groupFormed && info.isGroupOwner) {
-                client = WifiDirectClient(inetAddress.hostAddress!!) {
-                    _logFlow.value = MessageData(it)
-                }
+            val inetAddress = info.groupOwnerAddress.hostAddress!!
+            wifiDirectSocket = if (info.isGroupOwner) {
+                Log.i("RASPBERRY_MESSAGE", "SERVER!!!")
+                WifiDirectServer()
+            } else {
+                Log.i("RASPBERRY_MESSAGE", "CLIENT!!!")
+                WifiDirectClient(inetAddress)
             }
         }
     }
 
+    @SuppressLint("NewApi")
     private fun connectFlow(connect: Boolean, deviceName: String) = flow {
-        val channel = Channel<WifiDirectResult<Boolean>>()
+        val channel = Channel<Boolean>()
 
         val device = peers.find { it.deviceAddress == deviceName }
             ?: throw IllegalStateException("device with address $deviceName Not Found!")
@@ -87,27 +84,24 @@ class WifiDirectCoreImpl @Inject constructor(
         }
 
         val actionListener = actionListener(
-            onSuccess = { launch { channel.send(WifiDirectResult.Success(true)) } },
+            onSuccess = { launch { channel.send(true) } },
             onFail = { code, _ ->
-                launch {
-                    channel.send(WifiDirectResult.Success(code == 0 && connect))
-                }
+                launch { channel.send(code == CONNECTION_REQUEST_ACCEPT) }
             }
         )
 
-        if (connect) {
-            manager.connect(managerChannel, config, actionListener)
-        } else {
-            manager.cancelConnect(managerChannel, actionListener)
-        }
-        manager.requestConnectionInfo(managerChannel, connectInfoListener)
+        manager.connect(managerChannel, config, actionListener)
 
         emit(channel.receive())
     }.shareIn(
         this,
-        SharingStarted.WhileSubscribed(replayExpirationMillis = CACHE_EXPIRATION_TIME),
+        SharingStarted.WhileSubscribed(replayExpirationMillis = CACHE_EXPIRATION_TIME * 10),
         replay = 1
-    )
+    ).onEach { success ->
+        if (success) {
+            manager.requestConnectionInfo(managerChannel, connectInfoListener)
+        }
+    }
 
     private val receiver: WifiBroadcastReceiver by lazy {
         WifiBroadcastReceiver(
@@ -124,30 +118,27 @@ class WifiDirectCoreImpl @Inject constructor(
         context.unregisterReceiver(receiver)
     }
 
-    override suspend fun discoverPeers(): WifiDirectResult<List<WifiP2pDevice>> {
+    override suspend fun discoverPeers(): WifiDirectResult {
         _logFlow.value = LogData("searching for devices ...")
         return withContext(Dispatchers.Default) {
             peerFlow.first()
         }
     }
 
-    override suspend fun connect(address: String): WifiDirectResult<Boolean> {
-        _logFlow.value = LogData("connect to $address ...")
-        return withContext(Dispatchers.Default) {
-            connectFlow(true, address).first()
-        }
+    override suspend fun connect(address: String): Boolean {
+        return connectFlow(true, address)
+            .onEach { _logFlow.value = LogData("connect to $address ... $it") }
+            .first()
     }
 
-    override suspend fun connectCancel(address: String): WifiDirectResult<Boolean> {
-        _logFlow.value = LogData("disConnect from $address ...")
-        return withContext(Dispatchers.Default) {
-            connectFlow(false, address).first()
-        }
+    override suspend fun connectCancel(address: String): Boolean {
+        return connectFlow(false, address)
+            .onEach { _logFlow.value = LogData("disConnect from $address ... $it") }
+            .first()
     }
 
     override suspend fun sendMessage(message: String) {
-        client?.write(message)
-        server?.write(message)
+        wifiDirectSocket?.write(message)
     }
 
     private fun actionListener(

@@ -84,8 +84,8 @@ class WifiDirectViewModel @Inject constructor(
     fun searchForDevices() {
         viewModelScope.launch {
             when (val result = wifiDirectCore.discoverPeers()) {
-                is WifiDirectResult.Success -> _state.value =
-                    _state.value.copy(peers = result.data.map {
+                is WifiDirectResult.Peers -> _state.value =
+                    _state.value.copy(peers = result.peer.map {
                         WifiDirectPeer(it.deviceName, it.deviceAddress)
                     })
                 is WifiDirectResult.Error ->
@@ -93,36 +93,34 @@ class WifiDirectViewModel @Inject constructor(
                         title = result.error::class.java.name,
                         text = result.error.message ?: "error"
                     )
+                else -> {}
             }
         }
     }
 
     fun connectDevice(peer: WifiDirectPeer) {
         viewModelScope.launch {
-            when (val result = wifiDirectCore.connect(peer.address)) {
-                is WifiDirectResult.Success ->
-                    _actions.value = WifiDirectActions.OpenChat(peer)
-                is WifiDirectResult.Error ->
-                    _actions.value = WifiDirectActions.ShowToast(
-                        result.error.message ?: "Connect Failed"
-                    )
+            if (wifiDirectCore.connect(peer.address)) {
+                _actions.value = WifiDirectActions.OpenChat(peer)
+            } else {
+                _actions.value = WifiDirectActions.ShowToast("Connect Failed")
             }
         }
     }
 
     fun connectCancel(address: String) {
-        viewModelScope.launch {
-            when (val result = wifiDirectCore.connectCancel(address)) {
-                is WifiDirectResult.Success -> {}
-                is WifiDirectResult.Error ->
-                    _actions.value = WifiDirectActions.ShowToast(
-                        result.error.message ?: "Error Device DisConnect"
-                    )
-            }
-        }
+//        viewModelScope.launch {
+//            when (val result = wifiDirectCore.connectCancel(address)) {
+//                is WifiDirectResult.Success -> {}
+//                is WifiDirectResult.Error ->
+//                    _actions.value = WifiDirectActions.ShowToast(
+//                        result.error.message ?: "Error Device DisConnect"
+//                    )
+//            }
+//        }
     }
 
-    fun sendMessage(message: String){
+    fun sendMessage(message: String) {
         viewModelScope.launch {
             wifiDirectCore.sendMessage(message)
         }

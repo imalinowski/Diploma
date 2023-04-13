@@ -1,6 +1,9 @@
 package com.malinowski.diploma.model.wifi
 
-sealed class WifiDirectResult<T> {
-    class Success<T>(val data: T) : WifiDirectResult<T>()
-    class Error<T>(val error: Throwable) : WifiDirectResult<T>()
+import android.net.wifi.p2p.WifiP2pDevice
+
+sealed class WifiDirectResult {
+    class Peers(val peer: List<WifiP2pDevice>) : WifiDirectResult()
+    object Success : WifiDirectResult()
+    class Error(val error: Throwable) : WifiDirectResult()
 }

@@ -1,7 +1,6 @@
 package com.malinowski.diploma.model.wifi
 
 import android.Manifest
-import android.net.wifi.p2p.WifiP2pDevice
 import android.os.Build
 import kotlinx.coroutines.flow.Flow
 
@@ -30,11 +29,11 @@ interface WifiDirectCore {
 
     fun unRegisterReceiver()
 
-    suspend fun discoverPeers(): WifiDirectResult<List<WifiP2pDevice>>
+    suspend fun discoverPeers(): WifiDirectResult
 
-    suspend fun connect(address: String): WifiDirectResult<Boolean>
+    suspend fun connect(address: String): Boolean
 
-    suspend fun connectCancel(address: String): WifiDirectResult<Boolean>
+    suspend fun connectCancel(address: String): Boolean
 
     suspend fun sendMessage(message: String)
 }
