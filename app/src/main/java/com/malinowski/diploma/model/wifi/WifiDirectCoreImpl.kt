@@ -10,6 +10,8 @@ import android.net.wifi.p2p.WifiP2pInfo
 import android.net.wifi.p2p.WifiP2pManager
 import android.net.wifi.p2p.WifiP2pManager.*
 import android.util.Log
+import com.malinowski.diploma.model.Message
+import com.malinowski.diploma.model.wifi.WifiDirectData.ConnectionChanged
 import com.malinowski.diploma.model.wifi.WifiDirectData.LogData
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -27,19 +29,29 @@ class WifiDirectCoreImpl @Inject constructor(
     override val coroutineContext: CoroutineContext
         get() = Job() + Dispatchers.Default
 
-    private val _logFlow: MutableStateFlow<WifiDirectData?> = MutableStateFlow(null)
-    override val logFlow = _logFlow.asStateFlow()
+    private val _dataFlow: MutableStateFlow<WifiDirectData?> = MutableStateFlow(null)
+    override val dataFlow = _dataFlow.asStateFlow()
 
     private var peers: List<WifiP2pDevice> = emptyList()
 
     private var wifiDirectSocket: WifiDirectSocket? = null
+
+    private var connectionInfo = WifiP2pInfo()
+
+    private val receiver: WifiBroadcastReceiver by lazy {
+        WifiBroadcastReceiver(
+            requestPeers = { /* called when CHANGED_ACTION */ },
+            connect = { manager.requestConnectionInfo(managerChannel, connectInfoListener) },
+            log = { _dataFlow.value = LogData(it) }
+        )
+    }
 
     private val peerFlow = flow {
         val channel = Channel<WifiDirectResult>()
 
         val peerListListener = PeerListListener {
             peers = it.deviceList.toList()
-            _logFlow.value = LogData("\n Peers : ${peers.joinToString("\n")}")
+            _dataFlow.value = LogData("\n Peers : ${peers.joinToString("\n")}")
             launch { channel.send(WifiDirectResult.Peers(peers)) }
         }
 
@@ -59,14 +71,19 @@ class WifiDirectCoreImpl @Inject constructor(
 
     private val connectInfoListener: (WifiP2pInfo?) -> Unit = { info ->
         if (info != null && info.groupFormed) {
-            _logFlow.value = LogData(info.toString())
+            _dataFlow.value = ConnectionChanged(info)
+            connectionInfo = info
             val inetAddress = info.groupOwnerAddress.hostAddress!!
             wifiDirectSocket = if (info.isGroupOwner) {
-                Log.i("RASPBERRY_MESSAGE", "SERVER!!!")
                 WifiDirectServer()
             } else {
-                Log.i("RASPBERRY_MESSAGE", "CLIENT!!!")
                 WifiDirectClient(inetAddress)
+            }.apply {
+                onReceive = { message ->
+                    _dataFlow.value = WifiDirectData.MessageData(
+                        Message(text = message, author = inetAddress)
+                    )
+                }
             }
         }
     }
@@ -103,13 +120,6 @@ class WifiDirectCoreImpl @Inject constructor(
         }
     }
 
-    private val receiver: WifiBroadcastReceiver by lazy {
-        WifiBroadcastReceiver(
-            requestPeers = { /* called when CHANGED_ACTION */ },
-            log = { _logFlow.value = LogData(it) }
-        )
-    }
-
     override fun registerReceiver() {
         context.registerReceiver(receiver, intentFilter)
     }
@@ -118,8 +128,12 @@ class WifiDirectCoreImpl @Inject constructor(
         context.unregisterReceiver(receiver)
     }
 
+    override fun getConnectionInfo(): WifiP2pInfo {
+        return connectionInfo
+    }
+
     override suspend fun discoverPeers(): WifiDirectResult {
-        _logFlow.value = LogData("searching for devices ...")
+        _dataFlow.value = LogData("searching for devices ...")
         return withContext(Dispatchers.Default) {
             peerFlow.first()
         }
@@ -127,13 +141,13 @@ class WifiDirectCoreImpl @Inject constructor(
 
     override suspend fun connect(address: String): Boolean {
         return connectFlow(true, address)
-            .onEach { _logFlow.value = LogData("connect to $address ... $it") }
+            .onEach { _dataFlow.value = LogData("connect to $address ... $it") }
             .first()
     }
 
     override suspend fun connectCancel(address: String): Boolean {
         return connectFlow(false, address)
-            .onEach { _logFlow.value = LogData("disConnect from $address ... $it") }
+            .onEach { _dataFlow.value = LogData("disConnect from $address ... $it") }
             .first()
     }
 

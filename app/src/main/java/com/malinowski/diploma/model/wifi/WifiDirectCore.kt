@@ -1,6 +1,7 @@
 package com.malinowski.diploma.model.wifi
 
 import android.Manifest
+import android.net.wifi.p2p.WifiP2pInfo
 import android.os.Build
 import kotlinx.coroutines.flow.Flow
 
@@ -23,11 +24,13 @@ internal val WIFI_CORE_PERMISSIONS_13 by lazy {
 
 interface WifiDirectCore {
 
-    val logFlow: Flow<WifiDirectData?>
+    val dataFlow: Flow<WifiDirectData?>
 
     fun registerReceiver()
 
     fun unRegisterReceiver()
+
+    fun getConnectionInfo(): WifiP2pInfo
 
     suspend fun discoverPeers(): WifiDirectResult
 

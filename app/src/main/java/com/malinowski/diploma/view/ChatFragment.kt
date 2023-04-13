@@ -12,9 +12,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.malinowski.diploma.R
 import com.malinowski.diploma.databinding.FragmentChatBinding
 import com.malinowski.diploma.model.WifiDirectActions
 import com.malinowski.diploma.model.WifiDirectPeer
+import com.malinowski.diploma.model.WifiDirectUiState
 import com.malinowski.diploma.model.getComponent
 import com.malinowski.diploma.view.adapters.MessageAdapter
 import com.malinowski.diploma.viewmodel.WifiDirectViewModel
@@ -62,7 +64,6 @@ class ChatFragment private constructor() : Fragment() {
             adapter = this@ChatFragment.adapter
             layoutManager = LinearLayoutManager(this@ChatFragment.requireContext())
         }
-        adapter.submitList(viewModel.getMessages(peer))
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -70,10 +71,17 @@ class ChatFragment private constructor() : Fragment() {
             }
         }
 
+        lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.state.collect(::update)
+            }
+        }
+
         binding.send.setOnClickListener {
             val message = binding.messageEdit.text.toString()
             viewModel.sendMessage(message)
         }
+
     }
 
     private fun actions(action: WifiDirectActions?) {
@@ -82,6 +90,19 @@ class ChatFragment private constructor() : Fragment() {
                 adapter.submitList(listOf(action.message))
             }
             else -> {}
+        }
+    }
+
+    private fun update(state: WifiDirectUiState) {
+        adapter.submitList(state.messages)
+        binding.connectionStatus.apply {
+            if (state.connectionInfo.groupFormed) {
+                setBackgroundResource(R.drawable.connection_on_bg)
+                text = if (state.connectionInfo.isGroupOwner) "Host" else "Client"
+            } else {
+                text = getString(R.string.disconnected)
+                setBackgroundResource(R.drawable.connection_off_bg)
+            }
         }
     }
 

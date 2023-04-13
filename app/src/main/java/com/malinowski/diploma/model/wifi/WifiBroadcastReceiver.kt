@@ -3,54 +3,39 @@ package com.malinowski.diploma.model.wifi
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.net.NetworkInfo
 import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
-import android.util.Log
 
 
 private const val TAG = "RASPBERRY"
 
 class WifiBroadcastReceiver(
     private val requestPeers: () -> Unit,
+    private val connect: () -> Unit,
     private val log: (String) -> Unit,
 ) : BroadcastReceiver() {
 
-    
     override fun onReceive(context: Context, intent: Intent) {
-        StringBuilder().apply {
-            append("Action: ${intent.action}\n")
-            append("URI: ${intent.toUri(Intent.URI_INTENT_SCHEME)}\n")
-            toString().also { log ->
-                Log.d(TAG, log)
-                log("$TAG : $log ")
-            }
-        }
+        log("Action: ${intent.action}\n")
         when (intent.action) {
             WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION -> {
-                // Determine if Wi-Fi Direct mode is enabled or not, alert the Activity.
                 val state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1)
                 val isWifiP2pEnabled = state == WifiP2pManager.WIFI_P2P_STATE_ENABLED
                 log("WifiP2PEnabled -> $isWifiP2pEnabled")
             }
             WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION -> {
-                try {
-                    requestPeers()
-                } catch (e: SecurityException) {
-                    Log.e("RASPBERRY", "Permission denied")
-                }
-                Log.d("RASPBERRY", "P2P peers changed")
-                // The peer list has changed! We should probably do something about
-                // that.
+                requestPeers()
             }
             WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION -> {
-
-                // Connection state changed! We should probably do something about
-                // that.
-
+                val networkInfo: NetworkInfo? =
+                    intent.getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO)
+                if (networkInfo?.isConnected == true)
+                    connect()
             }
             WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION -> {
-                val data =
-                    (intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE) as? WifiP2pDevice)
+                val data: WifiP2pDevice? =
+                    intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE)
                 log(data?.deviceName ?: "unknown")
             }
         }

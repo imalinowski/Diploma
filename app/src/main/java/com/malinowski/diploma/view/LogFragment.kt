@@ -14,8 +14,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.malinowski.diploma.databinding.FragmentLogBinding
+import com.malinowski.diploma.model.WifiDirectUiState
 import com.malinowski.diploma.model.getComponent
-import com.malinowski.diploma.viewmodel.WifiDirectState
 import com.malinowski.diploma.viewmodel.WifiDirectViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -71,7 +71,7 @@ class LogFragment : Fragment() {
 
     }
 
-    private fun update(state: WifiDirectState) {
+    private fun update(state: WifiDirectUiState) {
         logView.text = state.logText
     }
 

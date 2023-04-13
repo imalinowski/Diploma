@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.malinowski.diploma.model.Message
 import com.malinowski.diploma.model.WifiDirectActions
 import com.malinowski.diploma.model.WifiDirectPeer
+import com.malinowski.diploma.model.WifiDirectUiState
 import com.malinowski.diploma.model.wifi.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,17 +18,11 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class WifiDirectState(
-    val logText: String = "",
-    val peers: List<WifiDirectPeer> = emptyList(),
-    val permissionsGranted: Boolean = false
-)
-
 class WifiDirectViewModel @Inject constructor(
     private val wifiDirectCore: WifiDirectCore
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(WifiDirectState())
+    private val _state = MutableStateFlow(WifiDirectUiState())
     private val _actions: MutableStateFlow<WifiDirectActions?> = MutableStateFlow(null)
     val state = _state.asStateFlow()
     val actions = _actions.asStateFlow()
@@ -35,10 +30,12 @@ class WifiDirectViewModel @Inject constructor(
     init {
         wifiDirectCore.registerReceiver()
         viewModelScope.launch {
-            wifiDirectCore.logFlow.collectLatest {
-                when (it) {
-                    is WifiDirectData.LogData -> log(it.log)
-                    is WifiDirectData.MessageData -> TODO()
+            wifiDirectCore.dataFlow.collectLatest { data ->
+                when (data) {
+                    is WifiDirectData.LogData -> log(data.log)
+                    is WifiDirectData.MessageData -> addMessage(data.message)
+                    is WifiDirectData.ConnectionChanged -> _state.value =
+                        _state.value.copy(connectionInfo = data.info)
                     null -> {}
                 }
             }
@@ -58,23 +55,10 @@ class WifiDirectViewModel @Inject constructor(
         }
     }
 
-    fun getMessages(peer: WifiDirectPeer): List<Message> {
-        val sampleName = "Vasya"
-        val loremIpsum =
-            "Lorem Ipsum is simply dummy text of the printing and typesetting industry."
-        return listOf(
-            Message(author = peer.name, text = loremIpsum),
-            Message(author = sampleName, text = loremIpsum),
-            Message(author = peer.name, text = loremIpsum),
-            Message(author = sampleName, text = loremIpsum),
-            Message(author = peer.name, text = loremIpsum),
-            Message(author = sampleName, text = loremIpsum),
-            Message(author = sampleName, text = loremIpsum),
-            Message(author = peer.name, text = loremIpsum),
-            Message(author = sampleName, text = loremIpsum),
-            Message(author = peer.name, text = loremIpsum),
-            Message(author = sampleName, text = loremIpsum),
-        )
+    private fun addMessage(message: Message) {
+        _state.value = _state.value.let { state ->
+            state.copy(messages = state.messages + listOf(message))
+        }
     }
 
     fun clearLog() {

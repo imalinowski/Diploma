@@ -31,7 +31,7 @@ class WifiDirectClient(
 
         while (socket.isConnected) {
             val text = BufferedReader(InputStreamReader(inputStream)).readText()
-            onReceive(text)
+            if (text.isNotEmpty()) onReceive(text)
             Log.i("RASPBERRY_MESSAGE", text)
         }
     }
