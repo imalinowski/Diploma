@@ -1,5 +1,6 @@
 package com.malinowski.diploma.model.wifi
 
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.net.InetSocketAddress
@@ -10,9 +11,13 @@ class WifiDirectClient(
 ) : WifiDirectSocket() {
     init {
         launch(Dispatchers.IO) {
-            socket = Socket()
-            socket.connect(InetSocketAddress(hostAddress, PORT))
-            start()
+            try{
+                socket = Socket()
+                socket.connect(InetSocketAddress(hostAddress, PORT))
+                start()
+            } catch (e: Exception) {
+                Log.e("RASPBERRY", e.message ?: "client error")
+            }
         }
     }
 }
