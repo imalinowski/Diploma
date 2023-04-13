@@ -63,6 +63,13 @@ class WifiDirectViewModel @Inject constructor(
         }
     }
 
+    private fun showErrorAlertDialog(error: Throwable) {
+        _actions.value = WifiDirectActions.ShowAlertDialog(
+            title = error::class.java.name,
+            text = error.message ?: "error"
+        )
+    }
+
     fun clearLog() {
         _state.value = _state.value.copy(logText = "")
     }
@@ -74,11 +81,7 @@ class WifiDirectViewModel @Inject constructor(
                     _state.value.copy(peers = result.peer.map {
                         WifiDirectPeer(it.deviceName, it.deviceAddress)
                     })
-                is WifiDirectResult.Error ->
-                    _actions.value = WifiDirectActions.ShowAlertDialog(
-                        title = result.error::class.java.name,
-                        text = result.error.message ?: "error"
-                    )
+                is WifiDirectResult.Error -> showErrorAlertDialog(result.error)
                 else -> {}
             }
         }
@@ -100,7 +103,11 @@ class WifiDirectViewModel @Inject constructor(
 
     fun sendMessage(message: String) {
         viewModelScope.launch {
-            wifiDirectCore.sendMessage(message)
+            try {
+                wifiDirectCore.sendMessage(message)
+            } catch (e: Exception) {
+                showErrorAlertDialog(e)
+            }
         }
     }
 

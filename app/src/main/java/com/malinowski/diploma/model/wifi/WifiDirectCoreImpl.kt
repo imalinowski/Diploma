@@ -16,6 +16,7 @@ import com.malinowski.diploma.model.wifi.WifiDirectData.WifiConnectionChanged
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
+import java.lang.Exception
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -57,7 +58,7 @@ class WifiDirectCoreImpl @Inject constructor(
 
         manager.discoverPeers(managerChannel, actionListener(
             onSuccess = { manager.requestPeers(managerChannel, peerListListener) },
-            onFail = { _, it -> launch { channel.send(WifiDirectResult.Error(Throwable(it))) } }
+            onFail = { _, it -> launch { channel.send(WifiDirectResult.Error(Exception(it))) } }
         ))
 
         emit(channel.receive())
@@ -156,6 +157,7 @@ class WifiDirectCoreImpl @Inject constructor(
 
     override suspend fun sendMessage(message: String) {
         wifiDirectSocket?.write(message)
+            ?: throw IllegalStateException("wifiDirectSocket is null")
     }
 
     private fun actionListener(
