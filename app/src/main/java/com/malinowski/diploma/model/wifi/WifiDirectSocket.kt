@@ -11,6 +11,8 @@ abstract class WifiDirectSocket : CoroutineScope {
 
     var onReceive: (String) -> Unit = {}
 
+    var onConnectionChanged: (Boolean) -> Unit = {}
+
     override val coroutineContext: CoroutineContext
         get() = Job() + Dispatchers.Default
 

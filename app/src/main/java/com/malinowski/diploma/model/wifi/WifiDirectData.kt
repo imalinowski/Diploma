@@ -6,5 +6,6 @@ import com.malinowski.diploma.model.Message
 sealed class WifiDirectData {
     class LogData(val log: String) : WifiDirectData()
     class MessageData(val message: Message) : WifiDirectData()
-    class ConnectionChanged(val info: WifiP2pInfo) : WifiDirectData()
+    class WifiConnectionChanged(val info: WifiP2pInfo) : WifiDirectData()
+    class SocketConnectionChanged(val connected: Boolean) : WifiDirectData()
 }

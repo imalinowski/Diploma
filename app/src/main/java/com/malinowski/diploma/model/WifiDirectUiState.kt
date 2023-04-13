@@ -7,5 +7,6 @@ data class WifiDirectUiState(
     val peers: List<WifiDirectPeer> = emptyList(),
     val permissionsGranted: Boolean = false,
     val messages: List<Message> = emptyList(),
-    val connectionInfo: WifiP2pInfo = WifiP2pInfo()
+    val wifiConnectionInfo: WifiP2pInfo = WifiP2pInfo(),
+    val chatConnectionInfo: Boolean = false
 )

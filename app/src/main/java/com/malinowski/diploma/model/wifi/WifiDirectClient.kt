@@ -21,9 +21,11 @@ class WifiDirectClient(
     }
 
     private suspend fun runClient() = withContext(Dispatchers.IO) {
+        onConnectionChanged(false)
         val socket = Socket()
         Log.i("RASPBERRY_SOCKET", "client trying to connect $hostAddress")
         socket.connect(InetSocketAddress(hostAddress, PORT))
+        onConnectionChanged(true)
         Log.i("RASPBERRY_SOCKET", "client connect $hostAddress")
 
         val inputStream = socket.getInputStream()
@@ -31,8 +33,10 @@ class WifiDirectClient(
 
         while (socket.isConnected) {
             val text = BufferedReader(InputStreamReader(inputStream)).readText()
-            if (text.isNotEmpty()) onReceive(text)
+            if (text.isNotEmpty())
+                onReceive(text)
             Log.i("RASPBERRY_MESSAGE", text)
         }
+        onConnectionChanged(false)
     }
 }

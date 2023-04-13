@@ -34,9 +34,11 @@ class WifiDirectViewModel @Inject constructor(
                 when (data) {
                     is WifiDirectData.LogData -> log(data.log)
                     is WifiDirectData.MessageData -> addMessage(data.message)
-                    is WifiDirectData.ConnectionChanged -> _state.value =
-                        _state.value.copy(connectionInfo = data.info)
+                    is WifiDirectData.WifiConnectionChanged -> _state.value =
+                        _state.value.copy(wifiConnectionInfo = data.info)
                     null -> {}
+                    is WifiDirectData.SocketConnectionChanged -> _state.value =
+                        _state.value.copy(chatConnectionInfo = data.connected)
                 }
             }
         }
@@ -93,15 +95,7 @@ class WifiDirectViewModel @Inject constructor(
     }
 
     fun connectCancel(address: String) {
-//        viewModelScope.launch {
-//            when (val result = wifiDirectCore.connectCancel(address)) {
-//                is WifiDirectResult.Success -> {}
-//                is WifiDirectResult.Error ->
-//                    _actions.value = WifiDirectActions.ShowToast(
-//                        result.error.message ?: "Error Device DisConnect"
-//                    )
-//            }
-//        }
+
     }
 
     fun sendMessage(message: String) {

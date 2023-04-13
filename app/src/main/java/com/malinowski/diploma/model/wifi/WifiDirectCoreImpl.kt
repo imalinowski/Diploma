@@ -11,8 +11,8 @@ import android.net.wifi.p2p.WifiP2pManager
 import android.net.wifi.p2p.WifiP2pManager.*
 import android.util.Log
 import com.malinowski.diploma.model.Message
-import com.malinowski.diploma.model.wifi.WifiDirectData.ConnectionChanged
 import com.malinowski.diploma.model.wifi.WifiDirectData.LogData
+import com.malinowski.diploma.model.wifi.WifiDirectData.WifiConnectionChanged
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
@@ -70,8 +70,8 @@ class WifiDirectCoreImpl @Inject constructor(
     )
 
     private val connectInfoListener: (WifiP2pInfo?) -> Unit = { info ->
+        _dataFlow.value = WifiConnectionChanged(info ?: WifiP2pInfo())
         if (info != null && info.groupFormed) {
-            _dataFlow.value = ConnectionChanged(info)
             connectionInfo = info
             val inetAddress = info.groupOwnerAddress.hostAddress!!
             wifiDirectSocket = if (info.isGroupOwner) {
@@ -83,6 +83,9 @@ class WifiDirectCoreImpl @Inject constructor(
                     _dataFlow.value = WifiDirectData.MessageData(
                         Message(text = message, author = inetAddress)
                     )
+                }
+                onConnectionChanged = {
+                    _dataFlow.value = WifiDirectData.SocketConnectionChanged(it)
                 }
             }
         }

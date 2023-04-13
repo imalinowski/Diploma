@@ -96,13 +96,17 @@ class ChatFragment private constructor() : Fragment() {
     private fun update(state: WifiDirectUiState) {
         adapter.submitList(state.messages)
         binding.connectionStatus.apply {
-            if (state.connectionInfo.groupFormed) {
-                setBackgroundResource(R.drawable.connection_on_bg)
-                text = if (state.connectionInfo.isGroupOwner) "Host" else "Client"
+            text = if (state.wifiConnectionInfo.groupFormed) {
+                if (state.wifiConnectionInfo.isGroupOwner) "Host" else "Client"
             } else {
-                text = getString(R.string.disconnected)
-                setBackgroundResource(R.drawable.connection_off_bg)
+                getString(R.string.disconnected)
             }
+            setBackgroundResource(
+                if (state.chatConnectionInfo)
+                    R.drawable.connection_on_bg
+                else
+                    R.drawable.connection_off_bg
+            )
         }
     }
 
