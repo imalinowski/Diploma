@@ -16,13 +16,13 @@ class WifiDirectServer : WifiDirectSocket() {
                 socket = serverSocket.accept()
                 start()
             } catch (e: Exception) {
-                Log.e("RASPBERRY", e.message ?: "server error")
+                Log.e("RASPBERRY_SERVER", e.message ?: "server error")
             }
         }
     }
 
-    override fun shutDown() {
-        super.shutDown()
+    override fun shutDown(e: Exception?) {
+        super.shutDown(e)
         serverSocket.close()
     }
 }

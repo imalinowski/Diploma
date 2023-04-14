@@ -16,7 +16,7 @@ class WifiDirectClient(
                 socket.connect(InetSocketAddress(hostAddress, PORT))
                 start()
             } catch (e: Exception) {
-                Log.e("RASPBERRY", e.message ?: "client error")
+                Log.e("RASPBERRY_CLIENT", e.toString())
             }
         }
     }

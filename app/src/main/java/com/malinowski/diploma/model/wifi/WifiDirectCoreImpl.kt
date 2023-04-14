@@ -16,7 +16,6 @@ import com.malinowski.diploma.model.wifi.WifiDirectData.WifiConnectionChanged
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
-import java.lang.Exception
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -75,7 +74,9 @@ class WifiDirectCoreImpl @Inject constructor(
         if (info != null && info.groupFormed) {
             connectionInfo = info
             val inetAddress = info.groupOwnerAddress.hostAddress!!
-            wifiDirectSocket = if (info.isGroupOwner) {
+            wifiDirectSocket = if (wifiDirectSocket != null) {
+                wifiDirectSocket
+            } else if (info.isGroupOwner) {
                 WifiDirectServer()
             } else {
                 WifiDirectClient(inetAddress)
