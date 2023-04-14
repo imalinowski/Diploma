@@ -74,9 +74,8 @@ class WifiDirectCoreImpl @Inject constructor(
         if (info != null && info.groupFormed) {
             connectionInfo = info
             val inetAddress = info.groupOwnerAddress.hostAddress!!
-            wifiDirectSocket = if (wifiDirectSocket != null) {
-                wifiDirectSocket
-            } else if (info.isGroupOwner) {
+            wifiDirectSocket?.shutDown(restart = false)
+            wifiDirectSocket = if (info.isGroupOwner) {
                 WifiDirectServer()
             } else {
                 WifiDirectClient(inetAddress)

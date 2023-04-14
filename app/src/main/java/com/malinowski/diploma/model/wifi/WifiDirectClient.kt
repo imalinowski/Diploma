@@ -10,8 +10,12 @@ class WifiDirectClient(
     private val hostAddress: String,
 ) : WifiDirectSocket() {
     init {
+        initConnection()
+    }
+
+    override fun initConnection() {
         launch(Dispatchers.IO) {
-            try{
+            try {
                 socket = Socket()
                 socket.connect(InetSocketAddress(hostAddress, PORT))
                 start()

@@ -28,6 +28,10 @@ abstract class WifiDirectSocket : CoroutineScope {
             onConnectionChanged(value)
         }
 
+    private var restartCount = 0
+
+    protected abstract fun initConnection()
+
     protected suspend fun start() = withContext(Dispatchers.IO) {
         connected = true
         outputStream = socket.getOutputStream()
@@ -53,13 +57,21 @@ abstract class WifiDirectSocket : CoroutineScope {
         Log.i("RASPBERRY", "send message $message to ${socket.inetAddress.hostName}")
     }
 
-    open fun shutDown(e: Exception? = null) {
-        Log.e("RASPBERRY_SHUT_DOWN", e.toString())
+    open fun shutDown(restart: Boolean = true, error: Exception? = null) {
+        Log.e("RASPBERRY_SHUT_DOWN", "restart > $restart, error >${error.toString()}")
         socket.close()
         connected = false
+        if (restart && restartCount < RESTART_LIMIT) {
+            Log.i("RASPBERRY", "socket restarted")
+            initConnection()
+            restartCount += 1
+        } else {
+            restartCount = RESTART_LIMIT
+        }
     }
 
     companion object {
+        const val RESTART_LIMIT = 2
         const val PORT: Int = 8080
     }
 }

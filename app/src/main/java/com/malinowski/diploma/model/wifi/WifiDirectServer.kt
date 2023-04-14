@@ -10,6 +10,10 @@ class WifiDirectServer : WifiDirectSocket() {
     private lateinit var serverSocket: ServerSocket
 
     init {
+        initConnection()
+    }
+
+    override fun initConnection() {
         launch(Dispatchers.IO) {
             try {
                 serverSocket = ServerSocket(PORT)
@@ -21,8 +25,8 @@ class WifiDirectServer : WifiDirectSocket() {
         }
     }
 
-    override fun shutDown(e: Exception?) {
-        super.shutDown(e)
+    override fun shutDown(restart: Boolean, error: Exception?) {
+        super.shutDown(restart, error)
         serverSocket.close()
     }
 }
