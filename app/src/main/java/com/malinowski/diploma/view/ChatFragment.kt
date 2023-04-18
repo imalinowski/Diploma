@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -107,6 +108,7 @@ class ChatFragment private constructor() : Fragment() {
                 else
                     R.drawable.connection_off_bg
             )
+            setPadding(20)
         }
     }
 
