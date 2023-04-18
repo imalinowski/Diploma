@@ -63,7 +63,9 @@ class ChatFragment private constructor() : Fragment() {
         binding.chatName.text = peer.name
         binding.messageRecycler.apply {
             adapter = this@ChatFragment.adapter
-            layoutManager = LinearLayoutManager(this@ChatFragment.requireContext())
+            layoutManager = LinearLayoutManager(this@ChatFragment.requireContext()).apply {
+                stackFromEnd = true
+            }
         }
 
         lifecycleScope.launch {
@@ -81,6 +83,7 @@ class ChatFragment private constructor() : Fragment() {
         binding.send.setOnClickListener {
             val message = binding.messageEdit.text.toString()
             viewModel.sendMessage(message)
+            binding.messageEdit.setText("")
         }
 
     }

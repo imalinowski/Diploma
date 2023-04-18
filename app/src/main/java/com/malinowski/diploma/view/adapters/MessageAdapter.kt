@@ -1,8 +1,13 @@
 package com.malinowski.diploma.view.adapters
 
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
 import androidx.core.view.isVisible
+import androidx.core.view.setMargins
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -32,6 +37,11 @@ class MessageAdapter :
             message.text = item.text
             time.isVisible = item.time != null
             time.text = item.time
+            container.layoutParams = FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+                .apply {
+                    setMargins(15)
+                    gravity = if (item.fromRemote) Gravity.START else Gravity.END
+                }
         }
     }
 

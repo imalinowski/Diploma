@@ -105,6 +105,7 @@ class WifiDirectViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 wifiDirectCore.sendMessage(message)
+                addMessage(Message(text = message, fromRemote = false))
             } catch (e: Exception) {
                 showErrorAlertDialog(e)
             }
