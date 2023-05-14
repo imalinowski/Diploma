@@ -1,12 +1,15 @@
 package com.malinowski.diploma.model.wifi
 
 import android.util.Log
+import com.malinowski.diploma.ext.getTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
 import java.io.OutputStream
 import java.net.Socket
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 abstract class WifiDirectSocket : CoroutineScope {
@@ -45,7 +48,7 @@ abstract class WifiDirectSocket : CoroutineScope {
                 if (len == 0) continue
                 val text = String(buffer, 0, len)
                 onReceive(text)
-                Log.i("RASPBERRY_MESSAGE", text)
+                Log.i("RASPBERRY_MESSAGE", "${getTime()} : $text")
             } catch (e: Exception) {
                 shutDown()
             }
@@ -54,7 +57,7 @@ abstract class WifiDirectSocket : CoroutineScope {
 
     suspend fun write(message: String) = withContext(Dispatchers.IO) {
         outputStream.write(message.toByteArray())
-        Log.i("RASPBERRY", "send message $message to ${socket.inetAddress.hostName}")
+        Log.i("RASPBERRY_MESSAGE", "${getTime()} : send message $message")
     }
 
     open fun shutDown(restart: Boolean = true, error: Exception? = null) {

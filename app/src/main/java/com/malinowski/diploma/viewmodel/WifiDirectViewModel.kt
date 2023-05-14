@@ -7,6 +7,7 @@ import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.malinowski.diploma.ext.getTime
 import com.malinowski.diploma.model.Message
 import com.malinowski.diploma.model.WifiDirectActions
 import com.malinowski.diploma.model.WifiDirectPeer
@@ -52,7 +53,7 @@ class WifiDirectViewModel @Inject constructor(
     private fun log(text: String) {
         _state.value = _state.value.let { state ->
             state.copy(
-                logText = "${state.logText}\n${System.currentTimeMillis()}: $text"
+                logText = "${state.logText}\n${getTime()}: $text"
             )
         }
     }
