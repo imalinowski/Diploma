@@ -19,6 +19,8 @@ abstract class WifiDirectSocket : CoroutineScope {
 
     var onReceive: (String) -> Unit = {}
 
+    var log: (String) -> Unit= {}
+
     var onConnectionChanged: (Boolean) -> Unit = {}
 
     protected lateinit var socket: Socket
@@ -49,6 +51,7 @@ abstract class WifiDirectSocket : CoroutineScope {
                 val text = String(buffer, 0, len)
                 onReceive(text)
                 Log.i("RASPBERRY_MESSAGE", "${getTime()} : $text")
+                log("RASPBERRY_MESSAGE : $text")
             } catch (e: Exception) {
                 shutDown()
             }
@@ -57,10 +60,12 @@ abstract class WifiDirectSocket : CoroutineScope {
 
     suspend fun write(message: String) = withContext(Dispatchers.IO) {
         outputStream.write(message.toByteArray())
+        log("RASPBERRY_MESSAGE : send message $message")
         Log.i("RASPBERRY_MESSAGE", "${getTime()} : send message $message")
     }
 
     open fun shutDown(restart: Boolean = true, error: Exception? = null) {
+        log("RASPBERRY_SHUT_DOWN restart > $restart, error >${error.toString()}")
         Log.e("RASPBERRY_SHUT_DOWN", "restart > $restart, error >${error.toString()}")
         socket.close()
         connected = false

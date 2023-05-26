@@ -37,6 +37,9 @@ class LogFragment : Fragment() {
     private val clearLogs: Button by lazy {
         binding.clearLogs
     }
+    private val loadLogs: Button by lazy {
+        binding.loadLogs
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -67,6 +70,10 @@ class LogFragment : Fragment() {
         }
         clearLogs.setOnClickListener {
             viewModel.clearLog()
+        }
+
+        loadLogs.setOnClickListener {
+            viewModel.saveLogs()
         }
 
     }

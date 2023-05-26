@@ -20,13 +20,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:gravity="center">
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:background="@color/black">
+
+        <Button
+            android:id="@+id/load_logs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/load_logs"
+            style="?android:attr/buttonBarButtonStyle" />
 
         <Button
             android:id="@+id/searchDevicesBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
             android:text="@string/search_for_devices"
             style="?android:attr/buttonBarButtonStyle" />
 
@@ -34,7 +42,6 @@
             android:id="@+id/clear_logs"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
             android:text="@string/clear_logs"
             style="?android:attr/buttonBarButtonStyle" />
 

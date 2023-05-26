@@ -22,6 +22,9 @@
         android:name="android.permission.INTERNET"
         android:required="true" />
 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
     <application
         android:name=".model.App"
         android:allowBackup="true"

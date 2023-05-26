@@ -81,6 +81,9 @@ class WifiDirectCoreImpl @Inject constructor(
             } else {
                 WifiDirectClient(inetAddress)
             }.apply {
+                log = { log ->
+                    _dataFlow.value = LogData(log)
+                }
                 onReceive = { message ->
                     _dataFlow.value = WifiDirectData.MessageData(
                         Message(text = message, author = inetAddress, time = getTime("hh:mm:ss.SSS"))

@@ -117,7 +117,6 @@ class ChatFragment private constructor() : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        viewModel.connectCancel(peer.address)
     }
 
     companion object {

@@ -46,6 +46,7 @@ class WifiDirectViewModel @Inject constructor(
     }
 
     override fun onCleared() {
+        saveLogs()
         super.onCleared()
         wifiDirectCore.unRegisterReceiver()
     }
@@ -72,6 +73,7 @@ class WifiDirectViewModel @Inject constructor(
     }
 
     fun clearLog() {
+        saveLogs()
         _state.value = _state.value.copy(logText = "")
     }
 
@@ -98,8 +100,11 @@ class WifiDirectViewModel @Inject constructor(
         }
     }
 
-    fun connectCancel(address: String) {
-
+    fun saveLogs() {
+        _actions.value = WifiDirectActions.SaveLogs(
+            filename = "DIPLOMA_EXPERIMENT_${getTime()}",
+            text = _state.value.logText
+        )
     }
 
     fun sendMessage(message: String) {

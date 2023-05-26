@@ -10,4 +10,6 @@ sealed class WifiDirectActions {
     ) : WifiDirectActions()
     class OpenChat(val peer: WifiDirectPeer) : WifiDirectActions()
     class ReceiveMessage(val message: Message) : WifiDirectActions()
+
+    class SaveLogs(val filename: String, val text: String): WifiDirectActions()
 }
