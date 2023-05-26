@@ -106,7 +106,7 @@ class WifiDirectViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 wifiDirectCore.sendMessage(message)
-                addMessage(Message(text = message, fromRemote = false))
+                addMessage(Message(text = message, fromRemote = false, time = getTime("hh:mm:ss.SSS")))
             } catch (e: Exception) {
                 showErrorAlertDialog(e)
             }

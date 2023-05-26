@@ -10,6 +10,7 @@ import android.net.wifi.p2p.WifiP2pInfo
 import android.net.wifi.p2p.WifiP2pManager
 import android.net.wifi.p2p.WifiP2pManager.*
 import android.util.Log
+import com.malinowski.diploma.ext.getTime
 import com.malinowski.diploma.model.Message
 import com.malinowski.diploma.model.wifi.WifiDirectData.LogData
 import com.malinowski.diploma.model.wifi.WifiDirectData.WifiConnectionChanged
@@ -82,7 +83,7 @@ class WifiDirectCoreImpl @Inject constructor(
             }.apply {
                 onReceive = { message ->
                     _dataFlow.value = WifiDirectData.MessageData(
-                        Message(text = message, author = inetAddress)
+                        Message(text = message, author = inetAddress, time = getTime("hh:mm:ss.SSS"))
                     )
                 }
                 onConnectionChanged = {
