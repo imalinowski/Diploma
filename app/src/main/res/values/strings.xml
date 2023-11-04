@@ -11,4 +11,6 @@
     <string name="send">send</string>
     <string name="disconnected">Disconnected</string>
     <string name="load_logs">!LOAD LOGS!</string>
+    <string name="open_chat">Open Chat</string>
+    <string name="open_edge_tasks">Open Edge Tasks</string>
 </resources>

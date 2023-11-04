@@ -2,6 +2,7 @@ package com.malinowski.diploma.view
 
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -10,7 +11,6 @@ import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
@@ -33,9 +33,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
-import java.net.URL
 import javax.inject.Inject
-
 
 class MainActivity : AppCompatActivity() {
 
@@ -44,6 +42,13 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel: WifiDirectViewModel by viewModels { factory }
     private lateinit var binding: ActivityMainBinding
+
+    companion object {
+
+        fun createIntent(context: Context): Intent {
+            return Intent(context, MainActivity::class.java)
+        }
+    }
 
     private val requestPermissionLauncher =
         registerForActivityResult(
@@ -77,6 +82,7 @@ class MainActivity : AppCompatActivity() {
             replace(R.id.app_fragment_container, MainFragment.newInstance())
             addToBackStack(null)
         }
+
     }
 
     private fun actions(action: WifiDirectActions?) {
@@ -84,9 +90,11 @@ class MainActivity : AppCompatActivity() {
             is WifiDirectActions.RequestPermissions -> {
                 requestPermissionLauncher.launch(action.permissions)
             }
+
             is WifiDirectActions.ShowToast -> {
                 Toast.makeText(this, action.text, Toast.LENGTH_LONG).show()
             }
+
             is WifiDirectActions.ShowAlertDialog -> {
                 AlertDialog.Builder(this)
                     .setTitle(action.title)
@@ -96,6 +104,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     .show()
             }
+
             is OpenChat -> {
                 supportFragmentManager.commit {
                     replace(
@@ -105,12 +114,14 @@ class MainActivity : AppCompatActivity() {
                     addToBackStack(null)
                 }
             }
+
             is WifiDirectActions.SaveLogs -> CoroutineScope(Dispatchers.IO).launch {
                 saveFile(this@MainActivity, action.filename, action.text, "txt")
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     Toast.makeText(this@MainActivity, "SAVED SUCCESS!", Toast.LENGTH_LONG).show()
                 }
             }
+
             else -> {}
         }
     }

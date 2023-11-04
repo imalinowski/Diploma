@@ -17,5 +17,4 @@ class App : Application() {
 }
 
 fun Activity.getComponent(): ApplicationComponent = (application as App).appComponent
-fun Fragment.getComponent(): ApplicationComponent =
-    (requireActivity().application as App).appComponent
+fun Fragment.getComponent(): ApplicationComponent = requireActivity().getComponent()
