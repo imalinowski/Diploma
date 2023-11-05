@@ -2,7 +2,7 @@ package com.malinowski.diploma
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.multitaskfeature.api.EdgeUIFacade
+import com.example.edge_ui.api.EdgeUIFacade
 import com.malinowski.diploma.databinding.ActivityStartBinding
 import com.malinowski.diploma.view.MainActivity
 

@@ -1,4 +1,4 @@
-package com.example.multitaskfeature
+package com.example.edge_ui
 
 import org.junit.Test
 

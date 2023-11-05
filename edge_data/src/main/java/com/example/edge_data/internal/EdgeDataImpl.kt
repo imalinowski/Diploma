@@ -1,7 +1,7 @@
 package com.example.edge_data.internal
 
-import com.example.multitask_domain.api.dependecies.data.EdgeData
-import com.example.multitask_domain.api.dependecies.data.EdgeDataEvent
+import com.example.edge_domain.api.dependecies.data.EdgeData
+import com.example.edge_domain.api.dependecies.data.EdgeDataEvent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 

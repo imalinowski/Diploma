@@ -1,4 +1,4 @@
-package com.example.multitaskfeature
+package com.example.edge_ui
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

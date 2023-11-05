@@ -1,11 +1,11 @@
-package com.example.multitaskfeature.internal
+package com.example.edge_ui.internal.view
 
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import com.example.multitaskfeature.R
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import com.example.edge_ui.R
 
 internal class EdgeActivity : AppCompatActivity() {
 

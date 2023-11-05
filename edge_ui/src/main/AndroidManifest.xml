@@ -5,7 +5,7 @@
     <application>
         <activity
             android:exported="false"
-            android:name=".internal.EdgeActivity" />
+            android:name=".internal.view.EdgeActivity" />
     </application>
 
 </manifest>

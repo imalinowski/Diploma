@@ -1,4 +1,4 @@
-package com.example.multitask_domain.api.dependecies.data
+package com.example.edge_domain.api.dependecies.data
 
 import kotlinx.coroutines.flow.Flow
 

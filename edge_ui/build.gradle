@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace 'com.example.multitaskfeature'
+    namespace 'com.example.edge_ui'
     compileSdk 33
 
     defaultConfig {

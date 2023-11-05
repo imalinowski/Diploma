@@ -1,4 +1,4 @@
-package com.example.multitask_domain.api.dependecies.ui
+package com.example.edge_domain.api.dependecies.ui
 
 import kotlinx.coroutines.flow.Flow
 
