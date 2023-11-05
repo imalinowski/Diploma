@@ -1,13 +1,8 @@
 package com.example.edge_entities
 
-import com.example.edge_entities.EdgeTask.MatrixMultiply.MatrixMultiplyParams
-import com.example.edge_entities.EdgeTask.MatrixMultiply.MatrixMultiplyResult
-import com.example.edge_entities.EdgeTask.Params
-import com.example.edge_entities.EdgeTask.Result
-
 const val MATRIX_MULTIPLY_NAME = "MatrixMultiply"
 
-sealed interface EdgeTask<P : Params, R : Result> {
+sealed interface EdgeTask {
 
     val name: String
 
@@ -15,9 +10,11 @@ sealed interface EdgeTask<P : Params, R : Result> {
 
     interface Result
 
-    fun execute(params: P): R
+    fun execute(): Result
 
-    object MatrixMultiply : EdgeTask<MatrixMultiplyParams, MatrixMultiplyResult> {
+    class MatrixMultiply(
+        private val params: MatrixMultiplyParams? = null
+    ) : EdgeTask {
 
         override val name: String = MATRIX_MULTIPLY_NAME
 
@@ -30,8 +27,10 @@ sealed interface EdgeTask<P : Params, R : Result> {
             val matrix: List<List<Int>>
         ) : Result
 
-        override fun execute(params: MatrixMultiplyParams): MatrixMultiplyResult {
-            TODO("Not yet implemented")
+        override fun execute(): MatrixMultiplyResult {
+            return MatrixMultiplyResult(
+                matrix = listOf()
+            )
         }
 
     }
