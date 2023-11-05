@@ -5,8 +5,10 @@ import com.example.edge_domain.api.dependecies.data.EdgeData
 
 object EdgeDataFacade {
 
-    fun provideEdgeData(): EdgeData {
-        return EdgeDataImpl()
+    fun provideEdgeData(
+        dependencies: EdgeDataDependencies
+    ): EdgeData {
+        return EdgeDataImpl(dependencies)
     }
 
 }

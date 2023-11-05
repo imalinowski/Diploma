@@ -7,4 +7,7 @@ internal class EdgeControllerImpl(
     edgeDomainDependencies: EdgeDomainDependencies
 ) : EdgeController {
 
+    val edgeUi = edgeDomainDependencies.edgeUi
+    val edgeData = edgeDomainDependencies.edgeData
+
 }
