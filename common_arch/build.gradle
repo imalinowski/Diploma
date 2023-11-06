@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.edge_ui'
+    namespace 'com.example.common_arch'
     compileSdk 33
 
     defaultConfig {
-        minSdk 21
+        minSdk 24
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -30,22 +30,12 @@ android {
 }
 
 dependencies {
-    //android
+
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation platform('org.jetbrains.kotlin:kotlin-bom:1.8.0')
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.10.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation "androidx.activity:activity-ktx:1.8.0"
-
-    //test
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-
-    //local
-    implementation project(':edge_domain')
-    implementation project(':edge_entities')
-    implementation project(':edge_data')
-    implementation project(':common_arch')
 }

@@ -1,8 +1,8 @@
 package com.example.edge_ui.internal.presentation.command_handlers
 
+import com.example.common_arch.CommandHandler
 import com.example.edge_ui.internal.presentation.EdgeUIEvents
-import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixAGenerated
-import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixBGenerated
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixGenerated
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.GenerateMatrix
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.GenerateMatrix.MatrixA
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.GenerateMatrix.MatrixB
@@ -21,8 +21,8 @@ internal class CommandMatrixHandler : CommandHandler<EdgeUICommands, EdgeUIEvent
             List(size) { Random.nextInt() }
         }
         return when (command) {
-            is MatrixA -> MatrixAGenerated(matrix = matrix)
-            is MatrixB -> MatrixBGenerated(matrix = matrix)
+            is MatrixA -> MatrixGenerated.MatrixA(matrix = matrix)
+            is MatrixB -> MatrixGenerated.MatrixB(matrix = matrix)
         }
     }
 
