@@ -12,7 +12,7 @@ import kotlin.coroutines.CoroutineContext
 internal class EdgeControllerImpl(
     edgeDomainDependencies: EdgeDomainDependencies
 ) : EdgeController, CoroutineScope {
-    override val coroutineContext: CoroutineContext
+    override val coroutineContext: CoroutineContext //maybe launch in service
         get() = Job() + Dispatchers.Default
 
     private val edgeUi = edgeDomainDependencies.edgeUi
@@ -28,9 +28,6 @@ internal class EdgeControllerImpl(
 
     override fun addTask(task: EdgeTask) {
         taskList.add(task)
-        launch {
-            taskList.first().execute()
-        }
     }
 
 }

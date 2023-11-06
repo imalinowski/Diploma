@@ -45,5 +45,6 @@ dependencies {
 
     //local
     implementation project(':edge_domain')
+    implementation project(':edge_entities')
     implementation project(':edge_data')
 }
