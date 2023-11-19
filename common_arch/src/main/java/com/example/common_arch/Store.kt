@@ -16,11 +16,19 @@ abstract class Store<State, Command, Event>(
     abstract fun dispatch(event: Event)
 
     protected fun command(callback: () -> Command) {
+        val command = callback()
         commandHandlers.forEach {
-            val event = it.handle(callback())
+            val event = it.handle(command)
             if (event != null) {
                 dispatch(event)
             }
+        }
+    }
+
+    protected fun commands(callback: () -> List<Command>) {
+        val commands = callback()
+        commands.forEach {
+            command { it }
         }
     }
 

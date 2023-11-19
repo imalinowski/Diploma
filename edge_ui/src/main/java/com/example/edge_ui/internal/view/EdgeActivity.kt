@@ -5,11 +5,13 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
 import com.example.edge_ui.R
 import com.example.edge_ui.databinding.ActivityEdgeBinding
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.GenerateMatrixA
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.GenerateMatrixB
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixSizeChanged
 import com.example.edge_ui.internal.presentation.EdgeUIState
 import kotlinx.coroutines.launch
 
@@ -33,10 +35,22 @@ internal class EdgeActivity : AppCompatActivity() {
         lifecycleScope.launch {
             viewModel.state.collect(::render)
         }
-        initUi()
+        initUi(viewModel.state.value)
     }
 
-    private fun initUi() = with(binding) {
+    private fun initUi(state: EdgeUIState) = with(binding) {
+        matrixSize.apply {
+            setText(state.matrixSize.toString())
+            doOnTextChanged { text, _, _, _ ->
+                viewModel.dispatch(
+                    MatrixSizeChanged(text)
+                )
+            }
+        }
+        initMatrices()
+    }
+
+    private fun initMatrices() = with(binding) {
         matrixA.matrixGenerate.setOnClickListener {
             viewModel.dispatch(GenerateMatrixA)
         }

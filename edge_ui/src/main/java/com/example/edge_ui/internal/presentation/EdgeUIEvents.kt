@@ -3,6 +3,11 @@ package com.example.edge_ui.internal.presentation
 import com.example.edge_entities.EdgeParams
 
 internal sealed interface EdgeUIEvents {
+
+    class MatrixSizeChanged(
+        val matrixSize: CharSequence?
+    ) : EdgeUIEvents
+
     class AddNewMatrixTask(
         val params: EdgeParams.MatrixMultiplyParams
     ) : EdgeUIEvents

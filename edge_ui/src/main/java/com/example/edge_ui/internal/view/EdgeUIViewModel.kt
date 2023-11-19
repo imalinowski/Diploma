@@ -7,6 +7,7 @@ import com.example.edge_ui.internal.presentation.EdgeUIEvents.AddNewMatrixTask
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.GenerateMatrixA
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.GenerateMatrixB
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixGenerated
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixSizeChanged
 import com.example.edge_ui.internal.presentation.EdgeUIState
 import com.example.edge_ui.internal.presentation.command_handlers.CommandCoreHandler
 import com.example.edge_ui.internal.presentation.command_handlers.CommandMatrixHandler
@@ -22,17 +23,21 @@ internal class EdgeUIViewModel : Store<EdgeUIState, EdgeUICommands, EdgeUIEvents
     )
 ) {
     override fun dispatch(event: EdgeUIEvents) {
+        val state = state.value
         when (event) {
+
+            is MatrixSizeChanged -> parseSizeFromUi(event.matrixSize)
+
             is AddNewMatrixTask -> command {
                 AddMatrixTask(event.params)
             }
 
             GenerateMatrixA -> command {
-                GenerateMatrix.MatrixA()
+                GenerateMatrix.MatrixA(size = state.matrixSize)
             }
 
             GenerateMatrixB -> command {
-                GenerateMatrix.MatrixB()
+                GenerateMatrix.MatrixB(size = state.matrixSize)
             }
 
             is MatrixGenerated -> newState { setMatrices(event) }
@@ -41,7 +46,6 @@ internal class EdgeUIViewModel : Store<EdgeUIState, EdgeUICommands, EdgeUIEvents
     }
 
     private fun EdgeUIState.setMatrices(event: MatrixGenerated): EdgeUIState {
-
         var newParams = params ?: MatrixMultiplyParams()
 
         newParams = when (event) {
@@ -55,6 +59,17 @@ internal class EdgeUIViewModel : Store<EdgeUIState, EdgeUICommands, EdgeUIEvents
         }
 
         return copy(params = newParams)
+    }
+
+    private fun parseSizeFromUi(sizeFromUI: CharSequence?) {
+        val size = sizeFromUI.toString().toIntOrNull()
+        newState {
+            copy(matrixSize = size ?: matrixSize)
+        }
+
+        val state = state.value
+        command { GenerateMatrix.MatrixA(size = state.matrixSize) }
+        command { GenerateMatrix.MatrixB(size = state.matrixSize) }
     }
 
 }
