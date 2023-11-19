@@ -28,10 +28,11 @@
         android:id="@+id/matrix"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:gravity="end"
+        android:gravity="end|center"
         android:text="@string/matrix_stub"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:textSize="20sp"
         style="@style/MatrixSubTitle" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

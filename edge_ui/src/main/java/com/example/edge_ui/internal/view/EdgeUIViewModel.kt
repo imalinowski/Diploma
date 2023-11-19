@@ -42,7 +42,7 @@ internal class EdgeUIViewModel : Store<EdgeUIState, EdgeUICommands, EdgeUIEvents
 
     private fun EdgeUIState.setMatrices(event: MatrixGenerated): EdgeUIState {
 
-        var newParams = (params as? MatrixMultiplyParams) ?: MatrixMultiplyParams()
+        var newParams = params ?: MatrixMultiplyParams()
 
         newParams = when (event) {
             is MatrixGenerated.MatrixA -> {
