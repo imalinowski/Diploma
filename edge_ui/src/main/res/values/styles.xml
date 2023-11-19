@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="MatrixTitle" parent="TextAppearance.AppCompat">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">33sp</item>
+    </style>
+
+    <style name="MatrixSubTitle" parent="MatrixTitle">
+        <item name="android:textSize">26sp</item>
+    </style>
+
+    <style name="MatrixButton" parent="Widget.AppCompat.Button">
+        <item name="android:backgroundTint">@color/purple_200</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+</resources>

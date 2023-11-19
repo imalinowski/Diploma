@@ -1,1 +1,12 @@
-<resources></resources>
+<resources>
+    <string name="matrix_multiply_title">Matrix Multiply</string>
+    <string name="matrix_size">Size of Matricies</string>
+    <string name="matrix_a">Matrix A</string>
+    <string name="matrix_generate_a">Generate A</string>
+    <string name="matrix_b">Matrix B</string>
+    <string name="matrix_generate_b">Generate B</string>
+    <string name="matrix_multiply">MULTIPLY</string>
+    <string name="matrix_stub">x x x x x x\nx x x x x x\nx x x x x x\nx x x x x x\n
+    </string>
+    <string name="matrix_sample_size_5">5</string>
+</resources>
