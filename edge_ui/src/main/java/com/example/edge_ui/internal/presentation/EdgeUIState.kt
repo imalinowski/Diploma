@@ -48,11 +48,13 @@ internal data class EdgeUIState(
         }
         val subLine = line.subList(0, getSizeLimit(line.size))
             .joinToString(" ")
-        return "${subLine.squeeze()}...\n"
+        return "${subLine.squeeze()}\n"
     }
 
     private fun String.squeeze(): String {
-        return substring(0, min(length, LINE_LENGTH_LIMIT))
+        return if (length > LINE_LENGTH_LIMIT) {
+            "${substring(0, LINE_LENGTH_LIMIT)}..."
+        } else this
     }
 
 }
