@@ -1,6 +1,6 @@
 package com.example.edge_ui.internal.presentation
 
-import com.example.edge_entities.EdgeParams
+import com.example.edge_entities.EdgeResult.MatrixMultiplyResult
 
 internal sealed interface EdgeUIEvents {
 
@@ -8,8 +8,10 @@ internal sealed interface EdgeUIEvents {
         val matrixSize: CharSequence?
     ) : EdgeUIEvents
 
-    class AddNewMatrixTask(
-        val params: EdgeParams.MatrixMultiplyParams
+    object AddNewMatrixTask : EdgeUIEvents
+
+    class MatricesMultiplied(
+        val result: MatrixMultiplyResult
     ) : EdgeUIEvents
 
     object GenerateMatrixA : EdgeUIEvents

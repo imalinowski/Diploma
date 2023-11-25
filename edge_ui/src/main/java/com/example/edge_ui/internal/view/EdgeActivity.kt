@@ -9,6 +9,8 @@ import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
 import com.example.edge_ui.R
 import com.example.edge_ui.databinding.ActivityEdgeBinding
+import com.example.edge_ui.internal.presentation.EdgeUIEvents
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.AddNewMatrixTask
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.GenerateMatrixA
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.GenerateMatrixB
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixSizeChanged
@@ -60,6 +62,9 @@ internal class EdgeActivity : AppCompatActivity() {
             matrixGenerate.setOnClickListener {
                 viewModel.dispatch(GenerateMatrixB)
             }
+        }
+        matrixMultiply.setOnClickListener {
+            viewModel.dispatch(AddNewMatrixTask)
         }
     }
 
