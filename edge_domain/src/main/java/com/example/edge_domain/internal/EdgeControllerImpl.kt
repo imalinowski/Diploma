@@ -7,8 +7,7 @@ import com.example.edge_domain.api.dependecies.data.EdgeDataEvent
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent.NewTask
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent.TaskCompleted
 import com.example.edge_domain.api.dependecies.ui.EdgeUI
-import com.example.edge_entities.tasks.EdgeSubTask
-import com.example.edge_entities.tasks.EdgeTask
+import com.example.edge_entities.tasks.EdgeTaskBasic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -24,7 +23,7 @@ internal class EdgeControllerImpl(
     private val edgeUi: EdgeUI = edgeDomainDependencies.edgeUi
     private val edgeData: EdgeData = edgeDomainDependencies.edgeData
 
-    private val taskList: MutableList<EdgeTask> = mutableListOf()
+    private val taskList: MutableList<EdgeTaskBasic> = mutableListOf()
 
     init {
         launch {
@@ -32,14 +31,19 @@ internal class EdgeControllerImpl(
         }
     }
 
-    override fun addTask(task: EdgeTask) {
+    override fun addTask(task: EdgeTaskBasic) {
         taskList.add(task)
         executeTask()
     }
 
     private fun executeTask() {
         val task = taskList.removeAt(0)
-        val result = task.execute()
+        val subTasks = task.parallel(1)
+        subTasks.forEach { subTask ->
+            val result = subTask.execute()
+            task.completeSubTask(subTask.id, result)
+        }
+        val result = task.getEndResult()
         launch {
             edgeUi.showResult(result)
         }
@@ -48,13 +52,13 @@ internal class EdgeControllerImpl(
     private fun processDataEvents(event: EdgeDataEvent) {
         when (event) {
             is NewTask -> taskList.add(event.task)
-            is TaskCompleted -> subTaskCompleted(event)
+            is TaskCompleted -> {} //subTaskCompleted(event)
         }
     }
 
     private fun subTaskCompleted(event: TaskCompleted) {
         val task = taskList.find {
-            it.id == event.id && it is EdgeSubTask
+            it.id == event.id
         } ?: return
         taskList.remove(task)
     }

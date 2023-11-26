@@ -5,7 +5,7 @@ import com.example.edge_domain.api.dependecies.data.EdgeData
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent
 import com.example.edge_entities.EdgeDevice
 import com.example.edge_entities.EdgeResult
-import com.example.edge_entities.tasks.EdgeTask
+import com.example.edge_entities.tasks.EdgeTaskBasic
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -19,7 +19,7 @@ internal class EdgeDataImpl(
         return edgeDataRepository.getOnlineDevices()
     }
 
-    override fun executeTaskByDevice(deviceName: String, task: EdgeTask) {
+    override fun executeTaskByDevice(deviceName: String, task: EdgeTaskBasic) {
 
     }
 

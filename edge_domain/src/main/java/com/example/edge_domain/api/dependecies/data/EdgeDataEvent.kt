@@ -1,7 +1,7 @@
 package com.example.edge_domain.api.dependecies.data
 
 import com.example.edge_entities.EdgeResult
-import com.example.edge_entities.tasks.EdgeTask
+import com.example.edge_entities.tasks.EdgeTaskBasic
 
 sealed interface EdgeDataEvent {
 
@@ -13,7 +13,7 @@ sealed interface EdgeDataEvent {
 
     //host sended a task
     data class NewTask(
-        val task: EdgeTask
+        val task: EdgeTaskBasic
     ) : EdgeDataEvent
 
 }

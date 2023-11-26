@@ -9,8 +9,7 @@ import kotlin.math.min
 
 const val MATRIX_MULTIPLY_NAME = "MatrixMultiply"
 
-typealias EdgeTaskMatrixMultiply = EdgeTask<MatrixMultiplySubTask, MatrixMultiplyResult>
-typealias EdgeSubTaskMatrixMultiply = EdgeSubTask<MatrixMultiplyResult>
+private typealias EdgeTaskMatrixMultiply = EdgeTask<MatrixMultiplySubTask, MatrixMultiplyResult>
 
 open class MatrixMultiply(
     override val id: Int,
@@ -81,43 +80,5 @@ open class MatrixMultiply(
         return status
     }
 
-}
-
-class MatrixMultiplySubTask(
-    id: Int,
-    params: MatrixMultiplyParams,
-    val firstLineIndex: Int, // part of parent's matrixA lines from started
-    override val parentId: Int,
-) : MatrixMultiply(id, params), EdgeSubTaskMatrixMultiply {
-
-    override fun execute(): MatrixMultiplyResult {
-        status = IN_PROGRESS
-        val matrixA = params.matrixA
-        val matrixB = params.matrixB
-
-        val matrix = MutableList(params.matrixA.size) {
-            MutableList(params.matrixB.size) { 0 }
-        }
-
-        for (i in matrix.indices) {
-            for (j in matrix[i].indices) {
-                for (k in matrixA[i].indices) {
-                    matrix[i][j] += matrixA[i][k] * matrixB[k][j]
-                }
-            }
-        }
-
-        status = READY
-        return MatrixMultiplyResult(
-            matrix = matrix
-        ).also {
-            result = it
-        }
-    }
-
-    override fun completeTask(result: MatrixMultiplyResult) {
-        this.result = result
-        status = READY
-    }
-
+    override fun getEndResult() = result
 }

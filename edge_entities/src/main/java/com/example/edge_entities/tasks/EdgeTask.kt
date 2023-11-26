@@ -1,5 +1,10 @@
 package com.example.edge_entities.tasks
 
+import com.example.edge_entities.EdgeResult
+
+typealias EdgeTaskBasic = EdgeTask<EdgeSubTask<EdgeResult>, EdgeResult>
+typealias EdgeSubTaskBasic = EdgeSubTask<EdgeResult>
+
 sealed interface EdgeTask<EdgeSubTask, Result> {
     val id: Int
     val name: String
@@ -9,6 +14,7 @@ sealed interface EdgeTask<EdgeSubTask, Result> {
     fun completeSubTask(id: Int, result: Result)
 
     fun getCurrentStatus(): TaskStatus
+    fun getEndResult(): Result
 }
 
 enum class TaskStatus {
@@ -18,6 +24,8 @@ enum class TaskStatus {
 }
 
 sealed interface EdgeSubTask<Result> {
+    val id: Int
+    val name: String
     val parentId: Int
 
     fun execute(): Result
