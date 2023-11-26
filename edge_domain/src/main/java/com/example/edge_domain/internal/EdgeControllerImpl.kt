@@ -3,7 +3,11 @@ package com.example.edge_domain.internal
 import com.example.edge_domain.api.EdgeController
 import com.example.edge_domain.api.dependecies.EdgeDomainDependencies
 import com.example.edge_domain.api.dependecies.data.EdgeData
+import com.example.edge_domain.api.dependecies.data.EdgeDataEvent
+import com.example.edge_domain.api.dependecies.data.EdgeDataEvent.NewTask
+import com.example.edge_domain.api.dependecies.data.EdgeDataEvent.TaskCompleted
 import com.example.edge_domain.api.dependecies.ui.EdgeUI
+import com.example.edge_entities.tasks.EdgeSubTask
 import com.example.edge_entities.tasks.EdgeTask
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +28,7 @@ internal class EdgeControllerImpl(
 
     init {
         launch {
-            edgeData.eventsFlow.collect {} // поток сообщений от data слоя
+            edgeData.eventsFromDataFlow.collect(::processDataEvents)
         }
     }
 
@@ -39,6 +43,20 @@ internal class EdgeControllerImpl(
         launch {
             edgeUi.showResult(result)
         }
+    }
+
+    private fun processDataEvents(event: EdgeDataEvent) {
+        when (event) {
+            is NewTask -> taskList.add(event.task)
+            is TaskCompleted -> subTaskCompleted(event)
+        }
+    }
+
+    private fun subTaskCompleted(event: TaskCompleted) {
+        val task = taskList.find {
+            it.id == event.id && it is EdgeSubTask
+        } ?: return
+        taskList.remove(task)
     }
 
 }

@@ -1,4 +1,4 @@
-package com.example.edge_ui.internal
+package com.example.edge_ui.internal.domain
 
 import com.example.edge_data.api.EdgeDataDependencies
 import com.example.edge_data.api.EdgeDataFacade
