@@ -1,29 +1,27 @@
 package com.example.edge_entities.tasks
 
-import com.example.edge_entities.EdgeResult
-
-const val MATRIX_MULTIPLY_NAME = "MatrixMultiply"
-
-sealed interface EdgeTask {
+sealed interface EdgeTask<EdgeSubTask, Result> {
     val id: Int
     val name: String
-    val subTasks: List<EdgeSubTask>
 
     fun parallel(devices: Int): List<EdgeSubTask>
 
-    fun completeSubTask(id: Int, result: EdgeResult)
+    fun completeSubTask(id: Int, result: Result)
 
     fun getCurrentStatus(): TaskStatus
 }
 
 enum class TaskStatus {
+    NOT_STARTED,
     IN_PROGRESS,
     READY
 }
 
-sealed interface EdgeSubTask : EdgeTask {
+sealed interface EdgeSubTask<Result> {
     val parentId: Int
 
-    fun execute(): EdgeResult
+    fun execute(): Result
+
+    fun completeTask(result: Result)
 }
 

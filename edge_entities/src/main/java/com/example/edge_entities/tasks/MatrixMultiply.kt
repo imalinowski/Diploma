@@ -1,38 +1,80 @@
 package com.example.edge_entities.tasks
 
 import com.example.edge_entities.EdgeParams.MatrixMultiplyParams
-import com.example.edge_entities.EdgeResult
 import com.example.edge_entities.EdgeResult.MatrixMultiplyResult
+import com.example.edge_entities.tasks.TaskStatus.IN_PROGRESS
+import com.example.edge_entities.tasks.TaskStatus.NOT_STARTED
+import com.example.edge_entities.tasks.TaskStatus.READY
+
+const val MATRIX_MULTIPLY_NAME = "MatrixMultiply"
+
+typealias EdgeTaskMatrixMultiply = EdgeTask<MatrixMultiplySubTask, MatrixMultiplyResult>
+typealias EdgeSubTaskMatrixMultiply = EdgeSubTask<MatrixMultiplyResult>
 
 open class MatrixMultiply(
     override val id: Int,
-    private val params: MatrixMultiplyParams
-) : EdgeTask {
+    protected val params: MatrixMultiplyParams
+) : EdgeTaskMatrixMultiply {
 
     override val name: String = MATRIX_MULTIPLY_NAME
-    override val subTasks: List<EdgeSubTask> = listOf()
 
-    override fun parallel(devices: Int): List<EdgeSubTask> {
+    private val subTasks: List<MatrixMultiplySubTask> = listOf()
+    protected open var status: TaskStatus = NOT_STARTED
+    protected open var result = MatrixMultiplyResult(
+        matrix = MutableList(params.matrixA.size) {
+            MutableList(params.matrixB.size) { 0 }
+        }
+    )
+
+    override fun parallel(devices: Int): List<MatrixMultiplySubTask> {
+        status = IN_PROGRESS
+
         return subTasks
     }
 
-    override fun completeSubTask(id: Int, result: EdgeResult) {
-        TODO("Not yet implemented")
+    override fun completeSubTask(id: Int, result: MatrixMultiplyResult) {
+        val task = subTasks.find { it.id == id }
+        task?.let {
+            task.completeTask(result)
+            addToResult(task)
+        }
+        updateStatus()
+    }
+
+    private fun updateStatus() {
+        val notCompletedSubTasks = subTasks.count { it.status != READY }
+        if (notCompletedSubTasks == 0) {
+            status = READY
+        }
+    }
+
+    private fun addToResult(task: MatrixMultiplySubTask) {
+        val from = task.firstLineIndex
+        val matrixSubResult = task.result.matrix
+        val matrixResult = result.matrix.toMutableList()
+
+        for (i in task.result.matrix.indices) {
+            matrixResult[from + i] = matrixSubResult[i]
+        }
+
+        result = result.copy(matrix = matrixResult)
     }
 
     override fun getCurrentStatus(): TaskStatus {
-        TODO("Not yet implemented")
+        return status
     }
 
 }
 
 class MatrixMultiplySubTask(
     id: Int,
-    private val params: MatrixMultiplyParams,
+    params: MatrixMultiplyParams,
+    val firstLineIndex: Int, // part of parent's matrixA lines from started
     override val parentId: Int,
-) : MatrixMultiply(id, params), EdgeSubTask {
+) : MatrixMultiply(id, params), EdgeSubTaskMatrixMultiply {
 
     override fun execute(): MatrixMultiplyResult {
+        status = IN_PROGRESS
         val matrixA = params.matrixA
         val matrixB = params.matrixB
 
@@ -48,7 +90,17 @@ class MatrixMultiplySubTask(
             }
         }
 
-        return MatrixMultiplyResult(matrix = matrix)
+        status = READY
+        return MatrixMultiplyResult(
+            matrix = matrix
+        ).also {
+            result = it
+        }
+    }
+
+    override fun completeTask(result: MatrixMultiplyResult) {
+        this.result = result
+        status = READY
     }
 
 }
