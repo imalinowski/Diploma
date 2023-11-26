@@ -5,6 +5,7 @@ import com.example.edge_entities.EdgeResult.MatrixMultiplyResult
 import com.example.edge_entities.tasks.TaskStatus.IN_PROGRESS
 import com.example.edge_entities.tasks.TaskStatus.NOT_STARTED
 import com.example.edge_entities.tasks.TaskStatus.READY
+import kotlin.math.max
 import kotlin.math.min
 
 const val MATRIX_MULTIPLY_NAME = "MatrixMultiply"
@@ -28,9 +29,12 @@ open class MatrixMultiply(
 
     override fun parallel(devices: Int): List<MatrixMultiplySubTask> {
         status = IN_PROGRESS
-        val linesPartSize = params.matrixA.size / devices
+        val linesPartSize = max(params.matrixA.size / devices, 1)
 
         for (i in 0 until devices) {
+            if (linesPartSize * i > params.matrixA.size) {
+                break
+            }
             val subMatrixA = params.matrixA.subList(
                 fromIndex = linesPartSize * i,
                 toIndex = min((i + 1) * linesPartSize, params.matrixA.size)

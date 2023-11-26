@@ -38,7 +38,7 @@ internal class EdgeControllerImpl(
 
     private fun executeTask() {
         val task = taskList.removeAt(0)
-        val subTasks = task.parallel(1)
+        val subTasks = task.parallel(10)
         subTasks.forEach { subTask ->
             val result = subTask.execute()
             task.completeSubTask(subTask.id, result)
