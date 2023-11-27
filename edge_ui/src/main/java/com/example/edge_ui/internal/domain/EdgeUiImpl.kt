@@ -6,6 +6,7 @@ import com.example.edge_entities.EdgeResult
 import com.example.edge_entities.EdgeResult.MatrixMultiplyResult
 import com.example.edge_ui.internal.presentation.EdgeUIEvents
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatricesMultiplied
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowTaskInProgress
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flow
@@ -20,8 +21,15 @@ internal class EdgeUiImpl(
             is MatrixMultiplyResult -> {
                 flowToUI.emit(MatricesMultiplied(result))
             }
+
             else -> Unit
         }
+    }
+
+    override suspend fun taskInProgress(info: String) {
+        flowToUI.emit(
+            ShowTaskInProgress(info)
+        )
     }
 
 }

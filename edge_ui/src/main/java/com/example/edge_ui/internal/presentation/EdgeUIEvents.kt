@@ -4,19 +4,22 @@ import com.example.edge_entities.EdgeResult.MatrixMultiplyResult
 
 internal sealed interface EdgeUIEvents {
 
+    class ShowTaskInProgress(val info: String) : EdgeUIEvents
+
     class MatrixSizeChanged(
         val matrixSize: CharSequence?
     ) : EdgeUIEvents
 
-    object AddNewMatrixTask : EdgeUIEvents
+    data object AddNewMatrixTask : EdgeUIEvents
 
     class MatricesMultiplied(
         val result: MatrixMultiplyResult
     ) : EdgeUIEvents
 
-    object GenerateMatrixA : EdgeUIEvents
-
-    object GenerateMatrixB : EdgeUIEvents
+    sealed interface MatrixGenerate : EdgeUIEvents {
+        data object GenerateMatrixA : MatrixGenerate
+        data object GenerateMatrixB : MatrixGenerate
+    }
 
     sealed interface MatrixGenerated : EdgeUIEvents {
 

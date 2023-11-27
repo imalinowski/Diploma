@@ -85,4 +85,9 @@ open class MatrixMultiply(
     }
 
     override fun getEndResult() = result
+    override fun getInfo(): String {
+        return "task : $name \n" +
+            "matrixA size : ${params.matrixA.size}\n" +
+            "matrixB size : ${params.matrixB.size}"
+    }
 }

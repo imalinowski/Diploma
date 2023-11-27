@@ -2,6 +2,7 @@ package com.example.edge_ui.internal.presentation
 
 import com.example.edge_entities.EdgeParams.MatrixMultiplyParams
 import com.example.edge_entities.EdgeResult.MatrixMultiplyResult
+import com.example.edge_ui.internal.view.model.EdgeUiTaskInfoState
 import java.lang.Integer.min
 
 private const val MATRIX_STUB = "x x x x x x\nx x x x x x\nx x x x x x\nx x x x x x\n"
@@ -14,6 +15,7 @@ internal data class EdgeUIState(
     val matrixSize: Int = MATRIX_SIZE_UI_LIMIT,
     val params: MatrixMultiplyParams? = null,
     val result: MatrixMultiplyResult? = null,
+    val taskInfo: EdgeUiTaskInfoState? = null
 ) {
 
     val uiMatrixA get() = squeezeMatrix(params?.matrixA)

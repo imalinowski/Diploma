@@ -5,14 +5,14 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
 import com.example.edge_ui.R
 import com.example.edge_ui.databinding.ActivityEdgeBinding
-import com.example.edge_ui.internal.presentation.EdgeUIEvents
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.AddNewMatrixTask
-import com.example.edge_ui.internal.presentation.EdgeUIEvents.GenerateMatrixA
-import com.example.edge_ui.internal.presentation.EdgeUIEvents.GenerateMatrixB
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixGenerate.GenerateMatrixA
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixGenerate.GenerateMatrixB
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixSizeChanged
 import com.example.edge_ui.internal.presentation.EdgeUIState
 import kotlinx.coroutines.launch
@@ -72,5 +72,9 @@ internal class EdgeActivity : AppCompatActivity() {
         matrixA.matrix.text = state.uiMatrixA
         matrixB.matrix.text = state.uiMatrixB
         matrixResult.text = state.uiMatrixResult
+
+        taskInfo.isVisible = state.taskInfo != null
+        taskInfoText.text = state.taskInfo?.info ?: ""
+        taskInfoLoader.isVisible = state.taskInfo?.showProgress ?: false
     }
 }

@@ -11,6 +11,7 @@ import com.example.edge_entities.tasks.EdgeTaskBasic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
@@ -18,7 +19,7 @@ internal class EdgeControllerImpl(
     edgeDomainDependencies: EdgeDomainDependencies
 ) : EdgeController, CoroutineScope {
     override val coroutineContext: CoroutineContext //maybe launch in service
-        get() = Job() + Dispatchers.Default
+        get() = Job() + Dispatchers.IO
 
     private val edgeUi: EdgeUI = edgeDomainDependencies.edgeUi
     private val edgeData: EdgeData = edgeDomainDependencies.edgeData
@@ -33,20 +34,24 @@ internal class EdgeControllerImpl(
 
     override fun addTask(task: EdgeTaskBasic) {
         taskList.add(task)
-        executeTask()
+        launch(Dispatchers.IO) {
+            executeTask()
+        }
     }
 
-    private fun executeTask() {
+    private suspend fun executeTask() {
         val task = taskList.removeAt(0)
+        edgeUi.taskInProgress(task.getInfo())
+
         val subTasks = task.parallel(10)
         subTasks.forEach { subTask ->
             val result = subTask.execute()
             task.completeSubTask(subTask.id, result)
         }
         val result = task.getEndResult()
-        launch {
-            edgeUi.showResult(result)
-        }
+        delay(10000)
+
+        edgeUi.showResult(result)
     }
 
     private fun processDataEvents(event: EdgeDataEvent) {

@@ -12,7 +12,7 @@ internal class CommandCoreHandler : CommandHandler<EdgeUICommands, EdgeUIEvents>
 
     private val domainController = provideEdgeDomainController()
 
-    override fun handle(command: EdgeUICommands): EdgeUIEvents? {
+    override suspend fun handle(command: EdgeUICommands): EdgeUIEvents? {
         if (command is AddMatrixTask) {
             val task = MatrixMultiply(
                 id = command.params.getId(),

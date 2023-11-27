@@ -7,4 +7,5 @@ interface EdgeUI {
     val eventsToUIFlow: Flow<EdgeUiEvent> // поток обратой связи с UI
 
     suspend fun showResult(result: EdgeResult)
+    suspend fun taskInProgress(info: String)
 }

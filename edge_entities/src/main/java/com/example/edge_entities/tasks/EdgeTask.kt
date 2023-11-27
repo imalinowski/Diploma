@@ -15,6 +15,8 @@ sealed interface EdgeTask<EdgeSubTask, Result> {
 
     fun getCurrentStatus(): TaskStatus
     fun getEndResult(): Result
+
+    fun getInfo(): String
 }
 
 enum class TaskStatus {
