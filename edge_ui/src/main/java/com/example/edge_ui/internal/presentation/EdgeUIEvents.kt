@@ -16,18 +16,18 @@ internal sealed interface EdgeUIEvents {
         val result: MatrixMultiplyResult
     ) : EdgeUIEvents
 
-    sealed interface MatrixGenerate : EdgeUIEvents {
-        data object GenerateMatrixA : MatrixGenerate
-        data object GenerateMatrixB : MatrixGenerate
+    sealed interface ClickedGenerate : EdgeUIEvents {
+        data object ClickGenerateMatrixA : ClickedGenerate
+        data object ClickGenerateMatrixB : ClickedGenerate
     }
 
     sealed interface MatrixGenerated : EdgeUIEvents {
 
-        class MatrixA(
+        class GeneratedMatrixA(
             val matrix: List<List<Int>>
         ) : MatrixGenerated
 
-        class MatrixB(
+        class GeneratedMatrixB(
             val matrix: List<List<Int>>
         ) : MatrixGenerated
     }

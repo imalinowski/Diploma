@@ -3,19 +3,21 @@ package com.example.edge_ui.internal.view
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
-import androidx.core.widget.doOnTextChanged
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import com.example.edge_ui.R
 import com.example.edge_ui.databinding.ActivityEdgeBinding
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.AddNewMatrixTask
-import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixGenerate.GenerateMatrixA
-import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixGenerate.GenerateMatrixB
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate.ClickGenerateMatrixA
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate.ClickGenerateMatrixB
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixSizeChanged
+import com.example.edge_ui.internal.presentation.EdgeUIEventsToUI
+import com.example.edge_ui.internal.presentation.EdgeUIEventsToUI.ShowToast
 import com.example.edge_ui.internal.presentation.EdgeUIState
-import kotlinx.coroutines.launch
 
 internal class EdgeActivity : AppCompatActivity() {
 
@@ -34,16 +36,14 @@ internal class EdgeActivity : AppCompatActivity() {
         binding = ActivityEdgeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        lifecycleScope.launch {
-            viewModel.state.collect(::render)
-        }
-        initUi(viewModel.state.value)
+        viewModel.collect(lifecycleScope, ::render, ::handleEvents)
+        initUi(viewModel.state)
     }
 
     private fun initUi(state: EdgeUIState) = with(binding) {
         matrixSize.apply {
             setText(state.matrixSize.toString())
-            doOnTextChanged { text, _, _, _ ->
+            doAfterTextChanged { text ->
                 viewModel.dispatch(
                     MatrixSizeChanged(text)
                 )
@@ -54,13 +54,13 @@ internal class EdgeActivity : AppCompatActivity() {
 
     private fun initMatrices() = with(binding) {
         matrixA.matrixGenerate.setOnClickListener {
-            viewModel.dispatch(GenerateMatrixA)
+            viewModel.dispatch(ClickGenerateMatrixA)
         }
         matrixB.apply {
             matrixName.text = getString(R.string.matrix_b)
             matrixGenerate.text = getString(R.string.matrix_generate_b)
             matrixGenerate.setOnClickListener {
-                viewModel.dispatch(GenerateMatrixB)
+                viewModel.dispatch(ClickGenerateMatrixB)
             }
         }
         matrixMultiply.setOnClickListener {
@@ -76,5 +76,13 @@ internal class EdgeActivity : AppCompatActivity() {
         taskInfo.isVisible = state.taskInfo != null
         taskInfoText.text = state.taskInfo?.info ?: ""
         taskInfoLoader.isVisible = state.taskInfo?.showProgress ?: false
+    }
+
+    private fun handleEvents(event: EdgeUIEventsToUI) {
+        when (event) {
+            is ShowToast -> {
+                Toast.makeText(this, event.text, Toast.LENGTH_LONG).show()
+            }
+        }
     }
 }

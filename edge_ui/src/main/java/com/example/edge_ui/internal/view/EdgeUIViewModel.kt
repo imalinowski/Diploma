@@ -4,30 +4,36 @@ import androidx.lifecycle.viewModelScope
 import com.example.common_arch.Store
 import com.example.edge_entities.EdgeParams.MatrixMultiplyParams
 import com.example.edge_ui.api.EdgeUIFacade
-import com.example.edge_ui.internal.presentation.EdgeUIEvents
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.AddNewMatrixTask
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate.ClickGenerateMatrixA
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate.ClickGenerateMatrixB
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatricesMultiplied
-import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixGenerate
-import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixGenerate.GenerateMatrixA
-import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixGenerate.GenerateMatrixB
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixGenerated
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixGenerated.GeneratedMatrixA
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixGenerated.GeneratedMatrixB
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixSizeChanged
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowTaskInProgress
-import com.example.edge_ui.internal.presentation.EdgeUIState
+import com.example.edge_ui.internal.presentation.EdgeUIEventsToUI.ShowToast
 import com.example.edge_ui.internal.presentation.command_handlers.CommandCoreHandler
 import com.example.edge_ui.internal.presentation.command_handlers.CommandMatrixHandler
-import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.AddMatrixTask
-import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.GenerateMatrix.MatrixA
-import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.GenerateMatrix.MatrixB
+import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.GenerateMatrix.GenerateMatrixA
+import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.GenerateMatrix.GenerateMatrixB
+import com.example.edge_ui.internal.presentation.command_handlers.MATRIX_SIZE_LIMIT
 import com.example.edge_ui.internal.view.model.EdgeUiTaskInfoState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import com.example.edge_ui.internal.presentation.EdgeUIEvents as Events
+import com.example.edge_ui.internal.presentation.EdgeUIEventsToUI as EventsToUI
+import com.example.edge_ui.internal.presentation.EdgeUIState as State
+import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands as Commands
 
 private const val UI_INFO_GENERATING_MATRIX = "Generating Matrix"
+private const val SIZE_LIMIT_TOAST = "Matrix Size is Limited by $MATRIX_SIZE_LIMIT"
 
-internal class EdgeUIViewModel : Store<EdgeUIState, EdgeUICommands, EdgeUIEvents>(
-    initialState = EdgeUIState(),
+internal class EdgeUIViewModel : Store<State, Commands, Events, EventsToUI>(
+    initialState = State(),
     commandHandlers = listOf(
         CommandMatrixHandler(),
         CommandCoreHandler()
@@ -38,18 +44,24 @@ internal class EdgeUIViewModel : Store<EdgeUIState, EdgeUICommands, EdgeUIEvents
     private val edgeUiEventsFromDomain = EdgeUIFacade.provideEventsToUIFlow()
 
     init {
+        commands {
+            val size = state.matrixSize
+            listOf(
+                GenerateMatrixA(size), GenerateMatrixB(size)
+            )
+        }
         viewModelScope.launch {
             edgeUiEventsFromDomain.collect(::dispatch)
         }
     }
 
-    override fun dispatch(event: EdgeUIEvents) {
-        val state = state.value
+    override fun dispatch(event: Events) {
+        val state = state
         when (event) {
 
             is MatrixSizeChanged -> parseSizeFromUi(event.matrixSize)
 
-            is MatrixGenerate -> generateMatrix(event)
+            is ClickedGenerate -> generateMatrix(event)
 
             is AddNewMatrixTask -> if (state.params != null) {
                 command { AddMatrixTask(state.params) }
@@ -72,39 +84,45 @@ internal class EdgeUIViewModel : Store<EdgeUIState, EdgeUICommands, EdgeUIEvents
 
     private fun parseSizeFromUi(sizeFromUI: CharSequence?) {
         val size = sizeFromUI.toString().toIntOrNull()
+        if ((size ?: 0) > MATRIX_SIZE_LIMIT) {
+            newEvent {
+                ShowToast(SIZE_LIMIT_TOAST)
+            }
+            return
+        }
         newState {
             copy(
                 matrixSize = size ?: matrixSize,
-                taskInfo = getTaskInfoState(UI_INFO_GENERATING_MATRIX)
+                taskInfo = getTaskInfoState(UI_INFO_GENERATING_MATRIX),
+                params = null
             )
         }
 
-        val state = state.value
-        command { MatrixA(size = state.matrixSize) }
-        command { MatrixB(size = state.matrixSize) }
+        val state = state
+        command { GenerateMatrixA(size = state.matrixSize) }
+        command { GenerateMatrixB(size = state.matrixSize) }
     }
 
-    private fun generateMatrix(event: MatrixGenerate) {
-        val state = state.value
+    private fun generateMatrix(event: ClickedGenerate) {
+        val state = state
         newState {
             copy(taskInfo = getTaskInfoState(UI_INFO_GENERATING_MATRIX))
         }
         when (event) {
-            GenerateMatrixA -> command { MatrixA(size = state.matrixSize) }
-
-            GenerateMatrixB -> command { MatrixB(size = state.matrixSize) }
+            ClickGenerateMatrixA -> command { GenerateMatrixA(size = state.matrixSize) }
+            ClickGenerateMatrixB -> command { GenerateMatrixB(size = state.matrixSize) }
         }
     }
 
-    private fun EdgeUIState.setMatrices(event: MatrixGenerated): EdgeUIState {
+    private fun State.setMatrices(event: MatrixGenerated): State {
         var newParams = params ?: MatrixMultiplyParams()
 
         newParams = when (event) {
-            is MatrixGenerated.MatrixA -> {
+            is GeneratedMatrixA -> {
                 newParams.copy(matrixA = event.matrix)
             }
 
-            is MatrixGenerated.MatrixB -> {
+            is GeneratedMatrixB -> {
                 newParams.copy(matrixB = event.matrix)
             }
         }

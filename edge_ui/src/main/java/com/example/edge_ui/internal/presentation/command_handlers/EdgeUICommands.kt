@@ -12,9 +12,9 @@ internal sealed interface EdgeUICommands {
         val size: Int? = null
     ) : EdgeUICommands {
 
-        class MatrixA(size: Int? = null) : GenerateMatrix(size)
+        class GenerateMatrixA(size: Int? = null) : GenerateMatrix(size)
 
-        class MatrixB(size: Int? = null) : GenerateMatrix(size)
+        class GenerateMatrixB(size: Int? = null) : GenerateMatrix(size)
     }
 
 }
