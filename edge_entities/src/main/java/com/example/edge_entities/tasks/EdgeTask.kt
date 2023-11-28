@@ -33,5 +33,7 @@ sealed interface EdgeSubTask<Result> {
     fun execute(): Result
 
     fun completeTask(result: Result)
+
+    fun getInfo(): String
 }
 

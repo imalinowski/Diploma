@@ -12,8 +12,6 @@ class MatrixMultiplySubTask(
     override val parentId: Int,
 ) : MatrixMultiply(id, params), EdgeSubTaskMatrixMultiply {
 
-    override val name: String = MATRIX_MULTIPLY_NAME
-
     override fun execute(): EdgeResult.MatrixMultiplyResult {
         status = TaskStatus.IN_PROGRESS
         val matrixA = params.matrixA

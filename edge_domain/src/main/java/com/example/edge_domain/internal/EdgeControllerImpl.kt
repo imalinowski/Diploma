@@ -41,10 +41,10 @@ internal class EdgeControllerImpl(
 
     private suspend fun executeTask() {
         val task = taskList.removeAt(0)
-        edgeUi.taskInProgress(task.getInfo())
 
         val subTasks = task.parallel(10)
         subTasks.forEach { subTask ->
+            edgeUi.taskInProgress(subTask.getInfo())
             val result = subTask.execute()
             task.completeSubTask(subTask.id, result)
         }

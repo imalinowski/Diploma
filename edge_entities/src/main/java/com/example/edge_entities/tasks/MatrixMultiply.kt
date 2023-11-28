@@ -17,7 +17,7 @@ open class MatrixMultiply(
     protected val params: MatrixMultiplyParams
 ) : EdgeTaskMatrixMultiply {
 
-    override val name: String = MATRIX_MULTIPLY_NAME
+    override val name: String = "$MATRIX_MULTIPLY_NAME ${this.hashCode()}"
 
     private val subTasks: MutableList<MatrixMultiplySubTask> = mutableListOf()
     protected open var status: TaskStatus = NOT_STARTED
