@@ -1,8 +1,7 @@
 package com.example.edge_domain.api.dependecies.data
 
 import com.example.edge_entities.EdgeDevice
-import com.example.edge_entities.EdgeResult
-import com.example.edge_entities.tasks.EdgeTaskBasic
+import com.example.edge_entities.tasks.EdgeSubTaskBasic
 import kotlinx.coroutines.flow.Flow
 
 interface EdgeData {
@@ -12,11 +11,11 @@ interface EdgeData {
 
     fun executeTaskByDevice(
         deviceName: String,
-        task: EdgeTaskBasic
+        task: EdgeSubTaskBasic
     )
 
-    fun sendTaskResult(
-        result: EdgeResult
+    fun sendRemoteTaskResult(
+        task: EdgeSubTaskBasic
     )
 
 }

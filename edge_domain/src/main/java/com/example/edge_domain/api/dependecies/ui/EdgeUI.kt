@@ -4,8 +4,9 @@ import com.example.edge_entities.EdgeResult
 import kotlinx.coroutines.flow.Flow
 
 interface EdgeUI {
-    val eventsToUIFlow: Flow<EdgeUiEvent> // поток обратой связи с UI
+    val eventsFromUIFlow: Flow<EdgeUiEvent> // поток обратой связи с UI
 
+    suspend fun showInfo(text: String)
     suspend fun showResult(result: EdgeResult)
     suspend fun taskInProgress(info: String)
 }

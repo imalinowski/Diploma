@@ -13,6 +13,7 @@ import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixGenerated
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixGenerated.GeneratedMatrixA
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixGenerated.GeneratedMatrixB
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixSizeChanged
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowInfo
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowTaskInProgress
 import com.example.edge_ui.internal.presentation.EdgeUIEventsToUI.ShowToast
 import com.example.edge_ui.internal.presentation.command_handlers.CommandCoreHandler
@@ -77,6 +78,10 @@ internal class EdgeUIViewModel : Store<State, Commands, Events, EventsToUI>(
 
             is ShowTaskInProgress -> newState {
                 copy(taskInfo = getTaskInfoState(event.info))
+            }
+
+            is ShowInfo -> newEvent {
+                ShowToast(event.info)
             }
         }
 

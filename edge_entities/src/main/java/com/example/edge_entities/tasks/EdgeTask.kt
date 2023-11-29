@@ -1,5 +1,6 @@
 package com.example.edge_entities.tasks
 
+import com.example.edge_entities.EdgeDevice
 import com.example.edge_entities.EdgeResult
 
 typealias EdgeTaskBasic = EdgeTask<EdgeSubTask<EdgeResult>, EdgeResult>
@@ -9,11 +10,12 @@ sealed interface EdgeTask<EdgeSubTask, Result> {
     val id: Int
     val name: String
 
-    fun parallel(devices: Int): List<EdgeSubTask>
+    fun parallel(devices: List<EdgeDevice>): Map<EdgeDevice, EdgeSubTask>
 
     fun completeSubTask(id: Int, result: Result)
 
     fun getCurrentStatus(): TaskStatus
+
     fun getEndResult(): Result
 
     fun getInfo(): String
@@ -33,6 +35,8 @@ sealed interface EdgeSubTask<Result> {
     fun execute(): Result
 
     fun completeTask(result: Result)
+
+    fun getEndResult(): Result
 
     fun getInfo(): String
 }

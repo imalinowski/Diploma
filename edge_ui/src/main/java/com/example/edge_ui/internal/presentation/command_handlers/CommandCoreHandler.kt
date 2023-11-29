@@ -18,7 +18,7 @@ internal class CommandCoreHandler : CommandHandler<EdgeUICommands, EdgeUIEvents>
                 id = command.params.getId(),
                 params = command.params
             )
-            domainController.addTask(task as EdgeTaskBasic)
+            domainController.addTaskFromUI(task as EdgeTaskBasic)
         }
         return null
     }

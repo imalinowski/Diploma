@@ -29,7 +29,7 @@ class MatrixMultiplySubTask(
             }
         }
 
-        status = TaskStatus.READY
+        //status = TaskStatus.READY todo remove when remote will be available
         return EdgeResult.MatrixMultiplyResult(
             matrix = matrix
         ).also {

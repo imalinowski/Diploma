@@ -13,9 +13,13 @@ internal class EdgeDataRepository {
     private var service: EdgeDataService = retrofit.create(EdgeDataService::class.java)
 
     fun getOnlineDevices() : List<EdgeDevice> {
-        return service.getOnline().map {
-            EdgeDevice(it.deviceName)
-        }
+//        return service.getOnline().map {
+//            EdgeDevice(it.deviceName)
+//        }
+        return listOf(
+            EdgeDevice("Pixel 6"),
+            EdgeDevice("Xiaomi Redmi Pro"),
+        )
     }
 
 }

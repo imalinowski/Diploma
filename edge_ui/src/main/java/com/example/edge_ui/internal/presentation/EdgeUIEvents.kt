@@ -4,6 +4,8 @@ import com.example.edge_entities.EdgeResult.MatrixMultiplyResult
 
 internal sealed interface EdgeUIEvents {
 
+    class ShowInfo(val info: String) : EdgeUIEvents
+
     class ShowTaskInProgress(val info: String) : EdgeUIEvents
 
     class MatrixSizeChanged(
