@@ -8,5 +8,7 @@ interface EdgeUI {
 
     suspend fun showInfo(text: String)
     suspend fun showResult(result: EdgeResult)
-    suspend fun taskInProgress(info: String)
+    suspend fun localTaskInProgress(info: String)
+    suspend fun remoteTaskInProgress(info: String)
+    suspend fun remoteTaskCompleted()
 }

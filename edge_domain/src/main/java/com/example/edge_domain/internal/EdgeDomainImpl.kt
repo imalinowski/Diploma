@@ -41,7 +41,7 @@ internal class EdgeDomainImpl(
     override fun addTaskFromUI(task: EdgeTaskBasic) {
         launch {
             val devices = edgeData.getOnlineDevices()
-            edgeUi.taskInProgress(task.getInfo())
+            edgeUi.localTaskInProgress(task.getInfo())
             taskExecutor.executeTask(task, devices)
         }
     }
@@ -55,7 +55,8 @@ internal class EdgeDomainImpl(
     private fun dispatchDataEvents(event: EdgeDataEvent) {
         when (event) {
             is NewRemoteTask -> launch {
-                edgeUi.showInfo("New task from Remote! \n ${event.task.getInfo()}")
+                edgeUi.showInfo("New task from Remote!")
+                edgeUi.remoteTaskInProgress("Computing  task from Remote \n ${event.task.getInfo()}")
                 taskExecutor.executeRemoteTask(event.task)
             }
 
@@ -80,6 +81,7 @@ internal class EdgeDomainImpl(
             }
 
             is RemoteTaskCompleted -> launch{
+                edgeUi.remoteTaskCompleted()
                 edgeData.sendRemoteTaskResult(
                     task = event.task
                 )

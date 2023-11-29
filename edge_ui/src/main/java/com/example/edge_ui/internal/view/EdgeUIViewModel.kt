@@ -13,8 +13,10 @@ import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixGenerated
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixGenerated.GeneratedMatrixA
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixGenerated.GeneratedMatrixB
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixSizeChanged
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.RemoteTaskCompleted
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowInfo
-import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowTaskInProgress
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowLocalTaskInProgress
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowRemoteTaskInProgress
 import com.example.edge_ui.internal.presentation.EdgeUIEventsToUI.ShowToast
 import com.example.edge_ui.internal.presentation.command_handlers.CommandCoreHandler
 import com.example.edge_ui.internal.presentation.command_handlers.CommandMatrixHandler
@@ -73,19 +75,27 @@ internal class EdgeUIViewModel : Store<State, Commands, Events, EventsToUI>(
             }
 
             is MatrixGenerated -> newState {
-                setMatrices(event).copy(taskInfo = null)
+                setMatrices(event).copy(localTaskInfo = null)
             }
 
             is MatricesMultiplied -> newState {
-                copy(result = event.result, taskInfo = null)
-            }
-
-            is ShowTaskInProgress -> newState {
-                copy(taskInfo = getTaskInfoState(event.info))
+                copy(result = event.result, localTaskInfo = null)
             }
 
             is ShowInfo -> newEvent {
                 ShowToast(event.info)
+            }
+
+            is ShowLocalTaskInProgress -> newState {
+                copy(localTaskInfo = getTaskInfoState(event.info))
+            }
+
+            is ShowRemoteTaskInProgress -> newState {
+                copy(remoteTaskInfo = getTaskInfoState(event.info))
+            }
+
+            RemoteTaskCompleted -> newState {
+                copy(remoteTaskInfo = null)
             }
         }
 
@@ -102,7 +112,7 @@ internal class EdgeUIViewModel : Store<State, Commands, Events, EventsToUI>(
         newState {
             copy(
                 matrixSize = size ?: matrixSize,
-                taskInfo = getTaskInfoState(UI_INFO_GENERATING_MATRIX),
+                localTaskInfo = getTaskInfoState(UI_INFO_GENERATING_MATRIX),
                 params = null
             )
         }
@@ -115,7 +125,7 @@ internal class EdgeUIViewModel : Store<State, Commands, Events, EventsToUI>(
     private fun generateMatrix(event: ClickedGenerate) {
         val state = state
         newState {
-            copy(taskInfo = getTaskInfoState(UI_INFO_GENERATING_MATRIX))
+            copy(localTaskInfo = getTaskInfoState(UI_INFO_GENERATING_MATRIX))
         }
         when (event) {
             ClickGenerateMatrixA -> command { GenerateMatrixA(size = state.matrixSize) }

@@ -18,6 +18,7 @@ import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixSizeChanged
 import com.example.edge_ui.internal.presentation.EdgeUIEventsToUI
 import com.example.edge_ui.internal.presentation.EdgeUIEventsToUI.ShowToast
 import com.example.edge_ui.internal.presentation.EdgeUIState
+import com.example.edge_ui.internal.view.model.EdgeUiTaskInfoState
 
 internal class EdgeActivity : AppCompatActivity() {
 
@@ -72,10 +73,21 @@ internal class EdgeActivity : AppCompatActivity() {
         matrixA.matrix.text = state.uiMatrixA
         matrixB.matrix.text = state.uiMatrixB
         matrixResult.text = state.uiMatrixResult
+        processTaskInfo(state.localTaskInfo, state.remoteTaskInfo)
+    }
 
-        taskInfo.isVisible = state.taskInfo != null
-        taskInfoText.text = state.taskInfo?.info ?: ""
-        taskInfoLoader.isVisible = state.taskInfo?.showProgress ?: false
+    private fun processTaskInfo(
+        localTaskInfo: EdgeUiTaskInfoState?,
+        remoteTaskInfo: EdgeUiTaskInfoState?,
+    ) = with(binding) {
+        taskInfo.isVisible = localTaskInfo != null || remoteTaskInfo != null
+        if (localTaskInfo != null) {
+            taskInfoText.text = localTaskInfo.info
+            taskInfoLoader.isVisible = localTaskInfo.showProgress
+        } else if (remoteTaskInfo != null) {
+            taskInfoText.text = remoteTaskInfo.info
+            taskInfoLoader.isVisible = remoteTaskInfo.showProgress
+        }
     }
 
     private fun handleEvents(event: EdgeUIEventsToUI) {

@@ -15,7 +15,8 @@ internal data class EdgeUIState(
     val matrixSize: Int = MATRIX_SIZE_UI_LIMIT,
     val params: MatrixMultiplyParams? = null,
     val result: MatrixMultiplyResult? = null,
-    val taskInfo: EdgeUiTaskInfoState? = null
+    val localTaskInfo: EdgeUiTaskInfoState? = null,
+    val remoteTaskInfo: EdgeUiTaskInfoState? = null,
 ) {
 
     val uiMatrixA get() = squeezeMatrix(params?.matrixA)

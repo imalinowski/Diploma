@@ -47,6 +47,7 @@ internal class EdgeDataRepository(
         retrofit.create(EdgeDataService::class.java)
 
     private val localSubTasks: MutableList<NetworkTask> = mutableListOf()
+    private val remoteTasks: MutableSet<NetworkTask> = mutableSetOf()
 
     val eventsFlow = MutableSharedFlow<EdgeDataEvent>()
 
@@ -56,7 +57,7 @@ internal class EdgeDataRepository(
         }
         launch {
             while (true) {
-                delay(10000)
+                delay(3000)
                 checkForNewTasks()
                 checkForResult()
             }
@@ -72,7 +73,8 @@ internal class EdgeDataRepository(
     }
 
     private suspend fun checkForNewTasks() {
-        val newRemoteTasks = service.getTask(deviceName)
+        val newRemoteTasks = service.getTask(deviceName).filter { it !in remoteTasks }
+        remoteTasks.addAll(newRemoteTasks)
         newRemoteTasks.filter { it.taskResult == null }.forEach { task ->
             eventsFlow.emit(
                 NewRemoteTask(mapper.map(task))
@@ -121,10 +123,11 @@ internal class EdgeDataRepository(
         taskId: Int,
         result: String
     ) {
+        remoteTasks.removeIf { it.id == taskId }
         val request = PostTaskRequest(
             id = taskId,
             taskResult = result,
-            deviceName = ""
+            deviceName = deviceName
         )
         service.posttask(request)
     }
