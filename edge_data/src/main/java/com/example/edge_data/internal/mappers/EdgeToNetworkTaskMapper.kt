@@ -17,7 +17,7 @@ internal class EdgeToNetworkTaskMapper {
         )
         return NetworkTask(
             id = task.id,
-            content = content
+            content = Json.encodeToString(content)
         )
     }
 

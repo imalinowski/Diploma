@@ -1,10 +1,10 @@
 package com.example.edge_data.internal
 
 import com.example.edge_data.internal.mappers.NetworkToEdgeTaskMapper
-import com.example.edge_data.internal.models.EnterExitRequest
-import com.example.edge_data.internal.models.ExecuteRequest
 import com.example.edge_data.internal.models.NetworkTask
-import com.example.edge_data.internal.models.PostTaskRequest
+import com.example.edge_data.internal.models.requests.EnterExitRequest
+import com.example.edge_data.internal.models.requests.ExecuteRequest
+import com.example.edge_data.internal.models.requests.PostTaskRequest
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent.NewRemoteTask
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent.SubTaskCompleted
@@ -27,7 +27,7 @@ import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 import kotlin.coroutines.CoroutineContext
 
-private const val BASE_URL = "https://7aac-146-66-165-41.ngrok-free.app/api/"
+private const val BASE_URL = "https://524d-146-66-165-41.ngrok-free.app/api/"
 
 internal class EdgeDataRepository(
     private val deviceName: String,
@@ -56,9 +56,9 @@ internal class EdgeDataRepository(
         }
         launch {
             while (true) {
+                delay(10000)
                 checkForNewTasks()
                 checkForResult()
-                delay(10000)
             }
         }
     }
@@ -73,7 +73,7 @@ internal class EdgeDataRepository(
 
     private suspend fun checkForNewTasks() {
         val newRemoteTasks = service.getTask(deviceName)
-        newRemoteTasks.forEach { task ->
+        newRemoteTasks.filter { it.taskResult == null }.forEach { task ->
             eventsFlow.emit(
                 NewRemoteTask(mapper.map(task))
             )
@@ -81,9 +81,11 @@ internal class EdgeDataRepository(
     }
 
     private suspend fun checkForResult() {
+        localSubTasks.removeIf { it.taskResult != null }
         localSubTasks.forEach { task ->
             try {
                 val response = service.getResult(task.id)
+                task.taskResult = response.taskResult
                 eventsFlow.emit(
                     SubTaskCompleted(
                         taskId = task.id,
@@ -108,8 +110,9 @@ internal class EdgeDataRepository(
     suspend fun executeByDevice(deviceName: String, task: NetworkTask) {
         localSubTasks.add(task)
         val request = ExecuteRequest(
+            id = task.id,
             deviceName = deviceName,
-            task = task
+            content = task.content
         )
         service.execute(request)
     }
@@ -126,18 +129,18 @@ internal class EdgeDataRepository(
         service.posttask(request)
     }
 
-    fun unSafeOkHttpClient() : OkHttpClient.Builder {
+    private fun unSafeOkHttpClient(): OkHttpClient.Builder {
         val okHttpClient = OkHttpClient.Builder()
         try {
             // Create a trust manager that does not validate certificate chains
-            val trustAllCerts:  Array<TrustManager> = arrayOf(object : X509TrustManager {
-                override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?){}
+            val trustAllCerts: Array<TrustManager> = arrayOf(object : X509TrustManager {
+                override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
                 override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
-                override fun getAcceptedIssuers(): Array<X509Certificate>  = arrayOf()
+                override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
             })
 
             // Install the all-trusting trust manager
-            val  sslContext = SSLContext.getInstance("SSL")
+            val sslContext = SSLContext.getInstance("SSL")
             sslContext.init(null, trustAllCerts, SecureRandom())
 
             // Create an ssl socket factory with our all-trusting manager

@@ -6,8 +6,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 internal data class NetworkTask(
     @SerialName("id") val id: Int,
-    @SerialName("content") val content: NetworkTaskContent,
-    @SerialName("task_result") val taskResult: String? = null,
+    @SerialName("content") val content: String,
+    @SerialName("task_result") var taskResult: String? = null,
 )
 
 @Serializable
@@ -17,6 +17,7 @@ internal data class NetworkTaskContent(
     @SerialName("device_name") val deviceName: String,
     @SerialName("params") val params: String,
 )
+@Serializable
 
 internal data class NetworkTaskResult(
     @SerialName("device_name") val deviceName: String,

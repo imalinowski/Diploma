@@ -6,7 +6,7 @@ import com.example.edge_domain.api.dependecies.data.EdgeData
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent
 import com.example.edge_entities.EdgeDevice
 import com.example.edge_entities.tasks.EdgeSubTaskBasic
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -17,7 +17,9 @@ internal class EdgeDataImpl(
     private val taskMapper: EdgeToNetworkTaskMapper,
 ) : EdgeData {
 
-    override val eventsFromDataFlow: Flow<EdgeDataEvent> = repository.eventsFlow.asSharedFlow()
+    override val eventsFromDataFlow: SharedFlow<EdgeDataEvent>
+        get() = repository.eventsFlow.asSharedFlow()
+
     override suspend fun exitFromNetwork() {
         repository.exit()
     }

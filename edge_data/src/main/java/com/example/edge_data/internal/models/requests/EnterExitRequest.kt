@@ -1,4 +1,4 @@
-package com.example.edge_data.internal.models
+package com.example.edge_data.internal.models.requests
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

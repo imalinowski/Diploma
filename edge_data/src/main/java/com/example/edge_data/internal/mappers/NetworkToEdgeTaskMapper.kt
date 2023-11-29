@@ -1,6 +1,7 @@
 package com.example.edge_data.internal.mappers
 
 import com.example.edge_data.internal.models.NetworkTask
+import com.example.edge_data.internal.models.NetworkTaskContent
 import com.example.edge_entities.EdgeResult
 import com.example.edge_entities.tasks.EdgeSubTask
 import com.example.edge_entities.tasks.EdgeSubTaskBasic
@@ -10,12 +11,18 @@ import kotlinx.serialization.json.Json
 @Suppress("UNCHECKED_CAST")
 internal class NetworkToEdgeTaskMapper {
 
+    private val json = Json {
+        ignoreUnknownKeys = true
+    }
+
     fun map(task: NetworkTask): EdgeSubTaskBasic {
-        return MatrixMultiplySubTask(
+        val content: NetworkTaskContent = Json.decodeFromString(task.content)
+        val task = MatrixMultiplySubTask(
             id = task.id,
-            parentId = task.content.parentId,
+            parentId = content.parentId,
             firstLineIndex = -1,
-            params = Json.decodeFromString(task.content.params)
-        ) as EdgeSubTask<EdgeResult>
+            params = json.decodeFromString(content.params)
+        )
+        return task as EdgeSubTask<EdgeResult>
     }
 }

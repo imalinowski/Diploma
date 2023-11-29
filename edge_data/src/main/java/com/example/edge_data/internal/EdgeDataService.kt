@@ -1,13 +1,12 @@
 package com.example.edge_data.internal
 
-import com.example.edge_data.internal.models.EnterExitRequest
-import com.example.edge_data.internal.models.ExecuteRequest
+import com.example.edge_data.internal.models.requests.EnterExitRequest
+import com.example.edge_data.internal.models.requests.ExecuteRequest
 import com.example.edge_data.internal.models.NetworkDevice
 import com.example.edge_data.internal.models.NetworkTask
 import com.example.edge_data.internal.models.NetworkTaskResult
-import com.example.edge_data.internal.models.PostTaskRequest
+import com.example.edge_data.internal.models.requests.PostTaskRequest
 import retrofit2.http.Body
-import retrofit2.http.Field
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
@@ -30,7 +29,7 @@ internal interface EdgeDataService {
     @POST("/api/execute")
     suspend fun execute(
         @Body request: ExecuteRequest
-    ): NetworkDevice
+    ): NetworkTask
 
     @GET("/api/gettask")
     suspend fun getTask(
@@ -42,7 +41,7 @@ internal interface EdgeDataService {
         @Body request: PostTaskRequest
     ): NetworkTask
 
-    @POST("/api/result")
+    @GET("/api/result")
     suspend fun getResult(
         @Query("task_id") taskId: Int
     ): NetworkTaskResult
