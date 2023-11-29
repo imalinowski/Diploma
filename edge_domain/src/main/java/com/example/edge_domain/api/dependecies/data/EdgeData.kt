@@ -9,12 +9,12 @@ interface EdgeData {
 
     suspend fun getOnlineDevices(): List<EdgeDevice>
 
-    fun executeTaskByDevice(
+    suspend fun executeTaskByDevice(
         deviceName: String,
         task: EdgeSubTaskBasic
     )
 
-    fun sendRemoteTaskResult(
+    suspend fun sendRemoteTaskResult(
         task: EdgeSubTaskBasic
     )
 

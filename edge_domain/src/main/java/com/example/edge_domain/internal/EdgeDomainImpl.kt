@@ -66,28 +66,17 @@ internal class EdgeDomainImpl(
                 edgeUi.showResult(event.task.getEndResult())
             }
 
-            is SendTaskToRemote -> {
-                dispatchDataEvents(
-                    NewRemoteTask(
-                        task = event.task
-                    )
+            is SendTaskToRemote -> launch {
+                edgeData.executeTaskByDevice(
+                    deviceName = event.device.name,
+                    task = event.task
                 )
-//                edgeData.executeTaskByDevice(
-//                    deviceName = event.device.name,
-//                    task = event.task
-//                )
             }
 
-            is RemoteTaskCompleted -> {
-                dispatchDataEvents(
-                    SubTaskCompleted(
-                        taskId = event.task.id,
-                        result = event.task.getEndResult()
-                    )
+            is RemoteTaskCompleted -> launch{
+                edgeData.sendRemoteTaskResult(
+                    task = event.task
                 )
-//                edgeData.sendRemoteTaskResult(
-//                    task = event.task
-//                )
             }
         }
     }

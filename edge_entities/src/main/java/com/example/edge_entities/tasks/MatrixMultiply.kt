@@ -15,7 +15,7 @@ private typealias EdgeTaskMatrixMultiply = EdgeTask<MatrixMultiplySubTask, Matri
 
 open class MatrixMultiply(
     override val id: Int,
-    protected val params: MatrixMultiplyParams
+    override val params: MatrixMultiplyParams
 ) : EdgeTaskMatrixMultiply {
 
     private val subTasks = mutableMapOf<EdgeDevice, MatrixMultiplySubTask>()

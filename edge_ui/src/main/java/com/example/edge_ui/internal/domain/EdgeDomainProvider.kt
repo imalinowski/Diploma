@@ -12,7 +12,10 @@ internal fun provideEdgeDomainController(): EdgeDomain {
     val edgeDomainDependencies = object : EdgeDomainDependencies {
         override val edgeUi = EdgeUIFacade.provideEdgeUI()
         override val edgeData = EdgeDataFacade.provideEdgeData(
-            object : EdgeDataDependencies {} // todo provide real dependecies
+            object : EdgeDataDependencies {
+                override val deviceName: String
+                    get() = android.os.Build.MODEL
+            }
         )
     }
     return EdgeDomainFacade.provideEdgeController(edgeDomainDependencies)
