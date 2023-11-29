@@ -18,6 +18,9 @@ internal class EdgeDataImpl(
 ) : EdgeData {
 
     override val eventsFromDataFlow: Flow<EdgeDataEvent> = repository.eventsFlow.asSharedFlow()
+    override suspend fun exitFromNetwork() {
+        repository.exit()
+    }
 
     override suspend fun getOnlineDevices(): List<EdgeDevice> {
         return repository.getOnlineDevices()

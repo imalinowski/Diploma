@@ -22,7 +22,6 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
-import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
@@ -94,6 +93,10 @@ internal class EdgeDataRepository(
             } catch (e: Throwable) {
             }
         }
+    }
+
+    suspend fun exit() {
+        service.exit(EnterExitRequest(deviceName))
     }
 
     suspend fun getOnlineDevices(): List<EdgeDevice> {

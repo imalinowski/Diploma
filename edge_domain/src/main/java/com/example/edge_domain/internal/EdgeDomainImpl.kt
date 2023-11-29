@@ -46,6 +46,12 @@ internal class EdgeDomainImpl(
         }
     }
 
+    override fun exitFromNetwork() {
+        launch {
+            edgeData.exitFromNetwork()
+        }
+    }
+
     private fun dispatchDataEvents(event: EdgeDataEvent) {
         when (event) {
             is NewRemoteTask -> launch {

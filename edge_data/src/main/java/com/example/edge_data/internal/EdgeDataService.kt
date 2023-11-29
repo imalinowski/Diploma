@@ -8,7 +8,6 @@ import com.example.edge_data.internal.models.NetworkTaskResult
 import com.example.edge_data.internal.models.PostTaskRequest
 import retrofit2.http.Body
 import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
@@ -25,7 +24,7 @@ internal interface EdgeDataService {
 
     @POST("/api/exit")
     suspend fun exit(
-        @Field("device_name") deviceName: String
+        @Body request: EnterExitRequest
     ): NetworkDevice
 
     @POST("/api/execute")

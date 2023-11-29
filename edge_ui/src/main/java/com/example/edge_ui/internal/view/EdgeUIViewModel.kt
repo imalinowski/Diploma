@@ -56,6 +56,10 @@ internal class EdgeUIViewModel : Store<State, Commands, Events, EventsToUI>(
         }
     }
 
+    override fun onCleared() {
+        EdgeUIFacade.getDomainController().exitFromNetwork()
+    }
+
     override fun dispatch(event: Events) {
         val state = state
         when (event) {

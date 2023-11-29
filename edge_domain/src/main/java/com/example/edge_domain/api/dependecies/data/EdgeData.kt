@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 interface EdgeData {
     val eventsFromDataFlow: Flow<EdgeDataEvent> // поток обратой связи с Domain
 
+    suspend fun exitFromNetwork()
     suspend fun getOnlineDevices(): List<EdgeDevice>
 
     suspend fun executeTaskByDevice(

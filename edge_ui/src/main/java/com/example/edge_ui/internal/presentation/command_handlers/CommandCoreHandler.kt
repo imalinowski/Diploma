@@ -3,6 +3,7 @@ package com.example.edge_ui.internal.presentation.command_handlers
 import com.example.common_arch.CommandHandler
 import com.example.edge_entities.tasks.EdgeTaskBasic
 import com.example.edge_entities.tasks.MatrixMultiply
+import com.example.edge_ui.api.EdgeUIFacade
 import com.example.edge_ui.internal.domain.provideEdgeDomainController
 import com.example.edge_ui.internal.presentation.EdgeUIEvents
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.AddMatrixTask
@@ -10,7 +11,7 @@ import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands
 @Suppress("UNCHECKED_CAST")
 internal class CommandCoreHandler : CommandHandler<EdgeUICommands, EdgeUIEvents> {
 
-    private val domainController = provideEdgeDomainController()
+    private val domainController = EdgeUIFacade.getDomainController()
 
     override suspend fun handle(command: EdgeUICommands): EdgeUIEvents? {
         if (command is AddMatrixTask) {
