@@ -2,9 +2,9 @@ package com.malinowski.diploma
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.example.chat.api.ChatFacade
 import com.example.edge_ui.api.EdgeUIFacade
 import com.malinowski.diploma.databinding.ActivityStartBinding
-import com.malinowski.diploma.view.MainActivity
 
 class StartActivity : AppCompatActivity() {
 
@@ -21,7 +21,7 @@ class StartActivity : AppCompatActivity() {
     private fun setButtonListeners() = with(binding) {
         buttonToChat.setOnClickListener {
             startActivity(
-                MainActivity.createIntent(this@StartActivity)
+                ChatFacade.getChatActivityIntent(this@StartActivity)
             )
         }
         buttonToEdge.setOnClickListener {

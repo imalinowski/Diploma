@@ -35,7 +35,7 @@ import java.io.IOException
 import java.io.OutputStream
 import javax.inject.Inject
 
-class MainActivity : AppCompatActivity() {
+class ChatActivity : AppCompatActivity() {
 
     @Inject
     lateinit var factory: ViewModelProvider.Factory
@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
     companion object {
 
         fun createIntent(context: Context): Intent {
-            return Intent(context, MainActivity::class.java)
+            return Intent(context, ChatActivity::class.java)
         }
     }
 
@@ -116,9 +116,9 @@ class MainActivity : AppCompatActivity() {
             }
 
             is WifiDirectActions.SaveLogs -> CoroutineScope(Dispatchers.IO).launch {
-                saveFile(this@MainActivity, action.filename, action.text, "txt")
+                saveFile(this@ChatActivity, action.filename, action.text, "txt")
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@MainActivity, "SAVED SUCCESS!", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@ChatActivity, "SAVED SUCCESS!", Toast.LENGTH_LONG).show()
                 }
             }
 
