@@ -93,6 +93,7 @@ class ChatFragment private constructor() : Fragment() {
             is WifiDirectActions.ReceiveMessage -> {
                 adapter.submitList(listOf(action.message))
             }
+
             else -> {}
         }
     }

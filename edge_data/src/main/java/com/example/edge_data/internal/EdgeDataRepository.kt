@@ -27,7 +27,7 @@ import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
 import kotlin.coroutines.CoroutineContext
 
-private const val BASE_URL = "https://524d-146-66-165-41.ngrok-free.app/api/"
+private const val BASE_URL = "https://68d2-146-66-165-41.ngrok-free.app/"
 
 internal class EdgeDataRepository(
     private val deviceName: String,
@@ -54,8 +54,6 @@ internal class EdgeDataRepository(
     init {
         launch {
             enter()
-        }
-        launch {
             while (true) {
                 delay(3000)
                 checkForNewTasks()
@@ -64,7 +62,7 @@ internal class EdgeDataRepository(
         }
     }
 
-    private suspend fun enter() {
+    private suspend fun enter() = runCatching {
         println(
             "RASPBERRY ${
                 service.enter(EnterExitRequest(deviceName))
@@ -72,7 +70,7 @@ internal class EdgeDataRepository(
         )
     }
 
-    private suspend fun checkForNewTasks() {
+    private suspend fun checkForNewTasks() = runCatching {
         val newRemoteTasks = service.getTask(deviceName).filter { it !in remoteTasks }
         remoteTasks.addAll(newRemoteTasks)
         newRemoteTasks.filter { it.taskResult == null }.forEach { task ->
@@ -82,7 +80,7 @@ internal class EdgeDataRepository(
         }
     }
 
-    private suspend fun checkForResult() {
+    private suspend fun checkForResult() = runCatching {
         localSubTasks.removeIf { it.taskResult != null }
         localSubTasks.forEach { task ->
             try {
@@ -148,9 +146,9 @@ internal class EdgeDataRepository(
 
             // Create an ssl socket factory with our all-trusting manager
             val sslSocketFactory = sslContext.socketFactory
-            if (trustAllCerts.isNotEmpty() &&  trustAllCerts.first() is X509TrustManager) {
+            if (trustAllCerts.isNotEmpty() && trustAllCerts.first() is X509TrustManager) {
                 okHttpClient.sslSocketFactory(sslSocketFactory, trustAllCerts.first() as X509TrustManager)
-                okHttpClient.hostnameVerifier { _,_ -> true }
+                okHttpClient.hostnameVerifier { _, _ -> true }
             }
 
             return okHttpClient

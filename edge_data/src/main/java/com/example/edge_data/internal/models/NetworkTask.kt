@@ -17,6 +17,7 @@ internal data class NetworkTaskContent(
     @SerialName("device_name") val deviceName: String,
     @SerialName("params") val params: String,
 )
+
 @Serializable
 
 internal data class NetworkTaskResult(

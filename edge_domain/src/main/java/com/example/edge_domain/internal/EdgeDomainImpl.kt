@@ -80,7 +80,7 @@ internal class EdgeDomainImpl(
                 )
             }
 
-            is RemoteTaskCompleted -> launch{
+            is RemoteTaskCompleted -> launch {
                 edgeUi.remoteTaskCompleted()
                 edgeData.sendRemoteTaskResult(
                     task = event.task

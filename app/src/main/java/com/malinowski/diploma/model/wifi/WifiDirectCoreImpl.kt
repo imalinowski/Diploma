@@ -8,15 +8,31 @@ import android.net.wifi.p2p.WifiP2pConfig
 import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pInfo
 import android.net.wifi.p2p.WifiP2pManager
-import android.net.wifi.p2p.WifiP2pManager.*
+import android.net.wifi.p2p.WifiP2pManager.ActionListener
+import android.net.wifi.p2p.WifiP2pManager.BUSY
+import android.net.wifi.p2p.WifiP2pManager.CONNECTION_REQUEST_ACCEPT
+import android.net.wifi.p2p.WifiP2pManager.NO_SERVICE_REQUESTS
+import android.net.wifi.p2p.WifiP2pManager.P2P_UNSUPPORTED
+import android.net.wifi.p2p.WifiP2pManager.PeerListListener
 import android.util.Log
 import com.malinowski.diploma.ext.getTime
 import com.malinowski.diploma.model.Message
 import com.malinowski.diploma.model.wifi.WifiDirectData.LogData
 import com.malinowski.diploma.model.wifi.WifiDirectData.WifiConnectionChanged
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -47,6 +63,7 @@ class WifiDirectCoreImpl @Inject constructor(
         )
     }
 
+    @SuppressLint("MissingPermission")
     private val peerFlow = flow {
         val channel = Channel<WifiDirectResult>()
 
@@ -96,7 +113,7 @@ class WifiDirectCoreImpl @Inject constructor(
         }
     }
 
-    @SuppressLint("NewApi")
+    @SuppressLint("NewApi", "MissingPermission")
     private fun connectFlow(connect: Boolean, deviceName: String) = flow {
         val channel = Channel<Boolean>()
 

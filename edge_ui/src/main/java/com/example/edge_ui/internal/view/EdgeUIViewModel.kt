@@ -65,7 +65,6 @@ internal class EdgeUIViewModel : Store<State, Commands, Events, EventsToUI>(
     override fun dispatch(event: Events) {
         val state = state
         when (event) {
-
             is MatrixSizeChanged -> parseSizeFromUi(event.matrixSize)
 
             is ClickedGenerate -> generateMatrix(event)

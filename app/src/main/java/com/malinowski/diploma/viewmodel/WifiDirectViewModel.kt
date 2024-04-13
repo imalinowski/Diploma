@@ -12,7 +12,11 @@ import com.malinowski.diploma.model.Message
 import com.malinowski.diploma.model.WifiDirectActions
 import com.malinowski.diploma.model.WifiDirectPeer
 import com.malinowski.diploma.model.WifiDirectUiState
-import com.malinowski.diploma.model.wifi.*
+import com.malinowski.diploma.model.wifi.WIFI_CORE_PERMISSIONS
+import com.malinowski.diploma.model.wifi.WIFI_CORE_PERMISSIONS_13
+import com.malinowski.diploma.model.wifi.WifiDirectCore
+import com.malinowski.diploma.model.wifi.WifiDirectData
+import com.malinowski.diploma.model.wifi.WifiDirectResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -37,6 +41,7 @@ class WifiDirectViewModel @Inject constructor(
                     is WifiDirectData.MessageData -> addMessage(data.message)
                     is WifiDirectData.WifiConnectionChanged -> _state.value =
                         _state.value.copy(wifiConnectionInfo = data.info)
+
                     null -> {}
                     is WifiDirectData.SocketConnectionChanged -> _state.value =
                         _state.value.copy(chatConnectionInfo = data.connected)
@@ -84,6 +89,7 @@ class WifiDirectViewModel @Inject constructor(
                     _state.value.copy(peers = result.peer.map {
                         WifiDirectPeer(it.deviceName, it.deviceAddress)
                     })
+
                 is WifiDirectResult.Error -> showErrorAlertDialog(result.error)
                 else -> {}
             }

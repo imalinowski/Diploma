@@ -1,7 +1,11 @@
 package com.malinowski.diploma.di
 
 import android.content.Context
-import com.malinowski.diploma.view.*
+import com.malinowski.diploma.view.ChatFragment
+import com.malinowski.diploma.view.LogFragment
+import com.malinowski.diploma.view.MainActivity
+import com.malinowski.diploma.view.MainFragment
+import com.malinowski.diploma.view.PeerListFragment
 import dagger.BindsInstance
 import dagger.Component
 

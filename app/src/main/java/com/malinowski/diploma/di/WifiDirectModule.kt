@@ -9,7 +9,6 @@ import com.malinowski.diploma.model.wifi.WifiDirectCoreImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
-import javax.inject.Singleton
 
 @Module(
     includes = [WifiDirectModule.BindsModule::class]

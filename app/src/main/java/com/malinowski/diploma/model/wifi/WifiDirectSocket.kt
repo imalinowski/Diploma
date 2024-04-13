@@ -8,8 +8,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
 import java.io.OutputStream
 import java.net.Socket
-import java.text.SimpleDateFormat
-import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 abstract class WifiDirectSocket : CoroutineScope {
@@ -19,7 +17,7 @@ abstract class WifiDirectSocket : CoroutineScope {
 
     var onReceive: (String) -> Unit = {}
 
-    var log: (String) -> Unit= {}
+    var log: (String) -> Unit = {}
 
     var onConnectionChanged: (Boolean) -> Unit = {}
 

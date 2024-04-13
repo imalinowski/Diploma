@@ -1,10 +1,10 @@
 package com.example.edge_data.internal
 
-import com.example.edge_data.internal.models.requests.EnterExitRequest
-import com.example.edge_data.internal.models.requests.ExecuteRequest
 import com.example.edge_data.internal.models.NetworkDevice
 import com.example.edge_data.internal.models.NetworkTask
 import com.example.edge_data.internal.models.NetworkTaskResult
+import com.example.edge_data.internal.models.requests.EnterExitRequest
+import com.example.edge_data.internal.models.requests.ExecuteRequest
 import com.example.edge_data.internal.models.requests.PostTaskRequest
 import retrofit2.http.Body
 import retrofit2.http.GET

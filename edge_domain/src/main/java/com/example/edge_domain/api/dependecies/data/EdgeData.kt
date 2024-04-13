@@ -2,7 +2,6 @@ package com.example.edge_domain.api.dependecies.data
 
 import com.example.edge_entities.EdgeDevice
 import com.example.edge_entities.tasks.EdgeSubTaskBasic
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 
 interface EdgeData {

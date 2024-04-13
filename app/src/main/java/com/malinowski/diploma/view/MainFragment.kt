@@ -32,6 +32,7 @@ class MainFragment private constructor() : Fragment() {
                         addToBackStack(null)
                     }
                 }
+
                 R.id.page_2 -> {
                     childFragmentManager.commit(allowStateLoss = true) {
                         replace(R.id.navigation_fragment_container, LogFragment.newInstance())

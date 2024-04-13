@@ -10,6 +10,7 @@ object EdgeDataFacade {
 
     private val edgeToNetworkTaskMapper = EdgeToNetworkTaskMapper()
     private val networkToEdgeTaskMapper = NetworkToEdgeTaskMapper()
+
     fun provideEdgeData(
         dependencies: EdgeDataDependencies
     ): EdgeData {
@@ -23,5 +24,4 @@ object EdgeDataFacade {
             edgeToNetworkTaskMapper
         )
     }
-
 }
