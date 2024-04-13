@@ -18,7 +18,7 @@ dependencies {
     implementation "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0"
 
     //local
-    implementation project(':edge_domain')
-    implementation project(':edge_entities')
+    implementation project(':domain:edge_domain')
+    implementation project(':base:edge_entities')
 
 }

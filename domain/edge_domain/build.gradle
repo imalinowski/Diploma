@@ -12,5 +12,5 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
 
     //local
-    implementation project(":edge_entities")
+    implementation project(":base:edge_entities")
 }

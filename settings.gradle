@@ -14,8 +14,13 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Diploma"
 include ':app'
-include ':edge_ui'
-include ':edge_domain'
-include ':edge_data'
-include ':edge_entities'
-include ':common_arch'
+//features
+include ':features:edge_ui'
+include ':features:edge_data'
+
+//domain
+include ':domain:edge_domain'
+
+//base
+include ':base:edge_entities'
+include ':base:common_arch'
