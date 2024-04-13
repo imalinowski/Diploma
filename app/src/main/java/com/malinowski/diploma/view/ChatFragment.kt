@@ -15,10 +15,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.malinowski.diploma.R
 import com.malinowski.diploma.databinding.FragmentChatBinding
+import com.malinowski.diploma.getComponent
 import com.malinowski.diploma.model.WifiDirectActions
 import com.malinowski.diploma.model.WifiDirectPeer
 import com.malinowski.diploma.model.WifiDirectUiState
-import com.malinowski.diploma.getComponent
 import com.malinowski.diploma.view.adapters.MessageAdapter
 import com.malinowski.diploma.viewmodel.WifiDirectViewModel
 import kotlinx.coroutines.flow.collectLatest

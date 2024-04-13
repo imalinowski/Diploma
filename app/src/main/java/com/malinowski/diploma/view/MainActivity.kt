@@ -20,9 +20,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.malinowski.diploma.R
 import com.malinowski.diploma.databinding.ActivityMainBinding
+import com.malinowski.diploma.getComponent
 import com.malinowski.diploma.model.WifiDirectActions
 import com.malinowski.diploma.model.WifiDirectActions.OpenChat
-import com.malinowski.diploma.getComponent
 import com.malinowski.diploma.viewmodel.WifiDirectViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
