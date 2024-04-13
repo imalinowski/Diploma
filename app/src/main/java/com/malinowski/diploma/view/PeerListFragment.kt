@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.malinowski.diploma.databinding.FragmentPeerListBinding
 import com.malinowski.diploma.model.WifiDirectUiState
-import com.malinowski.diploma.model.getComponent
+import com.malinowski.diploma.getComponent
 import com.malinowski.diploma.view.adapters.PeerAdapter
 import com.malinowski.diploma.viewmodel.WifiDirectViewModel
 import kotlinx.coroutines.launch

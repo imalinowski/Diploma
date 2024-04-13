@@ -1,4 +1,4 @@
-package com.malinowski.diploma.model
+package com.malinowski.diploma
 
 import android.app.Activity
 import android.app.Application

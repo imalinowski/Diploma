@@ -24,3 +24,4 @@ include ':domain:edge_domain'
 //base
 include ':base:edge_entities'
 include ':base:common_arch'
+include ':features:chat'
