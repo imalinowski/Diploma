@@ -51,14 +51,22 @@ internal class EdgeDataRepository(
 
     val eventsFlow = MutableSharedFlow<EdgeDataEvent>()
 
+    private val handleError: (exception: Throwable) -> Unit = {
+        launch { eventsFlow.emit(EdgeDataEvent.Error(it)) }
+    }
+
     init {
         launch {
-            enter()
-            while (true) {
-                delay(3000)
-                checkForNewTasks()
-                checkForResult()
-            }
+            enterAndLaunchSubscriptions()
+        }
+    }
+
+    private suspend fun enterAndLaunchSubscriptions() {
+        val entered = enter().isSuccess
+        while (entered) {
+            delay(3000)
+            checkForNewTasks()
+            checkForResult()
         }
     }
 
@@ -68,7 +76,7 @@ internal class EdgeDataRepository(
                 service.enter(EnterExitRequest(deviceName))
             }"
         )
-    }
+    }.onFailure(handleError)
 
     private suspend fun checkForNewTasks() = runCatching {
         val newRemoteTasks = service.getTask(deviceName).filter { it !in remoteTasks }
@@ -78,7 +86,7 @@ internal class EdgeDataRepository(
                 NewRemoteTask(mapper.map(task))
             )
         }
-    }
+    }.onFailure(handleError)
 
     private suspend fun checkForResult() = runCatching {
         localSubTasks.removeIf { it.taskResult != null }
@@ -95,7 +103,7 @@ internal class EdgeDataRepository(
             } catch (e: Throwable) {
             }
         }
-    }
+    }.onFailure(handleError)
 
     suspend fun exit() {
         service.exit(EnterExitRequest(deviceName))

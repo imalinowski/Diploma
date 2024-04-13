@@ -7,7 +7,9 @@ internal sealed interface EdgeUIEvents {
     class ShowInfo(val info: String) : EdgeUIEvents
 
     class ShowLocalTaskInProgress(val info: String) : EdgeUIEvents
+
     class ShowRemoteTaskInProgress(val info: String) : EdgeUIEvents
+
     data object RemoteTaskCompleted : EdgeUIEvents
 
     class MatrixSizeChanged(

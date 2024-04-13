@@ -4,6 +4,7 @@ import com.example.edge_domain.api.EdgeDomain
 import com.example.edge_domain.api.dependecies.EdgeDomainDependencies
 import com.example.edge_domain.api.dependecies.data.EdgeData
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent
+import com.example.edge_domain.api.dependecies.data.EdgeDataEvent.Error
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent.NewRemoteTask
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent.SubTaskCompleted
 import com.example.edge_domain.api.dependecies.ui.EdgeUI
@@ -63,6 +64,10 @@ internal class EdgeDomainImpl(
             is SubTaskCompleted -> launch {
                 edgeUi.showInfo("Network has completed task! \n ${event.taskId}")
                 taskExecutor.completeSubTask(event.taskId, event.result)
+            }
+
+            is Error -> launch {
+                edgeUi.showInfo("Error On Data Layer ${event.cause.javaClass.name}")
             }
         }
     }

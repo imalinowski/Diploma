@@ -16,4 +16,8 @@ sealed interface EdgeDataEvent {
         val task: EdgeSubTaskBasic
     ) : EdgeDataEvent
 
+    data class Error(
+        val cause: Throwable
+    ) : EdgeDataEvent
+
 }
