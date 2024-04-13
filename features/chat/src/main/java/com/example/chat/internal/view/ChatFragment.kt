@@ -16,10 +16,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.chat.R
 import com.example.chat.databinding.FragmentChatBinding
 import com.example.chat.internal.ext.getComponent
+import com.example.chat.internal.view.adapters.MessageAdapter
 import com.malinowski.diploma.model.WifiDirectActions
 import com.malinowski.diploma.model.WifiDirectPeer
 import com.malinowski.diploma.model.WifiDirectUiState
-import com.example.chat.internal.view.adapters.MessageAdapter
 import com.malinowski.diploma.viewmodel.WifiDirectViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch

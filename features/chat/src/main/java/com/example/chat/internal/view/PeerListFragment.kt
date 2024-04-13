@@ -16,8 +16,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.chat.databinding.FragmentPeerListBinding
 import com.example.chat.internal.ext.getComponent
-import com.malinowski.diploma.model.WifiDirectUiState
 import com.example.chat.internal.view.adapters.PeerAdapter
+import com.malinowski.diploma.model.WifiDirectUiState
 import com.malinowski.diploma.viewmodel.WifiDirectViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject

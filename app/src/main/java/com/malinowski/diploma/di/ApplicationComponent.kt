@@ -9,8 +9,6 @@ import javax.inject.Singleton
 @Singleton
 @Component(
     modules = [
-        WifiDirectModule::class,
-        ViewModelBuilderModule::class,
         SubcomponentsModule::class
     ]
 )

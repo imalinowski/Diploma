@@ -8,4 +8,4 @@ import dagger.Module
         ChatComponent::class
     ]
 )
-class SubcomponentsModule {}
+class SubcomponentsModule
