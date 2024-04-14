@@ -6,13 +6,15 @@ import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixGenerated
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.GenerateMatrix
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.GenerateMatrix.GenerateMatrixA
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.GenerateMatrix.GenerateMatrixB
+import javax.inject.Inject
 import kotlin.math.min
 import kotlin.random.Random
 
 internal const val MATRIX_SIZE_LIMIT = 2000
 private const val MATRIX_ELEMENT_LIMIT = 1000
 
-internal class CommandMatrixHandler : CommandHandler<EdgeUICommands, EdgeUIEvents> {
+internal class CommandMatrixHandler
+@Inject constructor() : CommandHandler<EdgeUICommands, EdgeUIEvents> {
 
     override suspend fun handle(command: EdgeUICommands): EdgeUIEvents? {
         if (command !is GenerateMatrix) {

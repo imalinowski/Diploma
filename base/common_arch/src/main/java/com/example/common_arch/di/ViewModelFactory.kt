@@ -1,12 +1,10 @@
-package com.malinowski.chat.internal.di
+package com.example.common_arch.di
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.malinowski.chat.internal.viewmodel.WifiDirectViewModel
 import dagger.Binds
 import dagger.MapKey
 import dagger.Module
-import dagger.multibindings.IntoMap
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.reflect.KClass
@@ -34,12 +32,6 @@ abstract class ViewModelBuilderModule {
     abstract fun bindViewModelFactory(
         factory: ViewModelFactory
     ): ViewModelProvider.Factory
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(WifiDirectViewModel::class)
-    abstract fun bindViewModel(viewModel: WifiDirectViewModel): ViewModel
-
 }
 
 @Target(

@@ -2,6 +2,7 @@ package com.example.edge_ui.internal.view
 
 import androidx.lifecycle.viewModelScope
 import com.example.common_arch.Store
+import com.example.edge_domain.api.EdgeDomain
 import com.example.edge_entities.EdgeParams.MatrixMultiplyParams
 import com.example.edge_ui.api.EdgeUIFacade
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.AddNewMatrixTask
@@ -27,6 +28,7 @@ import com.example.edge_ui.internal.presentation.command_handlers.MATRIX_SIZE_LI
 import com.example.edge_ui.internal.view.model.EdgeUiTaskInfoState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 import com.example.edge_ui.internal.presentation.EdgeUIEvents as Events
 import com.example.edge_ui.internal.presentation.EdgeUIEventsToUI as EventsToUI
 import com.example.edge_ui.internal.presentation.EdgeUIState as State
@@ -35,11 +37,15 @@ import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands
 private const val UI_INFO_GENERATING_MATRIX = "Generating Matrix"
 private const val SIZE_LIMIT_TOAST = "Matrix Size is Limited by $MATRIX_SIZE_LIMIT"
 
-internal class EdgeUIViewModel : Store<State, Commands, Events, EventsToUI>(
+internal class EdgeUIViewModel
+@Inject constructor(
+    commandCoreHandler: CommandCoreHandler,
+    commandMatrixHandler: CommandMatrixHandler,
+    private val domain: EdgeDomain,
+) : Store<State, Commands, Events, EventsToUI>(
     initialState = State(),
     commandHandlers = listOf(
-        CommandMatrixHandler(),
-        CommandCoreHandler()
+        commandMatrixHandler, commandCoreHandler
     )
 ) {
 
@@ -59,7 +65,7 @@ internal class EdgeUIViewModel : Store<State, Commands, Events, EventsToUI>(
     }
 
     override fun onCleared() {
-        EdgeUIFacade.getDomainController().exitFromNetwork()
+        domain.exitFromNetwork()
     }
 
     override fun dispatch(event: Events) {

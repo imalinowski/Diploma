@@ -4,11 +4,15 @@ import android.content.Context
 import android.content.IntentFilter
 import android.net.wifi.p2p.WifiP2pManager
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModel
+import com.example.common_arch.di.ViewModelKey
 import com.malinowski.chat.internal.model.wifi.WifiDirectCore
 import com.malinowski.chat.internal.model.wifi.WifiDirectCoreImpl
+import com.malinowski.chat.internal.viewmodel.WifiDirectViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import dagger.multibindings.IntoMap
 
 @Module(
     includes = [WifiDirectModule.BindsModule::class]
@@ -20,6 +24,11 @@ class WifiDirectModule {
 
         @Binds
         fun getWifiDirectCore(impl: WifiDirectCoreImpl): WifiDirectCore
+
+        @Binds
+        @IntoMap
+        @ViewModelKey(WifiDirectViewModel::class)
+        abstract fun bindWifiDirectViewModel(viewModel: WifiDirectViewModel): ViewModel
     }
 
     @Provides

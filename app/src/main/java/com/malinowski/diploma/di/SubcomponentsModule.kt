@@ -1,11 +1,13 @@
 package com.malinowski.diploma.di
 
-import com.malinowski.chat.internal.di.ChatComponent
+import com.example.edge_ui.api.di.EdgeUIComponent
+import com.malinowski.chat.api.di.ChatComponent
 import dagger.Module
 
 @Module(
     subcomponents = [
-        ChatComponent::class
+        ChatComponent::class,
+        EdgeUIComponent::class,
     ]
 )
 class SubcomponentsModule

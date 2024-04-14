@@ -3,7 +3,7 @@ package com.malinowski.chat.internal.ext
 import android.app.Activity
 import androidx.fragment.app.Fragment
 import com.malinowski.chat.api.ChatComponentProvider
-import com.malinowski.chat.internal.di.ChatComponent
+import com.malinowski.chat.api.di.ChatComponent
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale

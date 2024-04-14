@@ -1,5 +1,6 @@
-package com.malinowski.chat.internal.di
+package com.malinowski.chat.api.di
 
+import com.malinowski.chat.internal.di.WifiDirectModule
 import com.malinowski.chat.internal.view.ChatActivity
 import com.malinowski.chat.internal.view.ChatFragment
 import com.malinowski.chat.internal.view.LogFragment
@@ -10,7 +11,6 @@ import dagger.Subcomponent
 @Subcomponent(
     modules = [
         WifiDirectModule::class,
-        ViewModelBuilderModule::class,
     ]
 )
 interface ChatComponent {

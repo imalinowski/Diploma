@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import com.example.edge_domain.api.dependecies.ui.EdgeUI
 import com.example.edge_ui.internal.domain.EdgeUiImpl
-import com.example.edge_ui.internal.domain.provideEdgeDomainController
 import com.example.edge_ui.internal.presentation.EdgeUIEvents
 import com.example.edge_ui.internal.view.EdgeActivity
 import kotlinx.coroutines.flow.Flow
@@ -16,10 +15,6 @@ object EdgeUIFacade {
     private val edgeUi by lazy {
         EdgeUiImpl(eventsToUI)
     }
-
-    private val domainController = provideEdgeDomainController()
-
-    fun getDomainController() = domainController
 
     fun getEdgeActivityIntent(context: Context): Intent {
         return EdgeActivity.createIntent(context)

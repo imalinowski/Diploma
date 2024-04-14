@@ -8,8 +8,10 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.edge_ui.R
+import com.example.edge_ui.api.EdgeUIComponentProvider
 import com.example.edge_ui.databinding.ActivityEdgeBinding
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.AddNewMatrixTask
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate.ClickGenerateMatrixA
@@ -19,8 +21,9 @@ import com.example.edge_ui.internal.presentation.EdgeUIEventsToUI
 import com.example.edge_ui.internal.presentation.EdgeUIEventsToUI.ShowToast
 import com.example.edge_ui.internal.presentation.EdgeUIState
 import com.example.edge_ui.internal.view.model.EdgeUiTaskInfoState
+import javax.inject.Inject
 
-internal class EdgeActivity : AppCompatActivity() {
+class EdgeActivity : AppCompatActivity() {
 
     companion object {
 
@@ -30,12 +33,16 @@ internal class EdgeActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityEdgeBinding
-    private val viewModel: EdgeUIViewModel by viewModels()
+
+    @Inject
+    lateinit var factory: ViewModelProvider.Factory
+    private val viewModel: EdgeUIViewModel by viewModels { factory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityEdgeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        (application as EdgeUIComponentProvider).provideEdgeUIComponent().inject(this)
 
         viewModel.collect(lifecycleScope, ::render, ::handleEvents)
         initUi(viewModel.state)

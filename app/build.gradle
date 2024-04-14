@@ -60,6 +60,9 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
     //local
-    implementation project(':features:edge_ui')
     implementation project(':features:chat')
+    implementation project(':features:edge_ui')
+    implementation project(':features:edge_data')
+    implementation project(':domain:edge_domain')
+    implementation project(':base:common_arch')
 }
