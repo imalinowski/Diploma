@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.chat.internal.view.ChatFragment">
+    tools:context=".internal.view.ChatFragment">
 
     <TextView
         android:id="@+id/chat_name"

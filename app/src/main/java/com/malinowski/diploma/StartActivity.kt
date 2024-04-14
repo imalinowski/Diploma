@@ -2,8 +2,8 @@ package com.malinowski.diploma
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.chat.api.ChatFacade
 import com.example.edge_ui.api.EdgeUIFacade
+import com.malinowski.chat.api.ChatFacade
 import com.malinowski.diploma.databinding.ActivityStartBinding
 
 class StartActivity : AppCompatActivity() {

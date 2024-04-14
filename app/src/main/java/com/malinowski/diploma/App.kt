@@ -1,8 +1,8 @@
 package com.malinowski.diploma
 
 import android.app.Application
-import com.example.chat.api.ChatComponentProvider
-import com.example.chat.internal.di.ChatComponent
+import com.malinowski.chat.api.ChatComponentProvider
+import com.malinowski.chat.internal.di.ChatComponent
 import com.malinowski.diploma.di.ApplicationComponent
 import com.malinowski.diploma.di.DaggerApplicationComponent
 
