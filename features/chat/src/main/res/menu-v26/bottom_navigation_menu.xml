@@ -5,10 +5,12 @@
         android:id="@+id/main"
         android:enabled="true"
         android:icon="@drawable/peers"
+        android:iconTint="@color/white"
         android:title="@string/bottom_nav_peers" />
     <item
         android:id="@+id/logs"
         android:enabled="true"
         android:icon="@drawable/logs"
+        android:iconTint="@color/white"
         android:title="@string/bottom_nav_logs" />
 </menu>

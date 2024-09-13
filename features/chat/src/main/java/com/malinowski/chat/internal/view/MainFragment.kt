@@ -26,14 +26,14 @@ class MainFragment private constructor() : Fragment() {
 
         binding.bottomNavigation.setOnItemSelectedListener {
             when (it.itemId) {
-                R.id.page_1 -> {
+                R.id.main -> {
                     childFragmentManager.commit(allowStateLoss = true) {
                         replace(R.id.navigation_fragment_container, PeerListFragment.newInstance())
                         addToBackStack(null)
                     }
                 }
 
-                R.id.page_2 -> {
+                R.id.logs -> {
                     childFragmentManager.commit(allowStateLoss = true) {
                         replace(R.id.navigation_fragment_container, LogFragment.newInstance())
                         addToBackStack(null)
@@ -42,7 +42,7 @@ class MainFragment private constructor() : Fragment() {
             }
             true
         }
-        binding.bottomNavigation.selectedItemId = R.id.page_1
+        binding.bottomNavigation.selectedItemId = R.id.main
     }
 
     companion object {

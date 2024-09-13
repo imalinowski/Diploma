@@ -2,12 +2,12 @@
     <string name="app_name">Diploma</string>
     <string name="search_for_devices">Search for devices</string>
     <string name="clear_logs">Clear logs</string>
-    <string name="bottom_nav_logs">Логи</string>
-    <string name="bottom_nav_main">Главная</string>
+    <string name="bottom_nav_logs">Logs</string>
+    <string name="bottom_nav_peers">Peers</string>
     <string name="peer">peer</string>
     <string name="no_peers_found">No Peers Found</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="type_message">type message...</string>
+    <string name="type_message">type message…</string>
     <string name="send">send</string>
     <string name="disconnected">Disconnected</string>
     <string name="load_logs">!LOAD LOGS!</string>

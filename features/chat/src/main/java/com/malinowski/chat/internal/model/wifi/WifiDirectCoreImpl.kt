@@ -36,7 +36,8 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
-class WifiDirectCoreImpl @Inject constructor(
+class WifiDirectCoreImpl
+@Inject constructor(
     private val context: Context,
     private val intentFilter: IntentFilter,
     private val manager: WifiP2pManager,

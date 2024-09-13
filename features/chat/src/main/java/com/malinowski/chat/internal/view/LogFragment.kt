@@ -28,18 +28,10 @@ class LogFragment : Fragment() {
 
     private lateinit var binding: FragmentLogBinding
 
-    private val logView: TextView by lazy {
-        binding.logsText
-    }
-    private val searchDevicesBtn: Button by lazy {
-        binding.searchDevicesBtn
-    }
-    private val clearLogs: Button by lazy {
-        binding.clearLogs
-    }
-    private val loadLogs: Button by lazy {
-        binding.loadLogs
-    }
+    private val logView: TextView by lazy { binding.logsText }
+    private val searchDevicesBtn: Button by lazy { binding.searchDevicesBtn }
+    private val clearLogs: Button by lazy { binding.clearLogs }
+    private val loadLogs: Button by lazy { binding.loadLogs }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -62,7 +54,6 @@ class LogFragment : Fragment() {
                 viewModel.state.collect(::update)
             }
         }
-
         searchDevicesBtn.setOnClickListener {
             if (viewModel.checkPermissions(requireContext())) {
                 viewModel.searchForDevices()
@@ -71,11 +62,9 @@ class LogFragment : Fragment() {
         clearLogs.setOnClickListener {
             viewModel.clearLog()
         }
-
         loadLogs.setOnClickListener {
             viewModel.saveLogs()
         }
-
     }
 
     private fun update(state: WifiDirectUiState) {
