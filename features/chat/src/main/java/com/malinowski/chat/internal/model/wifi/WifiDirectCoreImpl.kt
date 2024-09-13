@@ -36,6 +36,11 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
+const val POSSIBLE_ERROR_SOLUTIONS = """
+Check following : 
+- location services must be enabled for wifi direct to work 
+"""
+
 class WifiDirectCoreImpl
 @Inject constructor(
     private val context: Context,
@@ -76,7 +81,7 @@ class WifiDirectCoreImpl
 
         manager.discoverPeers(managerChannel, actionListener(
             onSuccess = { manager.requestPeers(managerChannel, peerListListener) },
-            onFail = { _, it -> launch { channel.send(WifiDirectResult.Error(Exception(it))) } }
+            onFail = { errorCode, it -> launch { channel.send(WifiDirectResult.Error(Exception(it))) } }
         ))
 
         emit(channel.receive())
@@ -192,13 +197,13 @@ class WifiDirectCoreImpl
 
         override fun onFailure(reason: Int) {
             val message = when (reason) {
-                CONNECTION_REQUEST_ACCEPT -> "CONNECTION_REQUEST_ACCEPT"
                 P2P_UNSUPPORTED -> "P2P_UNSUPPORTED"
                 BUSY -> "BUSY"
                 NO_SERVICE_REQUESTS -> "NO_SERVICE_REQUESTS"
-                else -> "ERROR"
+                else -> "ERROR! $POSSIBLE_ERROR_SOLUTIONS"
             }
             Log.e("RASPBERRY", "Error : $reason $message")
+            _dataFlow.value = LogData("Error : $reason $message")
             onFail(reason, message)
         }
     }
