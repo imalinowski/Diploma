@@ -24,7 +24,7 @@ internal class EdgeDomainImpl(
     dependencies: EdgeDomainDependencies,
     private val taskExecutor: EdgeTaskExecutor,
 ) : EdgeDomain, CoroutineScope {
-    override val coroutineContext: CoroutineContext //maybe launch in service
+    override val coroutineContext: CoroutineContext // TODO maybe launch in service
         get() = Job() + Dispatchers.IO
 
     private val edgeUi: EdgeUI = dependencies.edgeUi
@@ -87,11 +87,10 @@ internal class EdgeDomainImpl(
 
             is RemoteTaskCompleted -> launch {
                 edgeUi.remoteTaskCompleted()
-                edgeData.sendRemoteTaskResult(
+                edgeData.sendToRemoteTaskResult(
                     task = event.task
                 )
             }
         }
     }
-
 }

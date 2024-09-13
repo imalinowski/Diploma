@@ -13,6 +13,9 @@ const val MATRIX_MULTIPLY_NAME = "MatrixMultiply"
 
 private typealias EdgeTaskMatrixMultiply = EdgeTask<MatrixMultiplySubTask, MatrixMultiplyResult>
 
+// алгоритм параллельного умножения матриц по строкам
+// http://www.hpcc.unn.ru/?dir=864
+
 open class MatrixMultiply(
     override val id: Int,
     override val params: MatrixMultiplyParams
@@ -24,6 +27,7 @@ open class MatrixMultiply(
 
     protected open var status: TaskStatus = NOT_STARTED
 
+    // null в начале?
     protected open var result = MatrixMultiplyResult(
         matrix = MutableList(params.matrixA.size) {
             MutableList(params.matrixB.size) { 0 }

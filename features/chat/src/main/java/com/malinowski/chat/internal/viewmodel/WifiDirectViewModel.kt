@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+// todo rewrite to common arch
 class WifiDirectViewModel @Inject constructor(
     private val wifiDirectCore: WifiDirectCore
 ) : ViewModel() {

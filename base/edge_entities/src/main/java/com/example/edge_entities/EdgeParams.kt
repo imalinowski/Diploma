@@ -9,7 +9,7 @@ sealed interface EdgeParams {
 
     @Serializable
     data class MatrixMultiplyParams(
-        val matrixA: List<List<Int>> = listOf(),
+        val matrixA: List<List<Int>> = listOf(), // todo use arrays ?
         val matrixB: List<List<Int>> = listOf(),
     ) : EdgeParams
 

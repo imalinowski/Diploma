@@ -20,5 +20,4 @@ internal class EdgeToNetworkTaskMapper {
             content = Json.encodeToString(content)
         )
     }
-
 }

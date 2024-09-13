@@ -5,13 +5,13 @@ import com.example.edge_entities.tasks.EdgeSubTaskBasic
 
 sealed interface EdgeDataEvent {
 
-    // taks sended by host is completed
-    class SubTaskCompleted(
+    // задача выполнена участником сети
+    data class SubTaskCompleted(
         val taskId: Int,
         val result: EdgeResult
     ) : EdgeDataEvent
 
-    //host sended a task
+    // новая задача от участника сети
     data class NewRemoteTask(
         val task: EdgeSubTaskBasic
     ) : EdgeDataEvent
@@ -19,5 +19,4 @@ sealed interface EdgeDataEvent {
     data class Error(
         val cause: Throwable
     ) : EdgeDataEvent
-
 }

@@ -8,6 +8,7 @@ object EdgeDomainFacade {
 
     private val edgeTaskExecutor = EdgeTaskExecutorImpl()
 
+    // use dagger
     fun provideEdgeController(
         edgeDomainDependencies: EdgeDomainDependencies
     ): EdgeDomain {
@@ -16,5 +17,4 @@ object EdgeDomainFacade {
             edgeTaskExecutor
         )
     }
-
 }

@@ -29,6 +29,9 @@ enum class TaskStatus {
     READY
 }
 
+// todo remove subtask
+// идея - любая подзадача тоже является задачей, поэтому смысла в сущности SubTask нет
+
 sealed interface EdgeSubTask<Result> {
     val id: Int
     val name: String

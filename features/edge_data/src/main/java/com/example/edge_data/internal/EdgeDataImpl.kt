@@ -12,7 +12,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 internal class EdgeDataImpl(
-    val dependencies: EdgeDataDependencies,
+    val dependencies: EdgeDataDependencies, // почему не используется ??
     private val repository: EdgeDataRepository,
     private val taskMapper: EdgeToNetworkTaskMapper,
 ) : EdgeData {
@@ -35,7 +35,7 @@ internal class EdgeDataImpl(
         )
     }
 
-    override suspend fun sendRemoteTaskResult(task: EdgeSubTaskBasic) {
+    override suspend fun sendToRemoteTaskResult(task: EdgeSubTaskBasic) {
         val result = Json.encodeToString(task.getEndResult())
         repository.sendToRemoteTaskResult(
             taskId = task.id, result = result

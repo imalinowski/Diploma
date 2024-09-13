@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
+// TODO move implementation to entities module
+
 internal class EdgeTaskExecutorImpl : EdgeTaskExecutor {
 
     override val coroutineContext: CoroutineContext

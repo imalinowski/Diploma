@@ -5,7 +5,10 @@ import com.example.edge_entities.tasks.EdgeSubTaskBasic
 import kotlinx.coroutines.flow.SharedFlow
 
 interface EdgeData {
-    val eventsFromDataFlow: SharedFlow<EdgeDataEvent> // поток обратой связи с Domain
+
+    // в этот поток приходят события из data слоя
+    // Нужно подписаться чтобы ловить входящие задачи
+    val eventsFromDataFlow: SharedFlow<EdgeDataEvent>
 
     suspend fun exitFromNetwork()
     suspend fun getOnlineDevices(): List<EdgeDevice>
@@ -14,9 +17,10 @@ interface EdgeData {
         deviceName: String,
         task: EdgeSubTaskBasic
     )
+    // как будто можно делегировать распределение по устройствам на data слой
+    // чтобы domain не знал контретики об устройствах сети
 
-    suspend fun sendRemoteTaskResult(
+    suspend fun sendToRemoteTaskResult(
         task: EdgeSubTaskBasic
     )
-
 }

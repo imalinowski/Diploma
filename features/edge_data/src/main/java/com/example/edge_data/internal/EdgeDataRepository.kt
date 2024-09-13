@@ -101,6 +101,7 @@ internal class EdgeDataRepository(
                     )
                 )
             } catch (e: Throwable) {
+                // что тут происходит?
             }
         }
     }.onFailure(handleError)
