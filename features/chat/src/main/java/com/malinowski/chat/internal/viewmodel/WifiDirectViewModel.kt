@@ -16,6 +16,10 @@ import com.malinowski.chat.internal.model.wifi.WIFI_CORE_PERMISSIONS
 import com.malinowski.chat.internal.model.wifi.WIFI_CORE_PERMISSIONS_13
 import com.malinowski.chat.internal.model.wifi.WifiDirectCore
 import com.malinowski.chat.internal.model.wifi.WifiDirectData
+import com.malinowski.chat.internal.model.wifi.WifiDirectData.LogData
+import com.malinowski.chat.internal.model.wifi.WifiDirectData.MessageData
+import com.malinowski.chat.internal.model.wifi.WifiDirectData.SocketConnectionChanged
+import com.malinowski.chat.internal.model.wifi.WifiDirectData.WifiConnectionChanged
 import com.malinowski.chat.internal.model.wifi.WifiDirectResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,14 +42,15 @@ class WifiDirectViewModel @Inject constructor(
         viewModelScope.launch {
             wifiDirectCore.dataFlow.collectLatest { data ->
                 when (data) {
-                    is WifiDirectData.LogData -> log(data.log)
-                    is WifiDirectData.MessageData -> addMessage(data.message)
-                    is WifiDirectData.WifiConnectionChanged -> _state.value =
-                        _state.value.copy(wifiConnectionInfo = data.info)
-
+                    is LogData -> log(data.log)
+                    is MessageData -> addMessage(data.message)
+                    is WifiConnectionChanged -> {
+                        _state.value = _state.value.copy(wifiConnectionInfo = data.info)
+                    }
+                    is SocketConnectionChanged -> {
+                        _state.value = _state.value.copy(chatConnectionInfo = data.connected)
+                    }
                     null -> {}
-                    is WifiDirectData.SocketConnectionChanged -> _state.value =
-                        _state.value.copy(chatConnectionInfo = data.connected)
                 }
             }
         }
@@ -79,7 +84,6 @@ class WifiDirectViewModel @Inject constructor(
     }
 
     fun clearLog() {
-        saveLogs()
         _state.value = _state.value.copy(logText = "")
     }
 

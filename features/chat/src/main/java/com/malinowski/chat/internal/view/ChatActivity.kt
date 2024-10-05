@@ -23,6 +23,10 @@ import com.malinowski.chat.databinding.ActivityMainBinding
 import com.malinowski.chat.internal.ext.getComponent
 import com.malinowski.chat.internal.model.WifiDirectActions
 import com.malinowski.chat.internal.model.WifiDirectActions.OpenChat
+import com.malinowski.chat.internal.model.WifiDirectActions.RequestPermissions
+import com.malinowski.chat.internal.model.WifiDirectActions.SaveLogs
+import com.malinowski.chat.internal.model.WifiDirectActions.ShowAlertDialog
+import com.malinowski.chat.internal.model.WifiDirectActions.ShowToast
 import com.malinowski.chat.internal.viewmodel.WifiDirectViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -57,7 +61,7 @@ class ChatActivity : AppCompatActivity() {
             permissionResult.forEach { (name, value) ->
                 if (!value) {
                     actions(
-                        WifiDirectActions.ShowAlertDialog(
+                        ShowAlertDialog(
                             text = "$name нужно для работы приложения"
                         )
                     )
@@ -87,15 +91,9 @@ class ChatActivity : AppCompatActivity() {
 
     private fun actions(action: WifiDirectActions?) {
         when (action) {
-            is WifiDirectActions.RequestPermissions -> {
-                requestPermissionLauncher.launch(action.permissions)
-            }
-
-            is WifiDirectActions.ShowToast -> {
-                Toast.makeText(this, action.text, Toast.LENGTH_LONG).show()
-            }
-
-            is WifiDirectActions.ShowAlertDialog -> {
+            is RequestPermissions -> requestPermissionLauncher.launch(action.permissions)
+            is ShowToast -> toast(action.text)
+            is ShowAlertDialog -> {
                 AlertDialog.Builder(this)
                     .setTitle(action.title)
                     .setMessage(action.text)
@@ -104,7 +102,6 @@ class ChatActivity : AppCompatActivity() {
                     }
                     .show()
             }
-
             is OpenChat -> {
                 supportFragmentManager.commit {
                     replace(
@@ -114,11 +111,11 @@ class ChatActivity : AppCompatActivity() {
                     addToBackStack(null)
                 }
             }
-
-            is WifiDirectActions.SaveLogs -> CoroutineScope(Dispatchers.IO).launch {
+            // todo почему не используется activity lifecycle ?
+            is SaveLogs -> CoroutineScope(Dispatchers.IO).launch {
                 saveFile(this@ChatActivity, action.filename, action.text, "txt")
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@ChatActivity, "SAVED SUCCESS!", Toast.LENGTH_LONG).show()
+                    toast(resources.getString(R.string.saved_success))
                 }
             }
 
@@ -126,6 +123,13 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
+    private fun toast(
+        text: String
+    ) {
+        Toast.makeText(this, text, Toast.LENGTH_LONG).show()
+    }
+
+    // todo move to better place
     @Throws(IOException::class)
     private fun saveFile(context: Context, fileName: String, text: String, extension: String) {
         val outputStream: OutputStream? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
