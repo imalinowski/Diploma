@@ -95,31 +95,38 @@ class WifiDirectCoreImpl
 
     private val connectInfoListener: (WifiP2pInfo?) -> Unit = { info ->
         _dataFlow.value = WifiConnectionChanged(info ?: WifiP2pInfo())
-        if (info != null && info.groupFormed) {
+        val hostAddress = info?.groupOwnerAddress?.hostAddress
+        if (info?.groupFormed == true && hostAddress != null) {
+            Log.i("RASPBERRY", "connection listener")
             connectionInfo = info
-            val inetAddress = info.groupOwnerAddress.hostAddress!!
-            wifiDirectSocket?.shutDown(restart = false)
-            wifiDirectSocket = if (info.isGroupOwner) {
-                WifiDirectServer()
-            } else {
-                WifiDirectClient(inetAddress)
-            }.apply {
-                log = { log ->
-                    _dataFlow.value = LogData(log)
-                }
-                onReceive = { message ->
-                    _dataFlow.value = WifiDirectData.MessageData(
-                        Message(text = message, author = inetAddress, time = getTime("hh:mm:ss.SSS"))
-                    )
-                }
-                onConnectionChanged = {
-                    _dataFlow.value = WifiDirectData.SocketConnectionChanged(it)
-                }
+            createWifiDirectSocket(info.isGroupOwner, hostAddress)
+        }
+    }
+
+    private fun createWifiDirectSocket(
+        isGroupOwner: Boolean,
+        hostAddress: String
+    ) {
+        // защита от спама WiFiBroadcastReciever
+        if (hostAddress == wifiDirectSocket?.hostAddress) return
+        wifiDirectSocket?.shutDown(restart = false)
+        wifiDirectSocket = if (isGroupOwner) {
+            WifiDirectServer(hostAddress)
+        } else {
+            WifiDirectClient(hostAddress)
+        }.apply {
+            log = { log -> _dataFlow.value = LogData(log) }
+            onConnectionChanged = { _dataFlow.value = WifiDirectData.SocketConnectionChanged(it) }
+            onReceive = { message ->
+                _dataFlow.value = WifiDirectData.MessageData(
+                    Message(text = message, author = hostAddress, time = getTime("hh:mm:ss.SSS"))
+                )
             }
         }
     }
 
     @SuppressLint("NewApi", "MissingPermission")
+    // почему не используется connect ?
     private fun connectFlow(connect: Boolean, deviceName: String) = flow {
         val channel = Channel<Boolean>()
 
@@ -147,6 +154,7 @@ class WifiDirectCoreImpl
         replay = 1
     ).onEach { success ->
         if (success) {
+            Log.i("RASPBERRY", "request connection from connectFlow")
             manager.requestConnectionInfo(managerChannel, connectInfoListener)
         }
     }

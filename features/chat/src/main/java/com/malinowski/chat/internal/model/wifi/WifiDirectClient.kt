@@ -7,8 +7,8 @@ import java.net.InetSocketAddress
 import java.net.Socket
 
 class WifiDirectClient(
-    private val hostAddress: String,
-) : WifiDirectSocket() {
+    hostAddress: String,
+) : WifiDirectSocket(hostAddress) {
     init {
         initConnection()
     }

@@ -5,7 +5,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.net.ServerSocket
 
-class WifiDirectServer : WifiDirectSocket() {
+class WifiDirectServer(
+    hostAddress: String
+) : WifiDirectSocket(hostAddress) {
 
     private lateinit var serverSocket: ServerSocket
 

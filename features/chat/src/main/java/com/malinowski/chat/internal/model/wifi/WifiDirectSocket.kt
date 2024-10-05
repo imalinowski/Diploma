@@ -10,7 +10,14 @@ import java.io.OutputStream
 import java.net.Socket
 import kotlin.coroutines.CoroutineContext
 
-abstract class WifiDirectSocket : CoroutineScope {
+abstract class WifiDirectSocket(
+    val hostAddress: String
+) : CoroutineScope {
+
+    companion object {
+        const val RESTART_LIMIT = 2
+        const val PORT: Int = 9999
+    }
 
     override val coroutineContext: CoroutineContext
         get() = Job() + Dispatchers.Default
@@ -74,10 +81,5 @@ abstract class WifiDirectSocket : CoroutineScope {
         } else {
             restartCount = RESTART_LIMIT
         }
-    }
-
-    companion object {
-        const val RESTART_LIMIT = 2
-        const val PORT: Int = 8080
     }
 }
