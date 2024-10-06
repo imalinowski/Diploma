@@ -1,4 +1,4 @@
-package com.malinowski.chat.internal.model.wifi
+package com.example.wifi_direct.internal.wifi
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -6,8 +6,6 @@ import android.content.Intent
 import android.net.NetworkInfo
 import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
-
-private const val TAG = "RASPBERRY"
 
 class WifiBroadcastReceiver(
     private val requestPeers: () -> Unit,

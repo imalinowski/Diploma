@@ -7,6 +7,7 @@ import com.example.edge_domain.api.EdgeDomain
 import com.example.edge_domain.api.EdgeDomainFacade
 import com.example.edge_domain.api.dependecies.EdgeDomainDependencies
 import com.example.edge_ui.api.EdgeUIFacade
+import com.example.wifi_direct.internal.di.WifiDirectModule
 import dagger.Module
 import dagger.Provides
 
@@ -14,6 +15,7 @@ import dagger.Provides
     includes = [
         AppModule.BindsModule::class,
         ViewModelBuilderModule::class,
+        WifiDirectModule::class
     ]
 )
 class AppModule {

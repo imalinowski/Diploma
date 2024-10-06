@@ -14,9 +14,11 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Diploma"
 include ':app'
+
 //features
 include ':features:edge_ui'
 include ':features:edge_data'
+include ':features:chat'
 
 //domain
 include ':domain:edge_domain'
@@ -24,4 +26,4 @@ include ':domain:edge_domain'
 //base
 include ':base:edge_entities'
 include ':base:common_arch'
-include ':features:chat'
+include ':base:wifi_direct'

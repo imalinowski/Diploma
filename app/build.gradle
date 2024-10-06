@@ -65,4 +65,5 @@ dependencies {
     implementation project(':features:edge_data')
     implementation project(':domain:edge_domain')
     implementation project(':base:common_arch')
+    implementation project(':base:wifi_direct')
 }

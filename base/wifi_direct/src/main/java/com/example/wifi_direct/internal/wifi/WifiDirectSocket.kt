@@ -1,7 +1,7 @@
-package com.malinowski.chat.internal.model.wifi
+package com.example.wifi_direct.internal.wifi
 
 import android.util.Log
-import com.malinowski.chat.internal.ext.getTime
+import com.example.wifi_direct.internal.ext.getTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

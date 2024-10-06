@@ -1,4 +1,4 @@
-package com.malinowski.chat.internal.model
+package com.example.wifi_direct.api
 
 data class Message(
     val author: String? = null,

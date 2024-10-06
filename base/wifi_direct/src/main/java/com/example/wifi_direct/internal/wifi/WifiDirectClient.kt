@@ -1,4 +1,4 @@
-package com.malinowski.chat.internal.model.wifi
+package com.example.wifi_direct.internal.wifi
 
 import android.util.Log
 import kotlinx.coroutines.Dispatchers

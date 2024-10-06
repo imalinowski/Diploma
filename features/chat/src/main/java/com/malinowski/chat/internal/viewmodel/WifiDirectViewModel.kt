@@ -7,33 +7,32 @@ import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.wifi_direct.api.DiscoverPeersResult
+import com.example.wifi_direct.api.Message
+import com.example.wifi_direct.api.WIFI_CORE_PERMISSIONS
+import com.example.wifi_direct.api.WIFI_CORE_PERMISSIONS_13
+import com.example.wifi_direct.api.WifiDirectCore
+import com.example.wifi_direct.api.WifiDirectData.LogData
+import com.example.wifi_direct.api.WifiDirectData.MessageData
+import com.example.wifi_direct.api.WifiDirectData.SocketConnectionChanged
+import com.example.wifi_direct.api.WifiDirectData.WifiConnectionChanged
 import com.malinowski.chat.internal.ext.getTime
-import com.malinowski.chat.internal.model.Message
-import com.malinowski.chat.internal.model.WifiDirectActions
+import com.malinowski.chat.internal.model.ChatActions
 import com.malinowski.chat.internal.model.WifiDirectPeer
 import com.malinowski.chat.internal.model.WifiDirectUiState
-import com.malinowski.chat.internal.model.wifi.WIFI_CORE_PERMISSIONS
-import com.malinowski.chat.internal.model.wifi.WIFI_CORE_PERMISSIONS_13
-import com.malinowski.chat.internal.model.wifi.WifiDirectCore
-import com.malinowski.chat.internal.model.wifi.WifiDirectData
-import com.malinowski.chat.internal.model.wifi.WifiDirectData.LogData
-import com.malinowski.chat.internal.model.wifi.WifiDirectData.MessageData
-import com.malinowski.chat.internal.model.wifi.WifiDirectData.SocketConnectionChanged
-import com.malinowski.chat.internal.model.wifi.WifiDirectData.WifiConnectionChanged
-import com.malinowski.chat.internal.model.wifi.WifiDirectResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// todo rewrite to common arch
+// todo rewrite to common arch and rename to ChatViewModel
 class WifiDirectViewModel @Inject constructor(
     private val wifiDirectCore: WifiDirectCore
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(WifiDirectUiState())
-    private val _actions: MutableStateFlow<WifiDirectActions?> = MutableStateFlow(null)
+    private val _actions: MutableStateFlow<ChatActions?> = MutableStateFlow(null)
     val state = _state.asStateFlow()
     val actions = _actions.asStateFlow()
 
@@ -77,7 +76,7 @@ class WifiDirectViewModel @Inject constructor(
     }
 
     private fun showErrorAlertDialog(error: Throwable) {
-        _actions.value = WifiDirectActions.ShowAlertDialog(
+        _actions.value = ChatActions.ShowAlertDialog(
             title = error::class.java.name,
             text = error.message ?: "error"
         )
@@ -90,12 +89,12 @@ class WifiDirectViewModel @Inject constructor(
     fun searchForDevices() {
         viewModelScope.launch {
             when (val result = wifiDirectCore.discoverPeers()) {
-                is WifiDirectResult.Peers -> _state.value =
-                    _state.value.copy(peers = result.peer.map {
+                is DiscoverPeersResult.Peers -> _state.value =
+                    _state.value.copy(peers = result.peers.map {
                         WifiDirectPeer(it.deviceName, it.deviceAddress)
                     })
 
-                is WifiDirectResult.Error -> showErrorAlertDialog(result.error)
+                is DiscoverPeersResult.Error -> showErrorAlertDialog(result.error)
                 else -> {}
             }
         }
@@ -104,15 +103,15 @@ class WifiDirectViewModel @Inject constructor(
     fun connectDevice(peer: WifiDirectPeer) {
         viewModelScope.launch {
             if (wifiDirectCore.connect(peer.address)) {
-                _actions.value = WifiDirectActions.OpenChat(peer)
+                _actions.value = ChatActions.OpenChat(peer)
             } else {
-                _actions.value = WifiDirectActions.ShowToast("Connect Failed")
+                _actions.value = ChatActions.ShowToast("Connect Failed")
             }
         }
     }
 
     fun saveLogs() {
-        _actions.value = WifiDirectActions.SaveLogs(
+        _actions.value = ChatActions.SaveLogs(
             filename = "DIPLOMA_EXPERIMENT_${getTime()}",
             text = _state.value.logText
         )
@@ -138,7 +137,7 @@ class WifiDirectViewModel @Inject constructor(
         }
 
         fun requestPermissions(permission: Array<String>) {
-            _actions.value = WifiDirectActions.RequestPermissions(permission)
+            _actions.value = ChatActions.RequestPermissions(permission)
         }
 
         if (!checkPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {

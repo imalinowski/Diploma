@@ -10,8 +10,8 @@ import androidx.core.view.setMargins
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.wifi_direct.api.Message
 import com.malinowski.chat.databinding.RecyclerViewMessageItemBinding
-import com.malinowski.chat.internal.model.Message
 
 class MessageAdapter :
     ListAdapter<Message, MessageAdapter.ViewHolder>(InterestingItemDiffUtilCallback()) {

@@ -1,7 +1,6 @@
-package com.malinowski.chat.internal.model.wifi
+package com.example.wifi_direct.api
 
 import android.net.wifi.p2p.WifiP2pInfo
-import com.malinowski.chat.internal.model.Message
 
 sealed class WifiDirectData {
     class LogData(val log: String) : WifiDirectData()

@@ -1,4 +1,4 @@
-package com.malinowski.chat.internal.model.wifi
+package com.example.wifi_direct.internal.wifi
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -15,10 +15,13 @@ import android.net.wifi.p2p.WifiP2pManager.NO_SERVICE_REQUESTS
 import android.net.wifi.p2p.WifiP2pManager.P2P_UNSUPPORTED
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener
 import android.util.Log
-import com.malinowski.chat.internal.ext.getTime
-import com.malinowski.chat.internal.model.Message
-import com.malinowski.chat.internal.model.wifi.WifiDirectData.LogData
-import com.malinowski.chat.internal.model.wifi.WifiDirectData.WifiConnectionChanged
+import com.example.wifi_direct.api.DiscoverPeersResult
+import com.example.wifi_direct.api.WifiDirectCore
+import com.example.wifi_direct.internal.ext.getTime
+import com.example.wifi_direct.api.Message
+import com.example.wifi_direct.api.WifiDirectData
+import com.example.wifi_direct.api.WifiDirectData.LogData
+import com.example.wifi_direct.api.WifiDirectData.WifiConnectionChanged
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -71,22 +74,22 @@ class WifiDirectCoreImpl
 
     @SuppressLint("MissingPermission")
     private val peerFlow = flow {
-        val channel = Channel<WifiDirectResult>()
+        val channel = Channel<DiscoverPeersResult>()
 
         val peerListListener = PeerListListener {
             peers = it.deviceList.toList()
             _dataFlow.value = LogData("\n Peers : ${peers.joinToString("\n")}")
-            launch { channel.send(WifiDirectResult.Peers(peers)) }
+            launch { channel.send(DiscoverPeersResult.Peers(peers)) }
         }
 
         manager.discoverPeers(managerChannel, actionListener(
             onSuccess = { manager.requestPeers(managerChannel, peerListListener) },
-            onFail = { errorCode, it -> launch { channel.send(WifiDirectResult.Error(Exception(it))) } }
+            onFail = { errorCode, it -> launch { channel.send(DiscoverPeersResult.Error(Exception(it))) } }
         ))
 
         emit(channel.receive())
     }.catch {
-        emit(WifiDirectResult.Error(it))
+        emit(DiscoverPeersResult.Error(it))
     }.shareIn( // for battery life performance
         this,
         SharingStarted.WhileSubscribed(replayExpirationMillis = CACHE_EXPIRATION_TIME),
@@ -171,7 +174,7 @@ class WifiDirectCoreImpl
         return connectionInfo
     }
 
-    override suspend fun discoverPeers(): WifiDirectResult {
+    override suspend fun discoverPeers(): DiscoverPeersResult {
         _dataFlow.value = LogData("searching for devices ...")
         return withContext(Dispatchers.Default) {
             peerFlow.first()

@@ -2,15 +2,14 @@ plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
-    id 'kotlin-parcelize'
 }
 
 android {
-    namespace 'com.malinowski.chat'
+    namespace 'com.example.wifi_direct'
     compileSdk 34
 
     defaultConfig {
-        minSdk 24
+        minSdk 21
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -29,9 +28,6 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
-    buildFeatures {
-        viewBinding true
-    }
 }
 
 dependencies {
@@ -39,22 +35,14 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.13.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.12.0'
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 
     //android extra
     implementation "androidx.activity:activity-ktx:1.9.2"
     implementation "androidx.fragment:fragment-ktx:1.6.2"
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 
-
-    //ext
     implementation 'com.google.dagger:dagger:2.49'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
     kapt 'com.google.dagger:dagger-compiler:2.49'
-
-    //local
-    implementation project(':base:common_arch')
-    implementation project(':base:wifi_direct')
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
 }
+

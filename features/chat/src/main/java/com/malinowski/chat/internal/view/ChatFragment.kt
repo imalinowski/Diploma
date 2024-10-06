@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.malinowski.chat.R
 import com.malinowski.chat.databinding.FragmentChatBinding
 import com.malinowski.chat.internal.ext.getComponent
-import com.malinowski.chat.internal.model.WifiDirectActions
+import com.malinowski.chat.internal.model.ChatActions
 import com.malinowski.chat.internal.model.WifiDirectPeer
 import com.malinowski.chat.internal.model.WifiDirectUiState
 import com.malinowski.chat.internal.view.adapters.MessageAdapter
@@ -88,9 +88,9 @@ class ChatFragment private constructor() : Fragment() {
 
     }
 
-    private fun actions(action: WifiDirectActions?) {
+    private fun actions(action: ChatActions?) {
         when (action) {
-            is WifiDirectActions.ReceiveMessage -> {
+            is ChatActions.ReceiveMessage -> {
                 adapter.submitList(listOf(action.message))
             }
 

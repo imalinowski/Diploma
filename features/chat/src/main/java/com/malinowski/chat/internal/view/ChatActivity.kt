@@ -21,12 +21,12 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.malinowski.chat.R
 import com.malinowski.chat.databinding.ActivityMainBinding
 import com.malinowski.chat.internal.ext.getComponent
-import com.malinowski.chat.internal.model.WifiDirectActions
-import com.malinowski.chat.internal.model.WifiDirectActions.OpenChat
-import com.malinowski.chat.internal.model.WifiDirectActions.RequestPermissions
-import com.malinowski.chat.internal.model.WifiDirectActions.SaveLogs
-import com.malinowski.chat.internal.model.WifiDirectActions.ShowAlertDialog
-import com.malinowski.chat.internal.model.WifiDirectActions.ShowToast
+import com.malinowski.chat.internal.model.ChatActions
+import com.malinowski.chat.internal.model.ChatActions.OpenChat
+import com.malinowski.chat.internal.model.ChatActions.RequestPermissions
+import com.malinowski.chat.internal.model.ChatActions.SaveLogs
+import com.malinowski.chat.internal.model.ChatActions.ShowAlertDialog
+import com.malinowski.chat.internal.model.ChatActions.ShowToast
 import com.malinowski.chat.internal.viewmodel.WifiDirectViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -89,7 +89,7 @@ class ChatActivity : AppCompatActivity() {
 
     }
 
-    private fun actions(action: WifiDirectActions?) {
+    private fun actions(action: ChatActions?) {
         when (action) {
             is RequestPermissions -> requestPermissionLauncher.launch(action.permissions)
             is ShowToast -> toast(action.text)
