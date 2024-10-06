@@ -15,8 +15,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.malinowski.chat.databinding.FragmentLogBinding
 import com.malinowski.chat.internal.ext.getComponent
-import com.malinowski.chat.internal.model.WifiDirectUiState
-import com.malinowski.chat.internal.viewmodel.WifiDirectViewModel
+import com.malinowski.chat.internal.model.ChatUiState
+import com.malinowski.chat.internal.viewmodel.ChatViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,7 +24,7 @@ class LogFragment : Fragment() {
 
     @Inject
     lateinit var factory: ViewModelProvider.Factory
-    private val viewModel: WifiDirectViewModel by activityViewModels { factory }
+    private val viewModel: ChatViewModel by activityViewModels { factory }
 
     private lateinit var binding: FragmentLogBinding
 
@@ -67,7 +67,7 @@ class LogFragment : Fragment() {
         }
     }
 
-    private fun update(state: WifiDirectUiState) {
+    private fun update(state: ChatUiState) {
         logView.text = state.logText
     }
 

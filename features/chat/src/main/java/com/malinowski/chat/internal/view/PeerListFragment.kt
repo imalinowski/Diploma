@@ -16,9 +16,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.malinowski.chat.databinding.FragmentPeerListBinding
 import com.malinowski.chat.internal.ext.getComponent
-import com.malinowski.chat.internal.model.WifiDirectUiState
+import com.malinowski.chat.internal.model.ChatUiState
 import com.malinowski.chat.internal.view.adapters.PeerAdapter
-import com.malinowski.chat.internal.viewmodel.WifiDirectViewModel
+import com.malinowski.chat.internal.viewmodel.ChatViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,7 +27,7 @@ class PeerListFragment : Fragment() {
     @Inject
     lateinit var factory: ViewModelProvider.Factory
 
-    private val viewModel: WifiDirectViewModel by activityViewModels { factory }
+    private val viewModel: ChatViewModel by activityViewModels { factory }
 
     private lateinit var binding: FragmentPeerListBinding
 
@@ -70,7 +70,7 @@ class PeerListFragment : Fragment() {
         }
     }
 
-    private fun update(state: WifiDirectUiState) {
+    private fun update(state: ChatUiState) {
         binding.swiperefresh.isRefreshing = false
         binding.noPeersFound.isVisible = state.peers.isEmpty()
         adapter.submitList(state.peers)

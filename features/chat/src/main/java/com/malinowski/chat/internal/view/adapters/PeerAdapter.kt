@@ -6,11 +6,11 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.malinowski.chat.databinding.RecyclerViewPeerItemBinding
-import com.malinowski.chat.internal.model.WifiDirectPeer
+import com.malinowski.chat.internal.model.ChatPeer
 
 class PeerAdapter(
-    val clickCallback: (WifiDirectPeer) -> Unit
-) : ListAdapter<WifiDirectPeer, PeerAdapter.ViewHolder>(InterestingItemDiffUtilCallback()) {
+    val clickCallback: (ChatPeer) -> Unit
+) : ListAdapter<ChatPeer, PeerAdapter.ViewHolder>(InterestingItemDiffUtilCallback()) {
 
     class ViewHolder(val binding: RecyclerViewPeerItemBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -36,13 +36,13 @@ class PeerAdapter(
 
     }
 
-    class InterestingItemDiffUtilCallback : DiffUtil.ItemCallback<WifiDirectPeer>() {
+    class InterestingItemDiffUtilCallback : DiffUtil.ItemCallback<ChatPeer>() {
 
-        override fun areItemsTheSame(oldItem: WifiDirectPeer, newItem: WifiDirectPeer): Boolean {
+        override fun areItemsTheSame(oldItem: ChatPeer, newItem: ChatPeer): Boolean {
             return oldItem.name == newItem.name
         }
 
-        override fun areContentsTheSame(oldItem: WifiDirectPeer, newItem: WifiDirectPeer): Boolean {
+        override fun areContentsTheSame(oldItem: ChatPeer, newItem: ChatPeer): Boolean {
             return oldItem == newItem
         }
 

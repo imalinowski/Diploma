@@ -17,8 +17,8 @@ import com.example.edge_ui.internal.presentation.EdgeUIEvents.AddNewMatrixTask
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate.ClickGenerateMatrixA
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate.ClickGenerateMatrixB
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixSizeChanged
-import com.example.edge_ui.internal.presentation.EdgeUIEventsToUI
-import com.example.edge_ui.internal.presentation.EdgeUIEventsToUI.ShowToast
+import com.example.edge_ui.internal.presentation.EdgeUIEffects
+import com.example.edge_ui.internal.presentation.EdgeUIEffects.ShowToast
 import com.example.edge_ui.internal.presentation.EdgeUIState
 import com.example.edge_ui.internal.view.model.EdgeUiTaskInfoState
 import javax.inject.Inject
@@ -44,7 +44,7 @@ class EdgeActivity : AppCompatActivity() {
         setContentView(binding.root)
         (application as EdgeUIComponentProvider).provideEdgeUIComponent().inject(this)
 
-        viewModel.collect(lifecycleScope, ::render, ::handleEvents)
+        viewModel.collect(lifecycleScope, ::render, ::handleEffects)
         initUi(viewModel.state)
     }
 
@@ -97,7 +97,7 @@ class EdgeActivity : AppCompatActivity() {
         }
     }
 
-    private fun handleEvents(event: EdgeUIEventsToUI) {
+    private fun handleEffects(event: EdgeUIEffects) {
         when (event) {
             is ShowToast -> {
                 Toast.makeText(this, event.text, Toast.LENGTH_LONG).show()

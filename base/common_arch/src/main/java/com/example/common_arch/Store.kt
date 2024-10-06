@@ -8,7 +8,14 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
-abstract class Store<State, Command, Event, UiEvent>(
+// todo rename event to effect?
+/*
+* State - состояние view
+* Command - команды запуска операций
+* Effect - команды для UI
+* Event - события от UI
+* */
+abstract class Store<State, Command, Event, Effect>(
     initialState: State,
     private val commandHandlers: List<CommandHandler<Command, Event>>
 ) : ViewModel() {
@@ -17,20 +24,20 @@ abstract class Store<State, Command, Event, UiEvent>(
     private val _state: MutableStateFlow<State> = MutableStateFlow(initialState)
     val state: State get() = _state.value
 
-    private val _events: MutableSharedFlow<UiEvent> = MutableSharedFlow()
+    private val _effects: MutableSharedFlow<Effect> = MutableSharedFlow()
 
     abstract fun dispatch(event: Event)
 
     fun collect(
         lifecycleScope: LifecycleCoroutineScope,
         render: (State) -> Unit,
-        handleEvents: (UiEvent) -> Unit = {}
+        handleEffects: (Effect) -> Unit = {}
     ) {
         lifecycleScope.launch {
             _state.collect { render(it) }
         }
         lifecycleScope.launch {
-            _events.collect { handleEvents(it) }
+            _effects.collect { handleEffects(it) }
         }
     }
 
@@ -57,9 +64,9 @@ abstract class Store<State, Command, Event, UiEvent>(
         _state.value = callback(_state.value)
     }
 
-    protected fun newEvent(callback: State.() -> UiEvent) {
+    protected fun newEvent(callback: State.() -> Effect) {
         storeScope.launch {
-            _events.emit(
+            _effects.emit(
                 callback(_state.value)
             )
         }

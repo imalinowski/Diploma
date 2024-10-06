@@ -16,22 +16,22 @@ import com.example.wifi_direct.api.WifiDirectData.LogData
 import com.example.wifi_direct.api.WifiDirectData.MessageData
 import com.example.wifi_direct.api.WifiDirectData.SocketConnectionChanged
 import com.example.wifi_direct.api.WifiDirectData.WifiConnectionChanged
-import com.malinowski.chat.internal.ext.getTime
+import com.example.wifi_direct.internal.ext.getTime
 import com.malinowski.chat.internal.model.ChatActions
-import com.malinowski.chat.internal.model.WifiDirectPeer
-import com.malinowski.chat.internal.model.WifiDirectUiState
+import com.malinowski.chat.internal.model.ChatPeer
+import com.malinowski.chat.internal.model.ChatUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-// todo rewrite to common arch and rename to ChatViewModel
-class WifiDirectViewModel @Inject constructor(
+// todo rewrite to common arch
+class ChatViewModel @Inject constructor(
     private val wifiDirectCore: WifiDirectCore
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(WifiDirectUiState())
+    private val _state = MutableStateFlow(ChatUiState())
     private val _actions: MutableStateFlow<ChatActions?> = MutableStateFlow(null)
     val state = _state.asStateFlow()
     val actions = _actions.asStateFlow()
@@ -91,7 +91,7 @@ class WifiDirectViewModel @Inject constructor(
             when (val result = wifiDirectCore.discoverPeers()) {
                 is DiscoverPeersResult.Peers -> _state.value =
                     _state.value.copy(peers = result.peers.map {
-                        WifiDirectPeer(it.deviceName, it.deviceAddress)
+                        ChatPeer(it.deviceName, it.deviceAddress)
                     })
 
                 is DiscoverPeersResult.Error -> showErrorAlertDialog(result.error)
@@ -100,7 +100,7 @@ class WifiDirectViewModel @Inject constructor(
         }
     }
 
-    fun connectDevice(peer: WifiDirectPeer) {
+    fun connectDevice(peer: ChatPeer) {
         viewModelScope.launch {
             if (wifiDirectCore.connect(peer.address)) {
                 _actions.value = ChatActions.OpenChat(peer)

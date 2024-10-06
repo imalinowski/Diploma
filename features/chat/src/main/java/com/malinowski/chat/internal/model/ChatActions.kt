@@ -14,7 +14,7 @@ sealed class ChatActions {
         val dialogAction: () -> Unit = {}
     ) : ChatActions()
 
-    class OpenChat(val peer: WifiDirectPeer) : ChatActions()
+    class OpenChat(val peer: ChatPeer) : ChatActions()
 
     class ReceiveMessage(val message: Message) : ChatActions()
 

@@ -18,7 +18,7 @@ import com.example.edge_ui.internal.presentation.EdgeUIEvents.RemoteTaskComplete
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowInfo
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowLocalTaskInProgress
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowRemoteTaskInProgress
-import com.example.edge_ui.internal.presentation.EdgeUIEventsToUI.ShowToast
+import com.example.edge_ui.internal.presentation.EdgeUIEffects.ShowToast
 import com.example.edge_ui.internal.presentation.command_handlers.CommandCoreHandler
 import com.example.edge_ui.internal.presentation.command_handlers.CommandMatrixHandler
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.AddMatrixTask
@@ -30,7 +30,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.example.edge_ui.internal.presentation.EdgeUIEvents as Events
-import com.example.edge_ui.internal.presentation.EdgeUIEventsToUI as EventsToUI
+import com.example.edge_ui.internal.presentation.EdgeUIEffects as Effects
 import com.example.edge_ui.internal.presentation.EdgeUIState as State
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands as Commands
 
@@ -42,7 +42,7 @@ internal class EdgeUIViewModel
     commandCoreHandler: CommandCoreHandler,
     commandMatrixHandler: CommandMatrixHandler,
     private val domain: EdgeDomain,
-) : Store<State, Commands, Events, EventsToUI>(
+) : Store<State, Commands, Events, Effects>(
     initialState = State(),
     commandHandlers = listOf(
         commandMatrixHandler, commandCoreHandler

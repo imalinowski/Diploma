@@ -17,10 +17,10 @@ import com.malinowski.chat.R
 import com.malinowski.chat.databinding.FragmentChatBinding
 import com.malinowski.chat.internal.ext.getComponent
 import com.malinowski.chat.internal.model.ChatActions
-import com.malinowski.chat.internal.model.WifiDirectPeer
-import com.malinowski.chat.internal.model.WifiDirectUiState
+import com.malinowski.chat.internal.model.ChatPeer
+import com.malinowski.chat.internal.model.ChatUiState
 import com.malinowski.chat.internal.view.adapters.MessageAdapter
-import com.malinowski.chat.internal.viewmodel.WifiDirectViewModel
+import com.malinowski.chat.internal.viewmodel.ChatViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -29,11 +29,11 @@ class ChatFragment private constructor() : Fragment() {
 
     @Inject
     lateinit var factory: ViewModelProvider.Factory
-    private val viewModel: WifiDirectViewModel by activityViewModels { factory }
+    private val viewModel: ChatViewModel by activityViewModels { factory }
 
     private lateinit var binding: FragmentChatBinding
 
-    private lateinit var peer: WifiDirectPeer
+    private lateinit var peer: ChatPeer
 
     private val adapter = MessageAdapter()
 
@@ -98,7 +98,7 @@ class ChatFragment private constructor() : Fragment() {
         }
     }
 
-    private fun update(state: WifiDirectUiState) {
+    private fun update(state: ChatUiState) {
         adapter.submitList(state.messages)
         binding.connectionStatus.apply {
             text = if (state.wifiConnectionInfo.groupFormed) {
@@ -116,16 +116,11 @@ class ChatFragment private constructor() : Fragment() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
     companion object {
         const val NAME = "name"
-        const val DEVICE_ADDRESS = "name"
 
         @JvmStatic
-        fun newInstance(peer: WifiDirectPeer) =
+        fun newInstance(peer: ChatPeer) =
             ChatFragment().apply {
                 arguments = Bundle().apply {
                     putParcelable(NAME, peer)

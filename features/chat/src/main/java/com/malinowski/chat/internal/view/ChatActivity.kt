@@ -27,7 +27,7 @@ import com.malinowski.chat.internal.model.ChatActions.RequestPermissions
 import com.malinowski.chat.internal.model.ChatActions.SaveLogs
 import com.malinowski.chat.internal.model.ChatActions.ShowAlertDialog
 import com.malinowski.chat.internal.model.ChatActions.ShowToast
-import com.malinowski.chat.internal.viewmodel.WifiDirectViewModel
+import com.malinowski.chat.internal.viewmodel.ChatViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -44,7 +44,7 @@ class ChatActivity : AppCompatActivity() {
     @Inject
     lateinit var factory: ViewModelProvider.Factory
 
-    private val viewModel: WifiDirectViewModel by viewModels { factory }
+    private val viewModel: ChatViewModel by viewModels { factory }
     private lateinit var binding: ActivityMainBinding
 
     companion object {
