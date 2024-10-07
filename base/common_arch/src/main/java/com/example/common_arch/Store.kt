@@ -1,6 +1,5 @@
 package com.example.common_arch
 
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.CoroutineScope

@@ -26,7 +26,7 @@ class MainFragment private constructor() : Fragment() {
 
         binding.bottomNavigation.setOnItemSelectedListener {
             when (it.itemId) {
-                R.id.main -> {
+                R.id.peers -> {
                     childFragmentManager.commit(allowStateLoss = true) {
                         replace(R.id.navigation_fragment_container, PeerListFragment.newInstance())
                         addToBackStack(null)
@@ -42,7 +42,7 @@ class MainFragment private constructor() : Fragment() {
             }
             true
         }
-        binding.bottomNavigation.selectedItemId = R.id.main
+        binding.bottomNavigation.selectedItemId = R.id.peers
     }
 
     companion object {

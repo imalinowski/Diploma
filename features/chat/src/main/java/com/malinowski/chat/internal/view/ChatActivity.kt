@@ -79,7 +79,6 @@ class ChatActivity : AppCompatActivity() {
             replace(R.id.app_fragment_container, MainFragment.newInstance())
             addToBackStack(null)
         }
-
     }
 
     private fun handleEffects(action: ChatEffects?) {
