@@ -6,7 +6,7 @@ import android.os.Build
 import kotlinx.coroutines.flow.Flow
 
 val WIFI_CORE_PERMISSIONS by lazy {
-    arrayOf(
+    listOf(
         Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.ACCESS_COARSE_LOCATION,
         Manifest.permission.ACCESS_WIFI_STATE,
@@ -18,13 +18,13 @@ val WIFI_CORE_PERMISSIONS by lazy {
 //permission for Android 13
 val WIFI_CORE_PERMISSIONS_13 by lazy {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        arrayOf(Manifest.permission.NEARBY_WIFI_DEVICES)
-    } else arrayOf()
+        listOf(Manifest.permission.NEARBY_WIFI_DEVICES)
+    } else listOf()
 }
 
 interface WifiDirectCore {
 
-    val dataFlow: Flow<WifiDirectData?>
+    val dataFlow: Flow<WifiDirectEvents?>
 
     fun registerReceiver()
 

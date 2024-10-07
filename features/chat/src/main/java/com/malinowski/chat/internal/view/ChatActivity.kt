@@ -14,23 +14,20 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.malinowski.chat.R
 import com.malinowski.chat.databinding.ActivityMainBinding
 import com.malinowski.chat.internal.ext.getComponent
-import com.malinowski.chat.internal.model.ChatActions
-import com.malinowski.chat.internal.model.ChatActions.OpenChat
-import com.malinowski.chat.internal.model.ChatActions.RequestPermissions
-import com.malinowski.chat.internal.model.ChatActions.SaveLogs
-import com.malinowski.chat.internal.model.ChatActions.ShowAlertDialog
-import com.malinowski.chat.internal.model.ChatActions.ShowToast
+import com.malinowski.chat.internal.presentation.ChatEffects
+import com.malinowski.chat.internal.presentation.ChatEffects.OpenChat
+import com.malinowski.chat.internal.presentation.ChatEffects.RequestPermissions
+import com.malinowski.chat.internal.presentation.ChatEffects.SaveLogs
+import com.malinowski.chat.internal.presentation.ChatEffects.ShowAlertDialog
+import com.malinowski.chat.internal.presentation.ChatEffects.ShowToast
 import com.malinowski.chat.internal.viewmodel.ChatViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -60,7 +57,7 @@ class ChatActivity : AppCompatActivity() {
         ) { permissionResult ->
             permissionResult.forEach { (name, value) ->
                 if (!value) {
-                    actions(
+                    handleEffects(
                         ShowAlertDialog(
                             text = "$name нужно для работы приложения"
                         )
@@ -76,11 +73,7 @@ class ChatActivity : AppCompatActivity() {
         setContentView(binding.root)
         getComponent().inject(this)
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.actions.collectLatest { actions(it) }
-            }
-        }
+        viewModel.collect(lifecycleScope, {}, ::handleEffects)
 
         supportFragmentManager.commit(allowStateLoss = true) {
             replace(R.id.app_fragment_container, MainFragment.newInstance())
@@ -89,9 +82,11 @@ class ChatActivity : AppCompatActivity() {
 
     }
 
-    private fun actions(action: ChatActions?) {
+    private fun handleEffects(action: ChatEffects?) {
         when (action) {
-            is RequestPermissions -> requestPermissionLauncher.launch(action.permissions)
+            is RequestPermissions -> requestPermissionLauncher.launch(
+                action.permissions.toTypedArray()
+            )
             is ShowToast -> toast(action.text)
             is ShowAlertDialog -> {
                 AlertDialog.Builder(this)
@@ -123,9 +118,7 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun toast(
-        text: String
-    ) {
+    private fun toast(text: String) {
         Toast.makeText(this, text, Toast.LENGTH_LONG).show()
     }
 

@@ -1,5 +1,6 @@
 package com.example.common_arch
 
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -12,13 +13,14 @@ import kotlinx.coroutines.launch
 /*
 * State - состояние view
 * Command - команды запуска операций
-* Effect - команды для UI
-* Event - события от UI
+* Effect - эффекты для UI
+* Event - события для Store
 * */
 abstract class Store<State, Command, Event, Effect>(
     initialState: State,
     private val commandHandlers: List<CommandHandler<Command, Event>>
 ) : ViewModel() {
+
     protected abstract val storeScope: CoroutineScope
 
     private val _state: MutableStateFlow<State> = MutableStateFlow(initialState)
@@ -34,6 +36,7 @@ abstract class Store<State, Command, Event, Effect>(
         handleEffects: (Effect) -> Unit = {}
     ) {
         lifecycleScope.launch {
+            // todo maybe viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED)
             _state.collect { render(it) }
         }
         lifecycleScope.launch {
@@ -64,11 +67,9 @@ abstract class Store<State, Command, Event, Effect>(
         _state.value = callback(_state.value)
     }
 
-    protected fun newEvent(callback: State.() -> Effect) {
+    protected fun newEffect(callback: State.() -> Effect) {
         storeScope.launch {
-            _effects.emit(
-                callback(_state.value)
-            )
+            _effects.emit(callback(_state.value))
         }
     }
 }

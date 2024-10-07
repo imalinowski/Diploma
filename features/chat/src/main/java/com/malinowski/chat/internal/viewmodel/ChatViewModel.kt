@@ -1,159 +1,128 @@
 package com.malinowski.chat.internal.viewmodel
 
-import android.Manifest
-import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
-import androidx.core.app.ActivityCompat
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.wifi_direct.api.DiscoverPeersResult
-import com.example.wifi_direct.api.Message
-import com.example.wifi_direct.api.WIFI_CORE_PERMISSIONS
-import com.example.wifi_direct.api.WIFI_CORE_PERMISSIONS_13
+import com.example.common_arch.Store
 import com.example.wifi_direct.api.WifiDirectCore
-import com.example.wifi_direct.api.WifiDirectData.LogData
-import com.example.wifi_direct.api.WifiDirectData.MessageData
-import com.example.wifi_direct.api.WifiDirectData.SocketConnectionChanged
-import com.example.wifi_direct.api.WifiDirectData.WifiConnectionChanged
 import com.example.wifi_direct.internal.ext.getTime
-import com.malinowski.chat.internal.model.ChatActions
-import com.malinowski.chat.internal.model.ChatPeer
+import com.malinowski.chat.internal.mappers.ChatMapper
 import com.malinowski.chat.internal.model.ChatUiState
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
+import com.malinowski.chat.internal.presentation.ChatCommands
+import com.malinowski.chat.internal.presentation.ChatCommands.ConnectPeer
+import com.malinowski.chat.internal.presentation.ChatCommands.SearchPeers
+import com.malinowski.chat.internal.presentation.ChatEffects
+import com.malinowski.chat.internal.presentation.ChatEffects.RequestPermissions
+import com.malinowski.chat.internal.presentation.ChatEvents
+import com.malinowski.chat.internal.presentation.ChatEvents.ChatUIEvents
+import com.malinowski.chat.internal.presentation.ChatEvents.ChatUIEvents.ClearLogs
+import com.malinowski.chat.internal.presentation.ChatEvents.ChatUIEvents.ConnectToPeer
+import com.malinowski.chat.internal.presentation.ChatEvents.ChatUIEvents.SaveLogs
+import com.malinowski.chat.internal.presentation.ChatEvents.ChatUIEvents.SearchForDevices
+import com.malinowski.chat.internal.presentation.ChatEvents.Error
+import com.malinowski.chat.internal.presentation.ChatEvents.Log
+import com.malinowski.chat.internal.presentation.ChatEvents.NewMessage
+import com.malinowski.chat.internal.presentation.ChatEvents.WifiDirectEvents
+import com.malinowski.chat.internal.presentation.ChatEvents.WifiDirectEvents.ChatConnectionChanged
+import com.malinowski.chat.internal.presentation.ChatEvents.WifiDirectEvents.PeersUpdate
+import com.malinowski.chat.internal.presentation.ChatEvents.WifiDirectEvents.PermissionMissed
+import com.malinowski.chat.internal.presentation.ChatEvents.WifiDirectEvents.PermissionsOkay
+import com.malinowski.chat.internal.presentation.ChatEvents.WifiDirectEvents.WifiConnectionChanged
+import com.malinowski.chat.internal.presentation.command_handlers.PermissionsCommandHandler
+import com.malinowski.chat.internal.presentation.command_handlers.WifiDirectCommandHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 // todo rewrite to common arch
 class ChatViewModel @Inject constructor(
-    private val wifiDirectCore: WifiDirectCore
-) : ViewModel() {
+    private val wifiDirectCore: WifiDirectCore,
+    permissionCommandHandler: PermissionsCommandHandler,
+    wifiDirectCommandHandler: WifiDirectCommandHandler,
+    chatMapper: ChatMapper
+) : Store<ChatUiState, ChatCommands, ChatEvents, ChatEffects>(
+    initialState = ChatUiState(),
+    commandHandlers = listOf(
+        permissionCommandHandler,
+        wifiDirectCommandHandler,
+    )
+) {
 
-    private val _state = MutableStateFlow(ChatUiState())
-    private val _actions: MutableStateFlow<ChatActions?> = MutableStateFlow(null)
-    val state = _state.asStateFlow()
-    val actions = _actions.asStateFlow()
+    override val storeScope: CoroutineScope = viewModelScope
 
     init {
         wifiDirectCore.registerReceiver()
-        viewModelScope.launch {
-            wifiDirectCore.dataFlow.collectLatest { data ->
-                when (data) {
-                    is LogData -> log(data.log)
-                    is MessageData -> addMessage(data.message)
-                    is WifiConnectionChanged -> {
-                        _state.value = _state.value.copy(wifiConnectionInfo = data.info)
-                    }
-                    is SocketConnectionChanged -> {
-                        _state.value = _state.value.copy(chatConnectionInfo = data.connected)
-                    }
-                    null -> {}
-                }
+        storeScope.launch {
+            wifiDirectCore.dataFlow.filterNotNull()
+                .map(chatMapper)
+                .collect(::dispatch)
+        }
+    }
+
+    override fun dispatch(event: ChatEvents) {
+        when (event) {
+            is ChatEvents.OpenChat -> newEffect {
+                ChatEffects.OpenChat(event.peer)
             }
+
+            is ChatEvents.SendMessage -> command {
+                ChatCommands.SendMessage(event.message)
+            }
+
+            is NewMessage -> newState {
+                copy(messages = state.messages + listOf(event.message))
+            }
+
+            is Log -> newState {
+                copy(logText = state.logText + "\n" + event.log)
+            }
+
+            is Error -> newEffect {
+                showErrorAlertDialog(event.error)
+            }
+
+            is ChatUIEvents -> dispatchUIEvents(event)
+            is WifiDirectEvents -> dispatchWifiDirectEvents(event)
         }
     }
 
-    override fun onCleared() {
-        saveLogs()
-        super.onCleared()
-        wifiDirectCore.unRegisterReceiver()
-    }
-
-    private fun log(text: String) {
-        _state.value = _state.value.let { state ->
-            state.copy(
-                logText = "${state.logText}\n${getTime()}: $text"
-            )
+    private fun dispatchWifiDirectEvents(
+        event: WifiDirectEvents
+    ) {
+        when (event) {
+            PermissionsOkay -> command { SearchPeers }
+            is PermissionMissed -> newEffect { RequestPermissions(event.permissions) }
+            is PeersUpdate -> newState { copy(peers = event.peers) }
+            is WifiConnectionChanged -> newState { copy(wifiConnectionInfo = event.info) }
+            is ChatConnectionChanged -> newState { copy(chatConnectionInfo = event.connected) }
         }
     }
 
-    private fun addMessage(message: Message) {
-        _state.value = _state.value.let { state ->
-            state.copy(messages = state.messages + listOf(message))
+    private fun dispatchUIEvents(event: ChatUIEvents) {
+        when (event) {
+            ClearLogs -> newState { copy(logText = "") }
+            is ConnectToPeer -> command { ConnectPeer(event.peer) }
+            SearchForDevices -> command { SearchPeers }
+            SaveLogs -> newEffect { saveLogs() }
         }
     }
 
-    private fun showErrorAlertDialog(error: Throwable) {
-        _actions.value = ChatActions.ShowAlertDialog(
+    private fun showErrorAlertDialog(error: Throwable): ChatEffects {
+        return ChatEffects.ShowAlertDialog(
             title = error::class.java.name,
             text = error.message ?: "error"
         )
     }
 
-    fun clearLog() {
-        _state.value = _state.value.copy(logText = "")
-    }
-
-    fun searchForDevices() {
-        viewModelScope.launch {
-            when (val result = wifiDirectCore.discoverPeers()) {
-                is DiscoverPeersResult.Peers -> _state.value =
-                    _state.value.copy(peers = result.peers.map {
-                        ChatPeer(it.deviceName, it.deviceAddress)
-                    })
-
-                is DiscoverPeersResult.Error -> showErrorAlertDialog(result.error)
-                else -> {}
-            }
-        }
-    }
-
-    fun connectDevice(peer: ChatPeer) {
-        viewModelScope.launch {
-            if (wifiDirectCore.connect(peer.address)) {
-                _actions.value = ChatActions.OpenChat(peer)
-            } else {
-                _actions.value = ChatActions.ShowToast("Connect Failed")
-            }
-        }
-    }
-
-    fun saveLogs() {
-        _actions.value = ChatActions.SaveLogs(
+    private fun saveLogs(): ChatEffects {
+        return ChatEffects.SaveLogs(
             filename = "DIPLOMA_EXPERIMENT_${getTime()}",
-            text = _state.value.logText
+            text = state.logText
         )
     }
 
-    fun sendMessage(message: String) {
-        viewModelScope.launch {
-            try {
-                wifiDirectCore.sendMessage(message)
-                addMessage(Message(text = message, fromRemote = false, time = getTime("hh:mm:ss.SSS")))
-            } catch (e: Exception) {
-                showErrorAlertDialog(e)
-            }
-        }
-    }
-
-    fun checkPermissions(context: Context): Boolean {
-
-        fun checkPermission(permission: String): Boolean {
-            return ActivityCompat.checkSelfPermission(
-                context, permission
-            ) == PackageManager.PERMISSION_GRANTED
-        }
-
-        fun requestPermissions(permission: Array<String>) {
-            _actions.value = ChatActions.RequestPermissions(permission)
-        }
-
-        if (!checkPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
-            requestPermissions(WIFI_CORE_PERMISSIONS)
-            log("Denied > ${Manifest.permission.ACCESS_FINE_LOCATION}")
-            return false
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            !checkPermission(Manifest.permission.NEARBY_WIFI_DEVICES)
-        ) {
-            log("Denied > ${Manifest.permission.NEARBY_WIFI_DEVICES}")
-            requestPermissions(WIFI_CORE_PERMISSIONS_13)
-            return false
-        }
-
-        return true
+    override fun onCleared() {
+        super.onCleared()
+        wifiDirectCore.unRegisterReceiver()
     }
 }

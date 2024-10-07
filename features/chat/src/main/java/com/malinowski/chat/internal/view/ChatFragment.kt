@@ -8,21 +8,18 @@ import android.view.ViewGroup
 import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.malinowski.chat.R
 import com.malinowski.chat.databinding.FragmentChatBinding
 import com.malinowski.chat.internal.ext.getComponent
-import com.malinowski.chat.internal.model.ChatActions
 import com.malinowski.chat.internal.model.ChatPeer
 import com.malinowski.chat.internal.model.ChatUiState
+import com.malinowski.chat.internal.presentation.ChatEffects
+import com.malinowski.chat.internal.presentation.ChatEvents.SendMessage
 import com.malinowski.chat.internal.view.adapters.MessageAdapter
 import com.malinowski.chat.internal.viewmodel.ChatViewModel
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ChatFragment private constructor() : Fragment() {
@@ -68,37 +65,24 @@ class ChatFragment private constructor() : Fragment() {
             }
         }
 
-        lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.actions.collectLatest { actions(it) }
-            }
-        }
-
-        lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.state.collect(::update)
-            }
-        }
+        viewModel.collect(lifecycleScope, ::render, ::handleEffect)
 
         binding.send.setOnClickListener {
             val message = binding.messageEdit.text.toString()
-            viewModel.sendMessage(message)
+            viewModel.dispatch(SendMessage(message))
             binding.messageEdit.setText("")
         }
 
     }
 
-    private fun actions(action: ChatActions?) {
-        when (action) {
-            is ChatActions.ReceiveMessage -> {
-                adapter.submitList(listOf(action.message))
-            }
-
-            else -> {}
+    private fun handleEffect(effects: ChatEffects?) {
+        if (effects !is ChatEffects.ReceiveMessage) {
+            return
         }
+        adapter.submitList(listOf(effects.message))
     }
 
-    private fun update(state: ChatUiState) {
+    private fun render(state: ChatUiState) {
         adapter.submitList(state.messages)
         binding.connectionStatus.apply {
             text = if (state.wifiConnectionInfo.groupFormed) {

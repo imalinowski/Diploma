@@ -16,6 +16,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.malinowski.chat.databinding.FragmentLogBinding
 import com.malinowski.chat.internal.ext.getComponent
 import com.malinowski.chat.internal.model.ChatUiState
+import com.malinowski.chat.internal.presentation.ChatEvents
+import com.malinowski.chat.internal.presentation.ChatEvents.ChatUIEvents.ClearLogs
+import com.malinowski.chat.internal.presentation.ChatEvents.ChatUIEvents.SaveLogs
+import com.malinowski.chat.internal.presentation.ChatEvents.ChatUIEvents.SearchForDevices
 import com.malinowski.chat.internal.viewmodel.ChatViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -48,26 +52,20 @@ class LogFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel.collect(lifecycleScope, ::render)
 
-        lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.state.collect(::update)
-            }
-        }
         searchDevicesBtn.setOnClickListener {
-            if (viewModel.checkPermissions(requireContext())) {
-                viewModel.searchForDevices()
-            }
+            viewModel.dispatch(SearchForDevices)
         }
         clearLogs.setOnClickListener {
-            viewModel.clearLog()
+            viewModel.dispatch(ClearLogs)
         }
         loadLogs.setOnClickListener {
-            viewModel.saveLogs()
+            viewModel.dispatch(SaveLogs)
         }
     }
 
-    private fun update(state: ChatUiState) {
+    private fun render(state: ChatUiState) {
         logView.text = state.logText
     }
 

@@ -8,18 +8,17 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.malinowski.chat.databinding.FragmentPeerListBinding
 import com.malinowski.chat.internal.ext.getComponent
 import com.malinowski.chat.internal.model.ChatUiState
+import com.malinowski.chat.internal.presentation.ChatEvents.ChatUIEvents.ConnectToPeer
+import com.malinowski.chat.internal.presentation.ChatEvents.ChatUIEvents.SearchForDevices
 import com.malinowski.chat.internal.view.adapters.PeerAdapter
 import com.malinowski.chat.internal.viewmodel.ChatViewModel
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class PeerListFragment : Fragment() {
@@ -35,7 +34,7 @@ class PeerListFragment : Fragment() {
         binding.peerRecycler
     }
     private val adapter = PeerAdapter { device ->
-        viewModel.connectDevice(device)
+        viewModel.dispatch(ConnectToPeer(device))
     }
 
     override fun onAttach(context: Context) {
@@ -53,20 +52,15 @@ class PeerListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.state.collect(::update)
-            }
-        }
+        viewModel.collect(lifecycleScope, ::update)
+
         peerRecyclerView.apply {
             adapter = this@PeerListFragment.adapter
             layoutManager = LinearLayoutManager(this@PeerListFragment.requireContext())
         }
 
         binding.swiperefresh.setOnRefreshListener {
-            if (viewModel.checkPermissions(requireContext())) {
-                viewModel.searchForDevices()
-            }
+            viewModel.dispatch(SearchForDevices)
         }
     }
 

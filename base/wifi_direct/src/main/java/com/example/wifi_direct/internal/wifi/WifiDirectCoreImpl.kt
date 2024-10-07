@@ -16,12 +16,12 @@ import android.net.wifi.p2p.WifiP2pManager.P2P_UNSUPPORTED
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener
 import android.util.Log
 import com.example.wifi_direct.api.DiscoverPeersResult
-import com.example.wifi_direct.api.WifiDirectCore
-import com.example.wifi_direct.internal.ext.getTime
 import com.example.wifi_direct.api.Message
-import com.example.wifi_direct.api.WifiDirectData
-import com.example.wifi_direct.api.WifiDirectData.LogData
-import com.example.wifi_direct.api.WifiDirectData.WifiConnectionChanged
+import com.example.wifi_direct.api.WifiDirectCore
+import com.example.wifi_direct.api.WifiDirectEvents
+import com.example.wifi_direct.api.WifiDirectEvents.LogData
+import com.example.wifi_direct.api.WifiDirectEvents.WifiConnectionChanged
+import com.example.wifi_direct.internal.ext.getTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -37,6 +37,7 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
 
 const val POSSIBLE_ERROR_SOLUTIONS = """
@@ -44,6 +45,7 @@ Check following :
 - location services must be enabled for wifi direct to work 
 """
 
+@Singleton
 class WifiDirectCoreImpl
 @Inject constructor(
     private val context: Context,
@@ -55,7 +57,7 @@ class WifiDirectCoreImpl
     override val coroutineContext: CoroutineContext
         get() = Job() + Dispatchers.Default
 
-    private val _dataFlow: MutableStateFlow<WifiDirectData?> = MutableStateFlow(null)
+    private val _dataFlow: MutableStateFlow<WifiDirectEvents?> = MutableStateFlow(null)
     override val dataFlow = _dataFlow.asStateFlow()
 
     private var peers: List<WifiP2pDevice> = emptyList()
@@ -119,9 +121,9 @@ class WifiDirectCoreImpl
             WifiDirectClient(hostAddress)
         }.apply {
             log = { log -> _dataFlow.value = LogData(log) }
-            onConnectionChanged = { _dataFlow.value = WifiDirectData.SocketConnectionChanged(it) }
+            onConnectionChanged = { _dataFlow.value = WifiDirectEvents.SocketConnectionChanged(it) }
             onReceive = { message ->
-                _dataFlow.value = WifiDirectData.MessageData(
+                _dataFlow.value = WifiDirectEvents.MessageData(
                     Message(text = message, author = hostAddress, time = getTime("hh:mm:ss.SSS"))
                 )
             }

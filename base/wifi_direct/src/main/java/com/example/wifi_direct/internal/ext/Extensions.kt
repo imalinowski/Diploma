@@ -4,7 +4,10 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-fun getTime(format: String = "dd/MM/yyyy hh:mm:ss.SSS"): String {
+const val HoursMinSec = "hh:mm:ss.SSS"
+const val DayMonthYearHoursMinSec = "dd/MM/yyyy hh:mm:ss.SSS"
+
+fun getTime(format: String = DayMonthYearHoursMinSec): String {
     // Create a DateFormatter object for displaying date in specified format.
     val formatter = SimpleDateFormat(format, Locale.US)
 

@@ -87,7 +87,7 @@ internal class EdgeUIViewModel
                 copy(result = event.result, localTaskInfo = null)
             }
 
-            is ShowInfo -> newEvent {
+            is ShowInfo -> newEffect {
                 ShowToast(event.info)
             }
 
@@ -109,7 +109,7 @@ internal class EdgeUIViewModel
     private fun parseSizeFromUi(sizeFromUI: CharSequence?) {
         val size = sizeFromUI.toString().toIntOrNull()
         if ((size ?: 0) > MATRIX_SIZE_LIMIT) {
-            newEvent {
+            newEffect {
                 ShowToast(SIZE_LIMIT_TOAST)
             }
             return
