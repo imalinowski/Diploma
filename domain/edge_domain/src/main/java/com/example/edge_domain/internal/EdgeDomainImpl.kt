@@ -42,6 +42,9 @@ internal class EdgeDomainImpl(
     override fun addTaskFromUI(task: EdgeTaskBasic) {
         launch {
             val devices = edgeData.getOnlineDevices()
+            if (devices.isEmpty()) {
+                edgeUi.showInfo("No peers in network")
+            }
             edgeUi.localTaskInProgress(task.getInfo())
             taskExecutor.executeTask(task, devices)
         }
@@ -79,17 +82,20 @@ internal class EdgeDomainImpl(
             }
 
             is SendTaskToRemote -> launch {
-                edgeData.executeTaskByDevice(
-                    device = event.device,
-                    task = event.task
-                )
+                try {
+                    edgeData.executeTaskByDevice(event.device, event.task)
+                } catch (e: Throwable) {
+                    edgeUi.showInfo("Error \n" + e.message)
+                }
             }
 
             is RemoteTaskCompleted -> launch {
                 edgeUi.remoteTaskCompleted()
-                edgeData.sendToRemoteTaskResult(
-                    task = event.task
-                )
+                try {
+                    edgeData.sendToRemoteTaskResult(event.task)
+                } catch (e: Throwable) {
+                    edgeUi.showInfo("Error \n" + e.message)
+                }
             }
         }
     }

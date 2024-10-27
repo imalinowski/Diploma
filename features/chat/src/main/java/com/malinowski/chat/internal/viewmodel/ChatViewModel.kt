@@ -86,6 +86,15 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    private fun dispatchUIEvents(event: ChatUIEvents) {
+        when (event) {
+            ClearLogs -> newState { copy(logText = "") }
+            is ConnectToPeer -> command { ConnectPeer(event.peer) }
+            SearchForDevices -> command { SearchPeers }
+            SaveLogs -> newEffect { saveLogs() }
+        }
+    }
+
     private fun dispatchWifiDirectEvents(
         event: WifiDirectEvents
     ) {
@@ -95,15 +104,6 @@ class ChatViewModel @Inject constructor(
             is PeersUpdate -> newState { copy(peers = event.peers) }
             is WifiConnectionChanged -> newState { copy(wifiConnectionInfo = event.info) }
             is ChatConnectionChanged -> newState { copy(chatConnectionInfo = event.connected) }
-        }
-    }
-
-    private fun dispatchUIEvents(event: ChatUIEvents) {
-        when (event) {
-            ClearLogs -> newState { copy(logText = "") }
-            is ConnectToPeer -> command { ConnectPeer(event.peer) }
-            SearchForDevices -> command { SearchPeers }
-            SaveLogs -> newEffect { saveLogs() }
         }
     }
 

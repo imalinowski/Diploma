@@ -26,16 +26,20 @@ internal class EdgeTaskExecutorImpl : EdgeTaskExecutor {
     override val completedTaskFlow = _completedTaskFlow.asSharedFlow()
 
     private var localTask: EdgeTaskBasic? = null
+    private val localDevice = EdgeDevice("local") // todo сделать через Dagger грамотную заглушку
 
     private val remoteTasks: MutableList<EdgeSubTaskBasic> = mutableListOf()
 
     override fun executeTask(task: EdgeTaskBasic, devices: List<EdgeDevice>) {
         localTask = task
-        val subTasks = task.parallel(devices)
-        for ((device, task) in subTasks) {
-            newEvent(
-                SendTaskToRemote(task, device)
-            )
+        val subTasks = task.parallel(devices + localDevice)
+        for ((device, subTask) in subTasks) {
+            if (device == localDevice) {
+                val result = subTask.execute()
+                completeSubTask(result.taskId, result)
+            } else {
+                newEvent(SendTaskToRemote(subTask, device))
+            }
         }
     }
 

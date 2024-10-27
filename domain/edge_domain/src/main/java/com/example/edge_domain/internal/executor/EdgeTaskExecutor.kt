@@ -16,5 +16,4 @@ internal interface EdgeTaskExecutor : CoroutineScope {
     fun executeRemoteTask(task: EdgeSubTaskBasic)
 
     fun completeSubTask(taskId: Int, result: EdgeResult)
-
 }

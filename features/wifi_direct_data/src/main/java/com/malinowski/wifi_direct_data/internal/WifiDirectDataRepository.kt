@@ -48,9 +48,11 @@ class WifiDirectDataRepository
         device: EdgeDevice,
         task: EdgeSubTaskBasic
     ) {
-        val content = Json.encodeToString(task)
+        val content = Json.encodeToString(task.params)
         val serializedTask = WifiDirectTaskMessage(
-            type = WifiDirectTaskMessageType.Task, content = content
+            taskId = task.id,
+            type = WifiDirectTaskMessageType.Task,
+            content = content
         )
         sendMessageTo(device.requireAddress(), serializedTask)
     }
@@ -62,17 +64,19 @@ class WifiDirectDataRepository
         }
         val content = Json.encodeToString(result)
         val serializedTask = WifiDirectTaskMessage(
-            type = WifiDirectTaskMessageType.Result, content = content
+            taskId = result.taskId,
+            type = WifiDirectTaskMessageType.Result,
+            content = content
         )
-        sendMessageTo(author, serializedTask)
+        val text = Json.encodeToString(serializedTask)
+        wifiDirectCore.sendMessage(text)
     }
 
     private suspend fun sendMessageTo(
         address: String,
         message: WifiDirectTaskMessage
     ) {
-        val connected = wifiDirectCore.connect(address)
-        if (connected.not()) {
+        if (wifiDirectCore.connect(address)) {
             val content = Json.encodeToString(message)
             wifiDirectCore.sendMessage(content)
         } else {

@@ -35,7 +35,7 @@ enum class TaskStatus {
 sealed interface EdgeSubTask<Result> {
     val id: Int
     val name: String
-    val parentId: Int
+    val parentId: Int // todo remove ?
     val params: EdgeParams
 
     fun execute(): Result
