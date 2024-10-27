@@ -80,7 +80,7 @@ internal class EdgeDomainImpl(
 
             is SendTaskToRemote -> launch {
                 edgeData.executeTaskByDevice(
-                    deviceName = event.device.name,
+                    device = event.device,
                     task = event.task
                 )
             }

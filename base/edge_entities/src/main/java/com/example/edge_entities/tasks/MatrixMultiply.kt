@@ -29,6 +29,7 @@ open class MatrixMultiply(
 
     // null в начале?
     protected open var result = MatrixMultiplyResult(
+        taskId = id,
         matrix = MutableList(params.matrixA.size) {
             MutableList(params.matrixB.size) { 0 }
         }

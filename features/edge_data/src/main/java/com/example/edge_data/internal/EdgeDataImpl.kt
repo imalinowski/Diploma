@@ -28,10 +28,10 @@ internal class EdgeDataImpl(
         return repository.getOnlineDevices()
     }
 
-    override suspend fun executeTaskByDevice(deviceName: String, task: EdgeSubTaskBasic) {
+    override suspend fun executeTaskByDevice(device: EdgeDevice, task: EdgeSubTaskBasic) {
         repository.executeByDevice(
-            deviceName = deviceName,
-            task = taskMapper.map(task, deviceName)
+            deviceName = device.name,
+            task = taskMapper.map(task, device.name)
         )
     }
 

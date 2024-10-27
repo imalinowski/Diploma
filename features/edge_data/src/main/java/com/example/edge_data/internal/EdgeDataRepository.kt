@@ -83,7 +83,7 @@ internal class EdgeDataRepository(
         remoteTasks.addAll(newRemoteTasks)
         newRemoteTasks.filter { it.taskResult == null }.forEach { task ->
             eventsFlow.emit(
-                NewRemoteTask(mapper.map(task))
+                NewRemoteTask(author = "server", mapper.map(task))
             )
         }
     }.onFailure(handleError)

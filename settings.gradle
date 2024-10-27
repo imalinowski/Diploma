@@ -19,6 +19,7 @@ include ':app'
 include ':features:edge_ui'
 include ':features:edge_data'
 include ':features:chat'
+include ':features:wifi_direct_data'
 
 //domain
 include ':domain:edge_domain'

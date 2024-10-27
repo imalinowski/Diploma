@@ -31,6 +31,7 @@ class MatrixMultiplySubTask(
 
         status = TaskStatus.READY
         return MatrixMultiplyResult(
+            taskId = id,
             matrix = matrix
         ).also {
             result = it
