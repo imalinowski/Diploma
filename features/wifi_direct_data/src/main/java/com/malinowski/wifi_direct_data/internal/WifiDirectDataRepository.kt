@@ -1,14 +1,15 @@
 package com.malinowski.wifi_direct_data.internal
 
-import com.example.edge_domain.api.dependecies.data.EdgeDataEvent.NewRemoteTask
+import android.util.Log
 import com.example.edge_entities.EdgeDevice
 import com.example.edge_entities.EdgeResult
 import com.example.edge_entities.tasks.EdgeSubTaskBasic
-import com.example.wifi_direct.api.DiscoverPeersResult.Error
-import com.example.wifi_direct.api.DiscoverPeersResult.Peers
 import com.example.wifi_direct.api.WifiDirectCore
 import com.example.wifi_direct.api.WifiDirectEvents
+import com.malinowski.wifi_direct_data.internal.model.WifiDirectTaskMessage
+import com.malinowski.wifi_direct_data.internal.model.WifiDirectTaskMessageType
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.encodeToString
@@ -18,30 +19,21 @@ import javax.inject.Inject
 class WifiDirectDataRepository
 @Inject constructor(
     private val wifiDirectCore: WifiDirectCore,
+    private val devicesInterceptor: WifiDirectDevicesInterceptor,
     mapper: WifiDirectEventsMapper
 ) {
     val eventsFlow = wifiDirectCore.dataFlow
         .filterIsInstance<WifiDirectEvents.MessageData>()
+        .onEach { devicesInterceptor.interceptSyn(it) }
         .map(mapper)
-        .onEach {
-            if (it is NewRemoteTask) {
-                tasksFromRemote.add(it)
-            }
-        }
-
-    private val tasksFromRemote = mutableListOf<NewRemoteTask>()
+        .filterNotNull()
 
     fun exit() {
         // todo how to exit from network ?
     }
 
     suspend fun getOnlineDevices(): List<EdgeDevice> {
-        when (val result = wifiDirectCore.discoverPeers()) {
-            is Error -> throw result.error
-            is Peers -> return result.peers.map {
-                EdgeDevice(it.deviceName, it.deviceAddress)
-            }
-        }
+        return devicesInterceptor.getOnlineDevices()
     }
 
     suspend fun executeByDevice(
@@ -50,26 +42,10 @@ class WifiDirectDataRepository
     ) {
         val content = Json.encodeToString(task.params)
         val serializedTask = WifiDirectTaskMessage(
-            taskId = task.id,
-            type = WifiDirectTaskMessageType.Task,
+            type = WifiDirectTaskMessageType.Task(task.id),
             content = content
         )
         sendMessageTo(device.requireAddress(), serializedTask)
-    }
-
-    suspend fun sendToRemoteTaskResult(result: EdgeResult) {
-        val author = tasksFromRemote.find { it.task.id == result.taskId }?.author
-        if (author == null) {
-            throw IllegalStateException("no task with if ${result.taskId}")
-        }
-        val content = Json.encodeToString(result)
-        val serializedTask = WifiDirectTaskMessage(
-            taskId = result.taskId,
-            type = WifiDirectTaskMessageType.Result,
-            content = content
-        )
-        val text = Json.encodeToString(serializedTask)
-        wifiDirectCore.sendMessage(text)
     }
 
     private suspend fun sendMessageTo(
@@ -82,5 +58,16 @@ class WifiDirectDataRepository
         } else {
             throw IllegalStateException("can't connect to $address")
         }
+    }
+
+    suspend fun sendToRemoteTaskResult(result: EdgeResult) {
+        val content = Json.encodeToString(result)
+        val serializedTask = WifiDirectTaskMessage(
+            type = WifiDirectTaskMessageType.Result,
+            content = content
+        )
+        val text = Json.encodeToString(serializedTask)
+        Log.i("RASPBERRY", "send to remote task result $text")
+        wifiDirectCore.sendMessage(text)
     }
 }

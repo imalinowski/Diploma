@@ -58,7 +58,7 @@ class WifiDirectCoreImpl
         get() = Job() + Dispatchers.Default
 
     private val _dataFlow: MutableStateFlow<WifiDirectEvents?> = MutableStateFlow(null)
-    override val dataFlow = _dataFlow.asStateFlow()
+    override val dataFlow = _dataFlow.asStateFlow().shareIn(this, SharingStarted.Eagerly)
 
     private var peers: List<WifiP2pDevice> = emptyList()
 
@@ -159,7 +159,7 @@ class WifiDirectCoreImpl
         replay = 1
     ).onEach { success ->
         if (success) {
-            Log.i("RASPBERRY", "request connection from connectFlow")
+            Log.i("RASPBERRY", "request connection from $deviceName")
             manager.requestConnectionInfo(managerChannel, connectInfoListener)
         }
     }

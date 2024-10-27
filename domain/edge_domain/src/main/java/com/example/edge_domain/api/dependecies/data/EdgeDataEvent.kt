@@ -13,7 +13,6 @@ sealed interface EdgeDataEvent {
 
     // новая задача от участника сети
     data class NewRemoteTask(
-        val author: String,
         val task: EdgeSubTaskBasic
     ) : EdgeDataEvent
 

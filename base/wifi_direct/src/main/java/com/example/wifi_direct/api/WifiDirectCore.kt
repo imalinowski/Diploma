@@ -4,6 +4,7 @@ import android.Manifest
 import android.net.wifi.p2p.WifiP2pInfo
 import android.os.Build
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharedFlow
 
 val WIFI_CORE_PERMISSIONS by lazy {
     listOf(
@@ -24,7 +25,7 @@ val WIFI_CORE_PERMISSIONS_13 by lazy {
 
 interface WifiDirectCore {
 
-    val dataFlow: Flow<WifiDirectEvents?>
+    val dataFlow: SharedFlow<WifiDirectEvents?>
 
     fun registerReceiver()
 
