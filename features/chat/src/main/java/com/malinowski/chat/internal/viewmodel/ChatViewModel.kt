@@ -60,6 +60,7 @@ class ChatViewModel @Inject constructor(
     }
 
     override fun dispatch(event: ChatEvents) {
+        android.util.Log.i("RASPBERRY", "new event to chat $event")
         when (event) {
             is ChatEvents.OpenChat -> newEffect {
                 ChatEffects.OpenChat(event.peer)

@@ -6,9 +6,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
+import java.io.InputStream
 import java.io.OutputStream
 import java.net.Socket
 import kotlin.coroutines.CoroutineContext
+
+private const val BUFFER_SIZE = 1024
 
 abstract class WifiDirectSocket(
     val hostAddress: String
@@ -46,20 +49,28 @@ abstract class WifiDirectSocket(
         connected = true
         outputStream = socket.getOutputStream()
         val inputStream = socket.getInputStream()
-        val buffer = ByteArray(1024)
+        val buffer = ByteArray(BUFFER_SIZE)
         Log.i("RASPBERRY", "socket : $socket launched")
-        while (connected) {
-            try {
-                val len = inputStream.read(buffer)
-                Log.i("RASPBERRY_MESSAGE", "received message len $len")
-                if (len == 0) continue
-                val text = String(buffer, 0, len)
-                onReceive(text)
-                Log.i("RASPBERRY_MESSAGE", "${getTime()} : $text")
-                log("RASPBERRY_MESSAGE : $text")
-            } catch (e: Exception) {
-                shutDown()
+        try {
+            while (connected) {
+                readAllBytes(inputStream, buffer)
             }
+        } catch (e: Exception) {
+            shutDown()
+        }
+    }
+
+    private fun readAllBytes(inputStream: InputStream, buffer: ByteArray) {
+        var text = ""
+        while (inputStream.available() > 0) {
+            val len = inputStream.read(buffer)
+            Log.i("RASPBERRY_MESSAGE", "received message len $len")
+            text += String(buffer, 0, len)
+        }
+        if (text.isNotEmpty()) {
+            onReceive(text)
+            log("RASPBERRY_MESSAGE : $text")
+            Log.i("RASPBERRY_MESSAGE", "${getTime()} received : $text")
         }
     }
 

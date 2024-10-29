@@ -26,9 +26,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -57,8 +56,8 @@ class WifiDirectCoreImpl
     override val coroutineContext: CoroutineContext
         get() = Job() + Dispatchers.Default
 
-    private val _dataFlow: MutableStateFlow<WifiDirectEvents?> = MutableStateFlow(null)
-    override val dataFlow = _dataFlow.asStateFlow().shareIn(this, SharingStarted.Eagerly)
+    private val _dataFlow = MutableSharedFlow<WifiDirectEvents?>(extraBufferCapacity = 2)
+    override val dataFlow = _dataFlow
 
     private var peers: List<WifiP2pDevice> = emptyList()
 
@@ -70,8 +69,14 @@ class WifiDirectCoreImpl
         WifiBroadcastReceiver(
             requestPeers = { /* called when CHANGED_ACTION */ },
             connect = { manager.requestConnectionInfo(managerChannel, connectInfoListener) },
-            log = { _dataFlow.value = LogData(it) }
+            log = { sendToDataFlow(LogData(it)) }
         )
+    }
+
+    private fun sendToDataFlow(event: WifiDirectEvents) {
+        launch {
+            _dataFlow.emit(event)
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -80,7 +85,7 @@ class WifiDirectCoreImpl
 
         val peerListListener = PeerListListener {
             peers = it.deviceList.toList()
-            _dataFlow.value = LogData("\n Peers : ${peers.joinToString("\n")}")
+            sendToDataFlow(LogData("\n Peers : ${peers.joinToString("\n")}"))
             launch { channel.send(DiscoverPeersResult.Peers(peers)) }
         }
 
@@ -99,7 +104,7 @@ class WifiDirectCoreImpl
     )
 
     private val connectInfoListener: (WifiP2pInfo?) -> Unit = { info ->
-        _dataFlow.value = WifiConnectionChanged(info ?: WifiP2pInfo())
+        sendToDataFlow(WifiConnectionChanged(info ?: WifiP2pInfo()))
         val hostAddress = info?.groupOwnerAddress?.hostAddress
         if (info?.groupFormed == true && hostAddress != null) {
             Log.i("RASPBERRY", "connection listener")
@@ -120,11 +125,13 @@ class WifiDirectCoreImpl
         } else {
             WifiDirectClient(hostAddress)
         }.apply {
-            log = { log -> _dataFlow.value = LogData(log) }
-            onConnectionChanged = { _dataFlow.value = WifiDirectEvents.SocketConnectionChanged(it) }
+            log = { log -> sendToDataFlow(LogData(log)) }
+            onConnectionChanged = { sendToDataFlow(WifiDirectEvents.SocketConnectionChanged(it)) }
             onReceive = { message ->
-                _dataFlow.value = WifiDirectEvents.MessageData(
-                    Message(text = message, author = hostAddress, time = getTime("hh:mm:ss.SSS"))
+                sendToDataFlow(
+                    WifiDirectEvents.MessageData(
+                        Message(text = message, author = hostAddress, time = getTime("hh:mm:ss.SSS"))
+                    )
                 )
             }
         }
@@ -177,7 +184,7 @@ class WifiDirectCoreImpl
     }
 
     override suspend fun discoverPeers(): DiscoverPeersResult {
-        _dataFlow.value = LogData("searching for devices ...")
+        sendToDataFlow(LogData("searching for devices ..."))
         return withContext(Dispatchers.Default) {
             peerFlow.first()
         }
@@ -185,13 +192,13 @@ class WifiDirectCoreImpl
 
     override suspend fun connect(address: String): Boolean {
         return connectFlow(true, address)
-            .onEach { _dataFlow.value = LogData("connect to $address ... $it") }
+            .onEach { sendToDataFlow(LogData("connect to $address ... $it")) }
             .first()
     }
 
     override suspend fun connectCancel(address: String): Boolean {
         return connectFlow(false, address)
-            .onEach { _dataFlow.value = LogData("disConnect from $address ... $it") }
+            .onEach { sendToDataFlow(LogData("disConnect from $address ... $it")) }
             .first()
     }
 
@@ -216,7 +223,7 @@ class WifiDirectCoreImpl
                 else -> "ERROR! $POSSIBLE_ERROR_SOLUTIONS"
             }
             Log.e("RASPBERRY", "Error : $reason $message")
-            _dataFlow.value = LogData("Error : $reason $message")
+            sendToDataFlow(LogData("Error : $reason $message"))
             onFail(reason, message)
         }
     }
