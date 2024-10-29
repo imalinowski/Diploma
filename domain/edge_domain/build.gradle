@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'org.jetbrains.kotlin.jvm'
+    id 'kotlin-kapt'
 }
 
 java {
@@ -13,4 +14,8 @@ dependencies {
 
     //local
     implementation project(":base:edge_entities")
+
+    //ext
+    implementation 'com.google.dagger:dagger:2.49'
+    kapt 'com.google.dagger:dagger-compiler:2.49'
 }

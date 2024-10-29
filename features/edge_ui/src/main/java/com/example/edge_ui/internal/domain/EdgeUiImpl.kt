@@ -1,7 +1,6 @@
 package com.example.edge_ui.internal.domain
 
 import com.example.edge_domain.api.dependecies.ui.EdgeUI
-import com.example.edge_domain.api.dependecies.ui.EdgeUiEvent
 import com.example.edge_entities.EdgeResult
 import com.example.edge_entities.EdgeResult.MatrixMultiplyResult
 import com.example.edge_ui.internal.presentation.EdgeUIEvents
@@ -10,17 +9,16 @@ import com.example.edge_ui.internal.presentation.EdgeUIEvents.RemoteTaskComplete
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowInfo
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowLocalTaskInProgress
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowRemoteTaskInProgress
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.flow
+import javax.inject.Inject
 
-internal class EdgeUiImpl(
-    private val flowToUI: MutableSharedFlow<EdgeUIEvents> // через этот поток UI слушает domain
-) : EdgeUI {
+class EdgeUiImpl
+@Inject constructor() : EdgeUI {
 
-    override val eventsFromUIFlow: Flow<EdgeUiEvent> = flow { } // через этот поток domain слушает UI
+    override val eventsFromDomain = MutableSharedFlow<EdgeUIEvents>() // через этот поток domain слушает UI
+
     override suspend fun showInfo(text: String) {
-        flowToUI.emit(
+        eventsFromDomain.emit(
             ShowInfo(text)
         )
     }
@@ -28,7 +26,7 @@ internal class EdgeUiImpl(
     override suspend fun showResult(result: EdgeResult) {
         when (result) {
             is MatrixMultiplyResult -> {
-                flowToUI.emit(MatricesMultiplied(result))
+                eventsFromDomain.emit(MatricesMultiplied(result))
             }
 
             else -> Unit
@@ -36,19 +34,19 @@ internal class EdgeUiImpl(
     }
 
     override suspend fun localTaskInProgress(info: String) {
-        flowToUI.emit(
+        eventsFromDomain.emit(
             ShowLocalTaskInProgress(info)
         )
     }
 
     override suspend fun remoteTaskInProgress(info: String) {
-        flowToUI.emit(
+        eventsFromDomain.emit(
             ShowRemoteTaskInProgress(info)
         )
     }
 
     override suspend fun remoteTaskCompleted() {
-        flowToUI.emit(
+        eventsFromDomain.emit(
             RemoteTaskCompleted
         )
     }

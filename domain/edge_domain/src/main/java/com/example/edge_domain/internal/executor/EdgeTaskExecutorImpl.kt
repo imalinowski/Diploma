@@ -10,10 +10,11 @@ import com.example.edge_entities.tasks.EdgeTaskBasic
 import com.example.edge_entities.tasks.TaskStatus.READY
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import javax.inject.Inject
 
 // TODO move implementation to entities module
-
-internal class EdgeTaskExecutorImpl : EdgeTaskExecutor {
+class EdgeTaskExecutorImpl
+@Inject constructor() : EdgeTaskExecutor {
 
     private val _completedTaskFlow = MutableSharedFlow<EdgeTaskExecutorEvent>()
     override val completedTaskFlow = _completedTaskFlow.asSharedFlow()

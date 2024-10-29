@@ -3,8 +3,10 @@ package com.example.edge_ui.internal.view
 import androidx.lifecycle.viewModelScope
 import com.example.common_arch.Store
 import com.example.edge_domain.api.EdgeDomain
+import com.example.edge_domain.api.dependecies.ui.EdgeUI
 import com.example.edge_entities.EdgeParams.MatrixMultiplyParams
 import com.example.edge_ui.api.EdgeUIFacade
+import com.example.edge_ui.internal.domain.EdgeUiImpl
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.AddNewMatrixTask
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate.ClickGenerateMatrixA
@@ -41,6 +43,7 @@ internal class EdgeUIViewModel
 @Inject constructor(
     commandCoreHandler: CommandCoreHandler,
     commandMatrixHandler: CommandMatrixHandler,
+    edgeUI: EdgeUiImpl,
     private val domain: EdgeDomain,
 ) : Store<State, Commands, Events, Effects>(
     initialState = State(),
@@ -50,7 +53,7 @@ internal class EdgeUIViewModel
 ) {
 
     override val storeScope: CoroutineScope = viewModelScope
-    private val edgeUiEventsFromDomain = EdgeUIFacade.provideEventsToUIFlow()
+    private val edgeUiEventsFromDomain = edgeUI.eventsFromDomain
 
     init {
         commands {
@@ -65,7 +68,9 @@ internal class EdgeUIViewModel
     }
 
     override fun onCleared() {
-        domain.exitFromNetwork()
+        viewModelScope.launch {
+            domain.exitFromNetwork()
+        }
     }
 
     override fun dispatch(event: Events) {

@@ -18,10 +18,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
 
-
-internal class EdgeDomainImpl(
+@Singleton
+class EdgeDomainImpl
+@Inject constructor(
     dependencies: EdgeDomainDependencies,
     private val taskExecutor: EdgeTaskExecutor,
 ) : EdgeDomain, CoroutineScope {
@@ -33,28 +36,24 @@ internal class EdgeDomainImpl(
 
     init {
         launch {
-            edgeData.eventsFromDataFlow.collect(::dispatchDataEvents)
+            edgeData.eventsFromData.collect(::dispatchDataEvents)
         }
         launch {
             taskExecutor.completedTaskFlow.collect(::dispatchExecutorEvents)
         }
     }
 
-    override fun addTaskFromUI(task: EdgeTaskBasic) {
-        launch {
-            val devices = edgeData.getOnlineDevices()
-            if (devices.isEmpty()) {
-                edgeUi.showInfo("No peers in network")
-            }
-            edgeUi.localTaskInProgress(task.getInfo())
-            taskExecutor.executeTask(task, devices)
+    override suspend fun addTaskFromUI(task: EdgeTaskBasic) {
+        val devices = edgeData.getOnlineDevices()
+        if (devices.isEmpty()) {
+            edgeUi.showInfo("No peers in network")
         }
+        edgeUi.localTaskInProgress(task.getInfo())
+        taskExecutor.executeTask(task, devices)
     }
 
-    override fun exitFromNetwork() {
-        launch {
-            edgeData.exitFromNetwork()
-        }
+    override suspend fun exitFromNetwork() {
+        edgeData.exitFromNetwork()
     }
 
     private fun dispatchDataEvents(event: EdgeDataEvent) {

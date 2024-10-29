@@ -17,7 +17,7 @@ internal class EdgeDataImpl(
     private val taskMapper: EdgeToNetworkTaskMapper,
 ) : EdgeData {
 
-    override val eventsFromDataFlow: SharedFlow<EdgeDataEvent>
+    override val eventsFromData: SharedFlow<EdgeDataEvent>
         get() = repository.eventsFlow.asSharedFlow()
 
     override suspend fun exitFromNetwork() {

@@ -68,9 +68,9 @@ abstract class WifiDirectSocket(
             text += String(buffer, 0, len)
         }
         if (text.isNotEmpty()) {
+            Log.i("RASPBERRY_MESSAGE", "${getTime()} received : $text")
             onReceive(text)
             log("RASPBERRY_MESSAGE : $text")
-            Log.i("RASPBERRY_MESSAGE", "${getTime()} received : $text")
         }
     }
 

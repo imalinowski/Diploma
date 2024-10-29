@@ -3,7 +3,6 @@ package com.example.edge_domain.api.dependecies.data
 import com.example.edge_entities.EdgeDevice
 import com.example.edge_entities.tasks.EdgeSubTaskBasic
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharedFlow
 
 /*
 *                       Схема архитектуры
@@ -22,9 +21,9 @@ import kotlinx.coroutines.flow.SharedFlow
 
 interface EdgeData {
 
-    // в этот поток приходят события из data слоя
-    // Нужно подписаться чтобы ловить входящие задачи
-    val eventsFromDataFlow: Flow<EdgeDataEvent>
+    // приходят события из data слоя ( wifi direct / network )
+    // уходят в domain
+    val eventsFromData: Flow<EdgeDataEvent>
 
     suspend fun exitFromNetwork()
     suspend fun getOnlineDevices(): List<EdgeDevice>

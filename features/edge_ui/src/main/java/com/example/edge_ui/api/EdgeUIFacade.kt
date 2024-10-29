@@ -13,15 +13,11 @@ object EdgeUIFacade {
 
     private val eventsToUI = MutableSharedFlow<EdgeUIEvents>()
     private val edgeUi by lazy {
-        EdgeUiImpl(eventsToUI)
+        EdgeUiImpl()
     }
 
     fun getEdgeActivityIntent(context: Context): Intent {
         return EdgeActivity.createIntent(context)
-    }
-
-    fun provideEdgeUI(): EdgeUI {
-        return edgeUi
     }
 
     internal fun provideEventsToUIFlow(): Flow<EdgeUIEvents> {

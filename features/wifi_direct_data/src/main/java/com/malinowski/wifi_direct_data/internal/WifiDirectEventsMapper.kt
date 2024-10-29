@@ -23,7 +23,6 @@ class WifiDirectEventsMapper
     override fun invoke(event: MessageData): EdgeDataEvent? {
         try {
             val message = Json.decodeFromString<WifiDirectTaskMessage>(event.message.text)
-            Log.i("RASPBERRY_WD_DATA", "message from wifi direct $message")
             return when (val type = message.type) {
                 is Task -> getTaskFromRemote(taskId = type.taskId, content = message.content)
                 Result -> getResultFromRemote(content = message.content)

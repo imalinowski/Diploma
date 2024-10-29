@@ -20,7 +20,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface EdgeUI {
 
-    val eventsFromUIFlow: Flow<EdgeUiEvent> // поток обратой связи с UI
+    // приходят события из domain
+    // уходят в UI
+    val eventsFromDomain: Flow<EdgeUiEvent>
 
     suspend fun showInfo(text: String)
     suspend fun showResult(result: EdgeResult)

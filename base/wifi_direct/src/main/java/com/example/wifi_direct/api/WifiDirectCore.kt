@@ -25,7 +25,7 @@ val WIFI_CORE_PERMISSIONS_13 by lazy {
 
 interface WifiDirectCore {
 
-    val dataFlow: Flow<WifiDirectEvents?>
+    val dataFlow: SharedFlow<WifiDirectEvents?>
 
     fun registerReceiver()
 
