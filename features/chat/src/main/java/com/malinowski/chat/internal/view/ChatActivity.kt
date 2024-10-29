@@ -77,7 +77,6 @@ class ChatActivity : AppCompatActivity() {
 
         supportFragmentManager.commit(allowStateLoss = true) {
             replace(R.id.app_fragment_container, MainFragment.newInstance())
-            addToBackStack(null)
         }
     }
 
