@@ -31,6 +31,7 @@ import com.malinowski.chat.internal.presentation.command_handlers.WifiDirectComm
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -60,7 +61,6 @@ class ChatViewModel @Inject constructor(
     }
 
     override fun dispatch(event: ChatEvents) {
-        android.util.Log.i("RASPBERRY", "new event to chat $event")
         when (event) {
             is ChatEvents.OpenChat -> newEffect {
                 ChatEffects.OpenChat(event.peer)

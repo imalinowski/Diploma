@@ -20,6 +20,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
+
 internal class EdgeDomainImpl(
     dependencies: EdgeDomainDependencies,
     private val taskExecutor: EdgeTaskExecutor,

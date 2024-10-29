@@ -1,5 +1,6 @@
 package com.malinowski.wifi_direct_data.internal
 
+import android.util.Log
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent.NewRemoteTask
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent.SubTaskCompleted
@@ -12,6 +13,7 @@ import com.example.wifi_direct.api.WifiDirectEvents.MessageData
 import com.malinowski.wifi_direct_data.internal.model.WifiDirectTaskMessage
 import com.malinowski.wifi_direct_data.internal.model.WifiDirectTaskMessageType.Result
 import com.malinowski.wifi_direct_data.internal.model.WifiDirectTaskMessageType.Task
+import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
@@ -21,15 +23,10 @@ class WifiDirectEventsMapper
     override fun invoke(event: MessageData): EdgeDataEvent? {
         try {
             val message = Json.decodeFromString<WifiDirectTaskMessage>(event.message.text)
+            Log.i("RASPBERRY_WD_DATA", "message from wifi direct $message")
             return when (val type = message.type) {
-                is Task -> getTaskFromRemote(
-                    taskId = type.taskId, content = message.content
-                )
-
-                Result -> getResultFromRemote(
-                    content = message.content
-                )
-
+                is Task -> getTaskFromRemote(taskId = type.taskId, content = message.content)
+                Result -> getResultFromRemote(content = message.content)
                 else -> null
             }
         } catch (e: Throwable) {

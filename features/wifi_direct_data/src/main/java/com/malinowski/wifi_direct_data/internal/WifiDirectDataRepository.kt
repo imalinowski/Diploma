@@ -8,6 +8,7 @@ import com.example.wifi_direct.api.WifiDirectCore
 import com.example.wifi_direct.api.WifiDirectEvents
 import com.malinowski.wifi_direct_data.internal.model.WifiDirectTaskMessage
 import com.malinowski.wifi_direct_data.internal.model.WifiDirectTaskMessageType
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
@@ -24,7 +25,9 @@ class WifiDirectDataRepository
 ) {
     val eventsFlow = wifiDirectCore.dataFlow
         .filterIsInstance<WifiDirectEvents.MessageData>()
-        .onEach { devicesInterceptor.interceptSyn(it) }
+        .onEach {
+            devicesInterceptor.interceptSyn(it)
+        }
         .map(mapper)
         .filterNotNull()
 
@@ -67,7 +70,6 @@ class WifiDirectDataRepository
             content = content
         )
         val text = Json.encodeToString(serializedTask)
-        Log.i("RASPBERRY", "send to remote task result $text")
         wifiDirectCore.sendMessage(text)
     }
 }

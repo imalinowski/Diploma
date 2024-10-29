@@ -128,6 +128,7 @@ class WifiDirectCoreImpl
             log = { log -> sendToDataFlow(LogData(log)) }
             onConnectionChanged = { sendToDataFlow(WifiDirectEvents.SocketConnectionChanged(it)) }
             onReceive = { message ->
+                Log.i("RASPBERRY", "send message from WiFiDirect $message")
                 sendToDataFlow(
                     WifiDirectEvents.MessageData(
                         Message(text = message, author = hostAddress, time = getTime("hh:mm:ss.SSS"))

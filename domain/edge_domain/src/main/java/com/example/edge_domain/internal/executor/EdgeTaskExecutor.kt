@@ -4,16 +4,15 @@ import com.example.edge_entities.EdgeDevice
 import com.example.edge_entities.EdgeResult
 import com.example.edge_entities.tasks.EdgeSubTaskBasic
 import com.example.edge_entities.tasks.EdgeTaskBasic
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 
-internal interface EdgeTaskExecutor : CoroutineScope {
+internal interface EdgeTaskExecutor {
 
     val completedTaskFlow: Flow<EdgeTaskExecutorEvent> // поток обратой связи с Domain
 
-    fun executeTask(task: EdgeTaskBasic, devices: List<EdgeDevice>)
+    suspend fun executeTask(task: EdgeTaskBasic, devices: List<EdgeDevice>)
 
-    fun executeRemoteTask(task: EdgeSubTaskBasic)
+    suspend fun completeSubTask(taskId: Int, result: EdgeResult)
 
-    fun completeSubTask(taskId: Int, result: EdgeResult)
+    suspend fun executeRemoteTask(task: EdgeSubTaskBasic)
 }
