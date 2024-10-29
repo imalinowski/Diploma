@@ -5,6 +5,7 @@ import com.example.wifi_direct.internal.ext.getTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.io.OutputStream
@@ -53,25 +54,30 @@ abstract class WifiDirectSocket(
         Log.i("RASPBERRY", "socket : $socket launched")
         try {
             while (connected) {
-                readAllBytes(inputStream, buffer)
+                val text = readAllBytes(inputStream, buffer)
+                if (text.isNotEmpty()) {
+                    Log.i("RASPBERRY_MESSAGE", "${getTime()} received : $text")
+                    onReceive(text)
+                    log("RASPBERRY_MESSAGE : $text")
+                }
             }
         } catch (e: Exception) {
             shutDown()
         }
     }
 
-    private fun readAllBytes(inputStream: InputStream, buffer: ByteArray) {
+    private suspend fun readAllBytes(inputStream: InputStream, buffer: ByteArray): String {
+        delay(100)
+        if(inputStream.available() == 0) {
+            return ""
+        }
         var text = ""
         while (inputStream.available() > 0) {
             val len = inputStream.read(buffer)
             Log.i("RASPBERRY_MESSAGE", "received message len $len")
             text += String(buffer, 0, len)
         }
-        if (text.isNotEmpty()) {
-            Log.i("RASPBERRY_MESSAGE", "${getTime()} received : $text")
-            onReceive(text)
-            log("RASPBERRY_MESSAGE : $text")
-        }
+        return text + readAllBytes(inputStream, buffer)
     }
 
     suspend fun write(message: String) = withContext(Dispatchers.IO) {

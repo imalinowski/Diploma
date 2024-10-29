@@ -29,6 +29,7 @@ class WifiDirectEventsMapper
                 else -> null
             }
         } catch (e: Throwable) {
+            Log.e("RASPBERRY_WD_2", "Error in WD mapper $e")
             // todo figure out why message wrong
             return null
         }
