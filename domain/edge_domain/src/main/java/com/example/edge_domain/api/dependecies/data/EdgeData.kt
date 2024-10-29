@@ -5,6 +5,21 @@ import com.example.edge_entities.tasks.EdgeSubTaskBasic
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 
+/*
+*                       Схема архитектуры
+*
+* --> асинхронная подписка
+* <== прямой вызов ( поток управления )
+*
+* |      | --> |      | --> |        | --> |      | --> |      |
+* |  WD  |     | DATA |     | Domain |     |  UI  |     |  VM  |
+* |      | <== |      | <== |        | <== |      | <== |      |
+*
+* WD - WI-FI direct
+* VM - ViewModel
+*
+*/
+
 interface EdgeData {
 
     // в этот поток приходят события из data слоя
