@@ -11,7 +11,9 @@ import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowLocalTaskInPro
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowRemoteTaskInProgress
 import kotlinx.coroutines.flow.MutableSharedFlow
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class EdgeUiImpl
 @Inject constructor() : EdgeUI {
 

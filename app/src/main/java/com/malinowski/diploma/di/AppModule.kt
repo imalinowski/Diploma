@@ -37,7 +37,6 @@ class AppModule {
         @Binds
         fun getEdgeData(edgeData: WifiDirectDataImpl): EdgeData
 
-
         // todo movve to domain module
         @Binds
         fun getEdgeDomain(edgeData: EdgeDomainImpl): EdgeDomain

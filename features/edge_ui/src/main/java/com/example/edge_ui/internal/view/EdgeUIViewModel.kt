@@ -3,10 +3,9 @@ package com.example.edge_ui.internal.view
 import androidx.lifecycle.viewModelScope
 import com.example.common_arch.Store
 import com.example.edge_domain.api.EdgeDomain
-import com.example.edge_domain.api.dependecies.ui.EdgeUI
 import com.example.edge_entities.EdgeParams.MatrixMultiplyParams
-import com.example.edge_ui.api.EdgeUIFacade
 import com.example.edge_ui.internal.domain.EdgeUiImpl
+import com.example.edge_ui.internal.presentation.EdgeUIEffects.ShowToast
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.AddNewMatrixTask
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate.ClickGenerateMatrixA
@@ -20,7 +19,6 @@ import com.example.edge_ui.internal.presentation.EdgeUIEvents.RemoteTaskComplete
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowInfo
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowLocalTaskInProgress
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowRemoteTaskInProgress
-import com.example.edge_ui.internal.presentation.EdgeUIEffects.ShowToast
 import com.example.edge_ui.internal.presentation.command_handlers.CommandCoreHandler
 import com.example.edge_ui.internal.presentation.command_handlers.CommandMatrixHandler
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.AddMatrixTask
@@ -31,8 +29,8 @@ import com.example.edge_ui.internal.view.model.EdgeUiTaskInfoState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import com.example.edge_ui.internal.presentation.EdgeUIEvents as Events
 import com.example.edge_ui.internal.presentation.EdgeUIEffects as Effects
+import com.example.edge_ui.internal.presentation.EdgeUIEvents as Events
 import com.example.edge_ui.internal.presentation.EdgeUIState as State
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands as Commands
 

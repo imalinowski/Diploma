@@ -26,6 +26,7 @@ interface EdgeData {
     val eventsFromData: Flow<EdgeDataEvent>
 
     suspend fun exitFromNetwork()
+
     suspend fun getOnlineDevices(): List<EdgeDevice>
 
     suspend fun executeTaskByDevice(
