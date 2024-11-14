@@ -1,0 +1,5 @@
+<resources>
+    <string name="search_for_devices">Search for devices</string>
+    <string name="clear_logs">Clear logs</string>
+    <string name="load_logs">!LOAD LOGS!</string>
+</resources>

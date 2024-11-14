@@ -2,6 +2,7 @@ package com.malinowski.diploma.di
 
 import android.content.Context
 import com.example.edge_ui.api.di.EdgeUIComponent
+import com.malinowski.base_logs.api.di.LogsComponent
 import com.malinowski.chat.api.di.ChatComponent
 import dagger.BindsInstance
 import dagger.Component
@@ -18,10 +19,10 @@ interface ApplicationComponent {
 
     fun chatComponent(): ChatComponent.Factory
     fun edgeUIComponent(): EdgeUIComponent.Factory
+    fun logsComponent(): LogsComponent.Factory
 
     @Component.Factory
     interface Factory {
         fun create(@BindsInstance applicationContext: Context): ApplicationComponent
     }
-
 }

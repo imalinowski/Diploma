@@ -6,4 +6,5 @@ import com.malinowski.chat.api.ChatComponentProvider
 import com.malinowski.chat.api.di.ChatComponent
 
 fun Activity.getComponent(): ChatComponent = (applicationContext as ChatComponentProvider).provideChatComponent()
+
 fun Fragment.getComponent(): ChatComponent = requireActivity().getComponent()

@@ -3,12 +3,14 @@ package com.malinowski.diploma
 import android.app.Application
 import com.example.edge_ui.api.EdgeUIComponentProvider
 import com.example.edge_ui.api.di.EdgeUIComponent
+import com.malinowski.base_logs.api.LogsComponentProvider
+import com.malinowski.base_logs.api.di.LogsComponent
 import com.malinowski.chat.api.ChatComponentProvider
 import com.malinowski.chat.api.di.ChatComponent
 import com.malinowski.diploma.di.ApplicationComponent
 import com.malinowski.diploma.di.DaggerApplicationComponent
 
-class App : Application(), ChatComponentProvider, EdgeUIComponentProvider {
+class App : Application(), ChatComponentProvider, EdgeUIComponentProvider, LogsComponentProvider {
 
     private lateinit var appComponent: ApplicationComponent
 
@@ -23,5 +25,9 @@ class App : Application(), ChatComponentProvider, EdgeUIComponentProvider {
 
     override fun provideChatComponent(): ChatComponent {
         return appComponent.chatComponent().create()
+    }
+
+    override fun provideLogsComponent(): LogsComponent {
+        return appComponent.logsComponent().create()
     }
 }

@@ -2,20 +2,14 @@ plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
-    id 'org.jetbrains.kotlin.plugin.serialization'
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 android {
-    namespace 'com.example.wifi_direct_data'
+    namespace 'com.malinowski.base_logs'
     compileSdk 34
 
     defaultConfig {
-        minSdk 21
+        minSdk 24
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -34,24 +28,27 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3'
 
-    //ext
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.12.0'
+
+    //android extra
+    implementation "androidx.activity:activity-ktx:1.9.2"
+    implementation "androidx.fragment:fragment-ktx:1.6.2"
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+
+    //dagger
     implementation 'com.google.dagger:dagger:2.49'
     kapt 'com.google.dagger:dagger-compiler:2.49'
 
-    //network
-    implementation 'com.squareup.retrofit2:retrofit:2.11.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.1'
-    implementation "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0"
-
     //local
-    implementation project(':domain:edge_domain')
-    implementation project(':base:edge_entities')
     implementation project(':base:common_arch')
     implementation project(':base:wifi_direct')
-    implementation project(':base:base_logs')
 }

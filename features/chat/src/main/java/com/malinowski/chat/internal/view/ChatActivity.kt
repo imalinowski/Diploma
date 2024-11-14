@@ -1,13 +1,8 @@
 package com.malinowski.chat.internal.view
 
-import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -22,18 +17,9 @@ import com.malinowski.chat.internal.ext.getComponent
 import com.malinowski.chat.internal.presentation.ChatEffects
 import com.malinowski.chat.internal.presentation.ChatEffects.OpenChat
 import com.malinowski.chat.internal.presentation.ChatEffects.RequestPermissions
-import com.malinowski.chat.internal.presentation.ChatEffects.SaveLogs
 import com.malinowski.chat.internal.presentation.ChatEffects.ShowAlertDialog
 import com.malinowski.chat.internal.presentation.ChatEffects.ShowToast
 import com.malinowski.chat.internal.viewmodel.ChatViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.OutputStream
 import javax.inject.Inject
 
 class ChatActivity : AppCompatActivity() {
@@ -104,14 +90,6 @@ class ChatActivity : AppCompatActivity() {
                     addToBackStack(null)
                 }
             }
-            // todo почему не используется activity lifecycle ?
-            is SaveLogs -> CoroutineScope(Dispatchers.IO).launch {
-                saveFile(this@ChatActivity, action.filename, action.text, "txt")
-                withContext(Dispatchers.Main) {
-                    toast(resources.getString(R.string.saved_success))
-                }
-            }
-
             else -> {}
         }
     }
@@ -119,29 +97,4 @@ class ChatActivity : AppCompatActivity() {
     private fun toast(text: String) {
         Toast.makeText(this, text, Toast.LENGTH_LONG).show()
     }
-
-    // todo move to better place
-    @Throws(IOException::class)
-    private fun saveFile(context: Context, fileName: String, text: String, extension: String) {
-        val outputStream: OutputStream? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val values = ContentValues()
-            values.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-            values.put(MediaStore.MediaColumns.MIME_TYPE, "text/plain")
-            values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-            val extVolumeUri: Uri = MediaStore.Files.getContentUri("external")
-            val fileUri: Uri? = context.contentResolver.insert(extVolumeUri, values)
-            context.contentResolver.openOutputStream(fileUri!!)
-        } else {
-            val path =
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                    .toString()
-            val file = File(path, "$fileName.$extension")
-            FileOutputStream(file)
-        }
-
-        val bytes = text.toByteArray()
-        outputStream?.write(bytes)
-        outputStream?.close()
-    }
-
 }

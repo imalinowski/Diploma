@@ -208,7 +208,7 @@ class WifiDirectCoreImpl
             .first()
     }
 
-    override suspend fun connectCancel(): Boolean {
+    override suspend fun connectCancel(): Boolean { // unregisterReciever?
         return disconnectFlow()
             .onEach { sendToDataFlow(LogData("disConnect")) }
             .first()

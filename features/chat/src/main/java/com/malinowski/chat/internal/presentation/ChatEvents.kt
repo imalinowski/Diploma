@@ -42,8 +42,15 @@ sealed interface ChatEvents {
         data class PeersUpdate(val peers: List<ChatPeer>) : WifiDirectEvents
     }
 
+    // logs
+
+    sealed interface LogEvents : ChatEvents {
+
+        data class AddLog(val log: String) : LogEvents
+        data class UpdateLog(val log: String) : LogEvents
+    }
+
     // common
-    data class Log(val log: String) : ChatEvents
 
     data class Error(val error: Throwable) : ChatEvents
 }

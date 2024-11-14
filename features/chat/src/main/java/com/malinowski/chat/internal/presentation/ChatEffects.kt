@@ -18,6 +18,4 @@ sealed class ChatEffects {
     class OpenChat(val peer: ChatPeer) : ChatEffects()
 
     class ReceiveMessage(val message: Message) : ChatEffects()
-
-    class SaveLogs(val filename: String, val text: String) : ChatEffects()
 }
