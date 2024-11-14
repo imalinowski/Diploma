@@ -9,4 +9,5 @@
     <string name="matrix_stub">x x x x x x\nx x x x x x\nx x x x x x\nx x x x x x\n
     </string>
     <string name="matrix_sample_size_5">5</string>
+    <string name="peers_online">Peers online %1$s</string>
 </resources>

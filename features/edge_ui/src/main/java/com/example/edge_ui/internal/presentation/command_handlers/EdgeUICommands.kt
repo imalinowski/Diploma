@@ -4,6 +4,10 @@ import com.example.edge_entities.EdgeParams.MatrixMultiplyParams
 
 internal sealed interface EdgeUICommands {
 
+    data object ExitFromNetwork : EdgeUICommands
+
+    data object RequestUpdatePeersCounter : EdgeUICommands
+
     class AddMatrixTask(
         val params: MatrixMultiplyParams
     ) : EdgeUICommands

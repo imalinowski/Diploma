@@ -1,16 +1,19 @@
 package com.malinowski.wifi_direct_data.internal
 
+import com.example.edge_domain.api.dependecies.data.EdgeDataEvent
+import com.example.edge_domain.api.dependecies.data.EdgeDataEvent.PeersChanged
 import com.example.edge_entities.EdgeDevice
 import com.example.edge_entities.EdgeResult
 import com.example.edge_entities.tasks.EdgeSubTaskBasic
 import com.example.wifi_direct.api.WifiDirectCore
+import com.example.wifi_direct.api.WifiDirectEvents
 import com.example.wifi_direct.api.WifiDirectEvents.MessageData
+import com.example.wifi_direct.api.WifiDirectEvents.PeersChangedAction
 import com.malinowski.wifi_direct_data.internal.model.WifiDirectTaskMessage
 import com.malinowski.wifi_direct_data.internal.model.WifiDirectTaskMessageType
-import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -20,21 +23,37 @@ import javax.inject.Singleton
 class WifiDirectDataRepository
 @Inject constructor(
     private val wifiDirectCore: WifiDirectCore,
-    private val devicesInterceptor: WifiDirectDevicesInterceptor,
-    mapper: WifiDirectEventsMapper
+    private val messageInterceptor: WifiDirectDevicesInterceptor,
+    private val messageMapper: WifiDirectMessageMapper
 ) {
     val eventsFlow = wifiDirectCore.dataFlow
-        .filterIsInstance<MessageData>()
-        .onEach { devicesInterceptor.interceptSyn(it) }
-        .map(mapper)
+        .map(::mapToEdgeEvents)
+        .catch {
+            emit(EdgeDataEvent.Error(it))
+        }
         .filterNotNull()
 
-    fun exit() {
-        // todo how to exit from network ?
+    private suspend fun mapToEdgeEvents(event: WifiDirectEvents?): EdgeDataEvent? {
+        return when (event) {
+            PeersChangedAction -> {
+                PeersChanged(messageInterceptor.getOnlineDevices())
+            }
+
+            is MessageData -> {
+                messageInterceptor.tryInterceptSyn(event)
+                messageMapper(event)
+            }
+
+            else -> null
+        }
+    }
+
+    suspend fun exit() {
+        wifiDirectCore.connectCancel()
     }
 
     suspend fun getOnlineDevices(): List<EdgeDevice> {
-        return devicesInterceptor.getOnlineDevices()
+        return messageInterceptor.getOnlineDevices()
     }
 
     suspend fun executeByDevice(

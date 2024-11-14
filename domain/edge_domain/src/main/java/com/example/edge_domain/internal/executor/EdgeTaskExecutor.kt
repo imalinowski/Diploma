@@ -6,7 +6,7 @@ import com.example.edge_entities.tasks.EdgeSubTaskBasic
 import com.example.edge_entities.tasks.EdgeTaskBasic
 import kotlinx.coroutines.flow.Flow
 
-interface EdgeTaskExecutor {
+internal interface EdgeTaskExecutor {
 
     val completedTaskFlow: Flow<EdgeTaskExecutorEvent> // поток обратой связи с Domain
 

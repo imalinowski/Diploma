@@ -24,9 +24,15 @@ interface EdgeUI {
     // уходят в UI
     val eventsFromDomain: Flow<EdgeUiEvent>
 
+    suspend fun updatePeersCounter(peers: Int)
+
     suspend fun showInfo(text: String)
+
     suspend fun showResult(result: EdgeResult)
+
     suspend fun localTaskInProgress(info: String)
+
     suspend fun remoteTaskInProgress(info: String)
+
     suspend fun remoteTaskCompleted()
 }

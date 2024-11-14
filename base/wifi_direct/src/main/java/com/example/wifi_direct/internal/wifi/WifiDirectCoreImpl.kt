@@ -20,6 +20,7 @@ import com.example.wifi_direct.api.Message
 import com.example.wifi_direct.api.WifiDirectCore
 import com.example.wifi_direct.api.WifiDirectEvents
 import com.example.wifi_direct.api.WifiDirectEvents.LogData
+import com.example.wifi_direct.api.WifiDirectEvents.PeersChangedAction
 import com.example.wifi_direct.api.WifiDirectEvents.WifiConnectionChanged
 import com.example.wifi_direct.internal.ext.getTime
 import kotlinx.coroutines.CoroutineScope
@@ -67,7 +68,7 @@ class WifiDirectCoreImpl
 
     private val receiver: WifiBroadcastReceiver by lazy {
         WifiBroadcastReceiver(
-            requestPeers = { /* called when CHANGED_ACTION */ },
+            requestPeers = { sendToDataFlow(PeersChangedAction) },
             connect = { manager.requestConnectionInfo(managerChannel, connectInfoListener) },
             log = { sendToDataFlow(LogData(it)) }
         )
@@ -91,7 +92,7 @@ class WifiDirectCoreImpl
 
         manager.discoverPeers(managerChannel, actionListener(
             onSuccess = { manager.requestPeers(managerChannel, peerListListener) },
-            onFail = { errorCode, it -> launch { channel.send(DiscoverPeersResult.Error(Exception(it))) } }
+            onFail = { _, it -> launch { channel.send(DiscoverPeersResult.Error(Exception(it))) } }
         ))
 
         emit(channel.receive())
@@ -140,7 +141,7 @@ class WifiDirectCoreImpl
 
     @SuppressLint("NewApi", "MissingPermission")
     // почему не используется connect ?
-    private fun connectFlow(connect: Boolean, deviceName: String) = flow {
+    private fun connectFlow(deviceName: String) = flow {
         val channel = Channel<Boolean>()
 
         val device = peers.find { it.deviceAddress == deviceName }
@@ -172,6 +173,16 @@ class WifiDirectCoreImpl
         }
     }
 
+    private fun disconnectFlow() = flow {
+        val channel = Channel<Boolean>()
+        val actionListener = actionListener(
+            onSuccess = { launch { channel.send(true) } },
+            onFail = { _, _ -> launch { channel.send(false) } }
+        )
+        manager.cancelConnect(managerChannel, actionListener)
+        emit(channel.receive())
+    }
+
     override fun registerReceiver() {
         context.registerReceiver(receiver, intentFilter)
     }
@@ -192,14 +203,14 @@ class WifiDirectCoreImpl
     }
 
     override suspend fun connect(address: String): Boolean {
-        return connectFlow(true, address)
+        return connectFlow(address)
             .onEach { sendToDataFlow(LogData("connect to $address ... $it")) }
             .first()
     }
 
-    override suspend fun connectCancel(address: String): Boolean {
-        return connectFlow(false, address)
-            .onEach { sendToDataFlow(LogData("disConnect from $address ... $it")) }
+    override suspend fun connectCancel(): Boolean {
+        return disconnectFlow()
+            .onEach { sendToDataFlow(LogData("disConnect")) }
             .first()
     }
 

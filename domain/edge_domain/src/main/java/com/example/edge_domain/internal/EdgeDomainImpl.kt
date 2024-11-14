@@ -1,11 +1,11 @@
 package com.example.edge_domain.internal
 
 import com.example.edge_domain.api.EdgeDomain
-import com.example.edge_domain.api.dependecies.EdgeDomainDependencies
 import com.example.edge_domain.api.dependecies.data.EdgeData
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent.Error
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent.NewRemoteTask
+import com.example.edge_domain.api.dependecies.data.EdgeDataEvent.PeersChanged
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent.SubTaskCompleted
 import com.example.edge_domain.api.dependecies.ui.EdgeUI
 import com.example.edge_domain.internal.executor.EdgeTaskExecutor
@@ -23,16 +23,16 @@ import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
 
 @Singleton
-class EdgeDomainImpl
+internal class EdgeDomainImpl
 @Inject constructor(
-    dependencies: EdgeDomainDependencies,
+    private val edgeUi: EdgeUI,
+    private val edgeData: EdgeData,
     private val taskExecutor: EdgeTaskExecutor,
 ) : EdgeDomain, CoroutineScope {
+
     override val coroutineContext: CoroutineContext // TODO maybe launch in service
         get() = Job() + Dispatchers.IO
 
-    private val edgeUi: EdgeUI = dependencies.edgeUi
-    private val edgeData: EdgeData = dependencies.edgeData
 
     init {
         launch {
@@ -45,6 +45,7 @@ class EdgeDomainImpl
 
     override suspend fun addTaskFromUI(task: EdgeTaskBasic) {
         val devices = edgeData.getOnlineDevices()
+        edgeUi.updatePeersCounter(devices.size)
         if (devices.isEmpty()) {
             edgeUi.showInfo("No peers in network")
         }
@@ -54,6 +55,10 @@ class EdgeDomainImpl
 
     override suspend fun exitFromNetwork() {
         edgeData.exitFromNetwork()
+    }
+
+    override suspend fun updatePeersCounter(): Int {
+        return edgeData.getOnlineDevices().size
     }
 
     private fun dispatchDataEvents(event: EdgeDataEvent) {
@@ -71,6 +76,11 @@ class EdgeDomainImpl
 
             is Error -> launch {
                 edgeUi.showInfo("Error On Data Layer ${event.cause.javaClass.name}")
+            }
+
+            is PeersChanged -> launch {
+                edgeUi.updatePeersCounter(event.peers.size)
+                // check if missed device has a task
             }
         }
     }

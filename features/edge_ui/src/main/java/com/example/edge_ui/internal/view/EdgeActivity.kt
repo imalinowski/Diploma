@@ -13,13 +13,16 @@ import androidx.lifecycle.lifecycleScope
 import com.example.edge_ui.R
 import com.example.edge_ui.api.EdgeUIComponentProvider
 import com.example.edge_ui.databinding.ActivityEdgeBinding
-import com.example.edge_ui.internal.presentation.EdgeUIEvents.AddNewMatrixTask
-import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate.ClickGenerateMatrixA
-import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate.ClickGenerateMatrixB
-import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixSizeChanged
 import com.example.edge_ui.internal.presentation.EdgeUIEffects
 import com.example.edge_ui.internal.presentation.EdgeUIEffects.ShowToast
+import com.example.edge_ui.internal.presentation.EdgeUIEvents
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate.ClickGenerateMatrixA
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate.ClickGenerateMatrixB
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.DomainEvents.AddNewMatrixTask
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixSizeChanged
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.PeersCounterClicked
 import com.example.edge_ui.internal.presentation.EdgeUIState
+import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands
 import com.example.edge_ui.internal.view.model.EdgeUiTaskInfoState
 import javax.inject.Inject
 
@@ -57,6 +60,9 @@ class EdgeActivity : AppCompatActivity() {
                 )
             }
         }
+        peersCounter.setOnClickListener {
+            viewModel.dispatch(PeersCounterClicked)
+        }
         initMatrices()
     }
 
@@ -77,6 +83,7 @@ class EdgeActivity : AppCompatActivity() {
     }
 
     private fun render(state: EdgeUIState) = with(binding) {
+        peersCounter.text = getString(R.string.peers_online, state.peersCounter)
         matrixA.matrix.text = state.uiMatrixA
         matrixB.matrix.text = state.uiMatrixB
         matrixResult.text = state.uiMatrixResult

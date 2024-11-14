@@ -1,5 +1,6 @@
 package com.example.edge_domain.api.dependecies.data
 
+import com.example.edge_entities.EdgeDevice
 import com.example.edge_entities.EdgeResult
 import com.example.edge_entities.tasks.EdgeSubTaskBasic
 
@@ -14,6 +15,10 @@ sealed interface EdgeDataEvent {
     // новая задача от участника сети
     data class NewRemoteTask(
         val task: EdgeSubTaskBasic
+    ) : EdgeDataEvent
+
+    data class PeersChanged(
+        val peers: List<EdgeDevice>
     ) : EdgeDataEvent
 
     data class Error(

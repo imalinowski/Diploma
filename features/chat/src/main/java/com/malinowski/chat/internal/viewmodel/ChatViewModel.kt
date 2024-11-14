@@ -54,8 +54,9 @@ class ChatViewModel @Inject constructor(
     init {
         wifiDirectCore.registerReceiver()
         storeScope.launch {
-            wifiDirectCore.dataFlow.filterNotNull()
+            wifiDirectCore.dataFlow
                 .map(chatMapper)
+                .filterNotNull()
                 .collect(::dispatch)
         }
     }

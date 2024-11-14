@@ -24,6 +24,7 @@ class WifiBroadcastReceiver(
 
             WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION -> {
                 requestPeers()
+                log("WIFI_P2P_PEERS_CHANGED_ACTION")
             }
 
             WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION -> {

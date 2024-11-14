@@ -13,11 +13,10 @@ import com.example.wifi_direct.api.WifiDirectEvents.MessageData
 import com.malinowski.wifi_direct_data.internal.model.WifiDirectTaskMessage
 import com.malinowski.wifi_direct_data.internal.model.WifiDirectTaskMessageType.Result
 import com.malinowski.wifi_direct_data.internal.model.WifiDirectTaskMessageType.Task
-import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
-class WifiDirectEventsMapper
+class WifiDirectMessageMapper
 @Inject constructor() : (MessageData) -> EdgeDataEvent? {
 
     override fun invoke(event: MessageData): EdgeDataEvent? {

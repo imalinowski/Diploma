@@ -7,4 +7,5 @@ sealed class WifiDirectEvents {
     class MessageData(val message: Message) : WifiDirectEvents()
     class WifiConnectionChanged(val info: WifiP2pInfo) : WifiDirectEvents()
     class SocketConnectionChanged(val connected: Boolean) : WifiDirectEvents()
+    data object PeersChangedAction : WifiDirectEvents()
 }

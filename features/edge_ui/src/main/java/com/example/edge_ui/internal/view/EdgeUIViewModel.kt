@@ -2,28 +2,32 @@ package com.example.edge_ui.internal.view
 
 import androidx.lifecycle.viewModelScope
 import com.example.common_arch.Store
-import com.example.edge_domain.api.EdgeDomain
 import com.example.edge_entities.EdgeParams.MatrixMultiplyParams
 import com.example.edge_ui.internal.domain.EdgeUiImpl
 import com.example.edge_ui.internal.presentation.EdgeUIEffects.ShowToast
-import com.example.edge_ui.internal.presentation.EdgeUIEvents.AddNewMatrixTask
+import com.example.edge_ui.internal.presentation.EdgeUIEvents
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate.ClickGenerateMatrixA
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate.ClickGenerateMatrixB
-import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatricesMultiplied
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.DomainEvents
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.DomainEvents.AddNewMatrixTask
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.DomainEvents.MatricesMultiplied
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.DomainEvents.ShowLocalTaskInProgress
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.DomainEvents.ShowRemoteTaskInProgress
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.DomainEvents.UpdatePeersCounter
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixGenerated
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixGenerated.GeneratedMatrixA
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixGenerated.GeneratedMatrixB
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixSizeChanged
-import com.example.edge_ui.internal.presentation.EdgeUIEvents.RemoteTaskCompleted
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.PeersCounterClicked
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowInfo
-import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowLocalTaskInProgress
-import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowRemoteTaskInProgress
-import com.example.edge_ui.internal.presentation.command_handlers.CommandCoreHandler
+import com.example.edge_ui.internal.presentation.command_handlers.CommandDomainHandler
 import com.example.edge_ui.internal.presentation.command_handlers.CommandMatrixHandler
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.AddMatrixTask
+import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.ExitFromNetwork
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.GenerateMatrix.GenerateMatrixA
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.GenerateMatrix.GenerateMatrixB
+import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.RequestUpdatePeersCounter
 import com.example.edge_ui.internal.presentation.command_handlers.MATRIX_SIZE_LIMIT
 import com.example.edge_ui.internal.view.model.EdgeUiTaskInfoState
 import kotlinx.coroutines.CoroutineScope
@@ -39,14 +43,13 @@ private const val SIZE_LIMIT_TOAST = "Matrix Size is Limited by $MATRIX_SIZE_LIM
 
 internal class EdgeUIViewModel
 @Inject constructor(
-    commandCoreHandler: CommandCoreHandler,
+    commandDomainHandler: CommandDomainHandler,
     commandMatrixHandler: CommandMatrixHandler,
     edgeUI: EdgeUiImpl,
-    private val domain: EdgeDomain,
 ) : Store<State, Commands, Events, Effects>(
     initialState = State(),
     commandHandlers = listOf(
-        commandMatrixHandler, commandCoreHandler
+        commandMatrixHandler, commandDomainHandler
     )
 ) {
 
@@ -57,7 +60,9 @@ internal class EdgeUIViewModel
         commands {
             val size = state.matrixSize
             listOf(
-                GenerateMatrixA(size), GenerateMatrixB(size)
+                GenerateMatrixA(size),
+                GenerateMatrixB(size),
+                RequestUpdatePeersCounter
             )
         }
         viewModelScope.launch {
@@ -66,32 +71,40 @@ internal class EdgeUIViewModel
     }
 
     override fun onCleared() {
-        viewModelScope.launch {
-            domain.exitFromNetwork()
-        }
+        command { ExitFromNetwork }
     }
 
     override fun dispatch(event: Events) {
-        val state = state
         when (event) {
+            is ShowInfo -> newEffect {
+                ShowToast(event.info)
+            }
+
+            PeersCounterClicked -> {
+                newState { state.copy(peersCounter = "Loading...") }
+                command { RequestUpdatePeersCounter }
+            }
+
             is MatrixSizeChanged -> parseSizeFromUi(event.matrixSize)
 
             is ClickedGenerate -> generateMatrix(event)
-
-            is AddNewMatrixTask -> if (state.params != null) {
-                command { AddMatrixTask(state.params) }
-            }
 
             is MatrixGenerated -> newState {
                 setMatrices(event).copy(localTaskInfo = null)
             }
 
-            is MatricesMultiplied -> newState {
-                copy(result = event.result, localTaskInfo = null)
+            is DomainEvents -> handleDomainEvents(state, event)
+        }
+    }
+
+    private fun handleDomainEvents(state: State, event: DomainEvents) {
+        when (event) {
+            is UpdatePeersCounter -> newState {
+                copy(peersCounter = event.peers.toString())
             }
 
-            is ShowInfo -> newEffect {
-                ShowToast(event.info)
+            is MatricesMultiplied -> newState {
+                copy(result = event.result, localTaskInfo = null)
             }
 
             is ShowLocalTaskInProgress -> newState {
@@ -102,11 +115,14 @@ internal class EdgeUIViewModel
                 copy(remoteTaskInfo = getTaskInfoState(event.info))
             }
 
-            RemoteTaskCompleted -> newState {
+            DomainEvents.RemoteTaskCompleted -> newState {
                 copy(remoteTaskInfo = null)
             }
-        }
 
+            is AddNewMatrixTask -> if (state.params != null) {
+                command { AddMatrixTask(state.params) }
+            }
+        }
     }
 
     private fun parseSizeFromUi(sizeFromUI: CharSequence?) {
@@ -124,14 +140,11 @@ internal class EdgeUIViewModel
                 params = null
             )
         }
-
-        val state = state
         command { GenerateMatrixA(size = state.matrixSize) }
         command { GenerateMatrixB(size = state.matrixSize) }
     }
 
     private fun generateMatrix(event: ClickedGenerate) {
-        val state = state
         newState {
             copy(localTaskInfo = getTaskInfoState(UI_INFO_GENERATING_MATRIX))
         }

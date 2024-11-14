@@ -37,7 +37,7 @@ interface WifiDirectCore {
 
     suspend fun connect(address: String): Boolean
 
-    suspend fun connectCancel(address: String): Boolean
+    suspend fun connectCancel(): Boolean
 
     suspend fun sendMessage(message: String)
 }

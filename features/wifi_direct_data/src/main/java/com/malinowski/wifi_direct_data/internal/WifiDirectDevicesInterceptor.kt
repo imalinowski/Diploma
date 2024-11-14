@@ -53,7 +53,7 @@ class WifiDirectDevicesInterceptor
         } ?: false
     }
 
-    suspend fun interceptSyn(
+    suspend fun tryInterceptSyn(
         message: MessageData
     ) {
         try {

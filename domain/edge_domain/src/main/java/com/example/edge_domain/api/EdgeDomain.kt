@@ -23,4 +23,6 @@ interface EdgeDomain {
     suspend fun addTaskFromUI(task: EdgeTaskBasic)
 
     suspend fun exitFromNetwork()
+
+    suspend fun updatePeersCounter(): Int
 }

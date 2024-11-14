@@ -4,7 +4,7 @@ import com.example.edge_entities.EdgeDevice
 import com.example.edge_entities.tasks.EdgeSubTaskBasic
 import com.example.edge_entities.tasks.EdgeTaskBasic
 
-sealed interface EdgeTaskExecutorEvent {
+internal sealed interface EdgeTaskExecutorEvent {
 
     class TaskCompleted(
         val task: EdgeTaskBasic
