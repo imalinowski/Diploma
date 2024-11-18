@@ -2,14 +2,13 @@ package com.malinowski.wifi_direct_data.internal
 
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent.PeersChanged
-import com.example.edge_entities.EdgeDevice
-import com.example.edge_entities.EdgeResult
-import com.example.edge_entities.tasks.EdgeSubTaskBasic
+import com.example.entities.EdgeDevice
+import com.example.entities.tasks.EdgeResult
+import com.example.entities.tasks.EdgeSubTaskBasic
 import com.example.wifi_direct.api.WifiDirectCore
 import com.example.wifi_direct.api.WifiDirectEvents
 import com.example.wifi_direct.api.WifiDirectEvents.MessageData
 import com.example.wifi_direct.api.WifiDirectEvents.PeersChangedAction
-import com.malinowski.base_logs.api.Logs
 import com.malinowski.wifi_direct_data.internal.model.WifiDirectTaskMessage
 import com.malinowski.wifi_direct_data.internal.model.WifiDirectTaskMessageType
 import kotlinx.coroutines.flow.catch
@@ -26,7 +25,6 @@ class WifiDirectDataRepository
     private val wifiDirectCore: WifiDirectCore,
     private val messageInterceptor: WifiDirectDevicesInterceptor,
     private val messageMapper: WifiDirectMessageMapper,
-    private val logs: Logs,
 ) {
     val eventsFlow = wifiDirectCore.dataFlow
         .map(::mapToEdgeEvents)
@@ -37,20 +35,13 @@ class WifiDirectDataRepository
 
     private suspend fun mapToEdgeEvents(event: WifiDirectEvents?): EdgeDataEvent? {
         return when (event) {
-            is WifiDirectEvents.LogData -> {
-                logs.logData(event.log)
-                null
-            }
-
             PeersChangedAction -> {
                 PeersChanged(messageInterceptor.getOnlineDevices())
             }
-
             is MessageData -> {
                 messageInterceptor.tryInterceptSyn(event)
                 messageMapper(event)
             }
-
             else -> null
         }
     }

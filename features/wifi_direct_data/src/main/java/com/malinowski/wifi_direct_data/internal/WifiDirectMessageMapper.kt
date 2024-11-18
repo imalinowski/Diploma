@@ -4,11 +4,11 @@ import android.util.Log
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent.NewRemoteTask
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent.SubTaskCompleted
-import com.example.edge_entities.EdgeParams
-import com.example.edge_entities.EdgeResult
-import com.example.edge_entities.tasks.EdgeSubTask
-import com.example.edge_entities.tasks.EdgeSubTaskBasic
-import com.example.edge_entities.tasks.MatrixMultiplySubTask
+import com.example.entities.tasks.EdgeParams
+import com.example.entities.tasks.EdgeResult
+import com.example.entities.tasks.EdgeSubTask
+import com.example.entities.tasks.EdgeSubTaskBasic
+import com.example.entities.tasks.MatrixMultiplySubTask
 import com.example.wifi_direct.api.WifiDirectEvents.MessageData
 import com.malinowski.wifi_direct_data.internal.model.WifiDirectTaskMessage
 import com.malinowski.wifi_direct_data.internal.model.WifiDirectTaskMessageType.Result

@@ -1,7 +1,7 @@
 package com.example.edge_ui.internal.presentation
 
 import com.example.edge_domain.api.dependecies.ui.EdgeUiEvent
-import com.example.edge_entities.EdgeResult.MatrixMultiplyResult
+import com.example.entities.tasks.EdgeResult.MatrixMultiplyResult
 
 sealed interface EdgeUIEvents: EdgeUiEvent {
 

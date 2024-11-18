@@ -1,7 +1,7 @@
 package com.example.edge_ui.internal.presentation
 
-import com.example.edge_entities.EdgeParams.MatrixMultiplyParams
-import com.example.edge_entities.EdgeResult.MatrixMultiplyResult
+import com.example.entities.tasks.EdgeParams.MatrixMultiplyParams
+import com.example.entities.tasks.EdgeResult.MatrixMultiplyResult
 import com.example.edge_ui.internal.view.model.EdgeUiTaskInfoState
 import java.lang.Integer.min
 

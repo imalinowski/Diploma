@@ -1,8 +1,8 @@
 package com.example.edge_ui.internal.domain
 
 import com.example.edge_domain.api.dependecies.ui.EdgeUI
-import com.example.edge_entities.EdgeResult
-import com.example.edge_entities.EdgeResult.MatrixMultiplyResult
+import com.example.entities.tasks.EdgeResult
+import com.example.entities.tasks.EdgeResult.MatrixMultiplyResult
 import com.example.edge_ui.internal.presentation.EdgeUIEvents
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.DomainEvents.MatricesMultiplied
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.DomainEvents.RemoteTaskCompleted

@@ -8,7 +8,7 @@ import com.example.edge_data.internal.models.requests.PostTaskRequest
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent.NewRemoteTask
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent.SubTaskCompleted
-import com.example.edge_entities.EdgeDevice
+import com.example.entities.EdgeDevice
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

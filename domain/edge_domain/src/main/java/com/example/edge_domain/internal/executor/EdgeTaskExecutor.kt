@@ -1,9 +1,9 @@
 package com.example.edge_domain.internal.executor
 
-import com.example.edge_entities.EdgeDevice
-import com.example.edge_entities.EdgeResult
-import com.example.edge_entities.tasks.EdgeSubTaskBasic
-import com.example.edge_entities.tasks.EdgeTaskBasic
+import com.example.entities.EdgeDevice
+import com.example.entities.tasks.EdgeResult
+import com.example.entities.tasks.EdgeSubTaskBasic
+import com.example.entities.tasks.EdgeTaskBasic
 import kotlinx.coroutines.flow.Flow
 
 internal interface EdgeTaskExecutor {

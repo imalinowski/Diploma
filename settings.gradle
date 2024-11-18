@@ -20,12 +20,14 @@ include ':features:edge_ui'
 include ':features:edge_data'
 include ':features:chat'
 include ':features:wifi_direct_data'
+include ':features:logs'
+
 
 //domain
 include ':domain:edge_domain'
 
 //base
-include ':base:edge_entities'
+include ':base:entities'
 include ':base:common_arch'
 include ':base:wifi_direct'
-include ':base:base_logs'
+include ':base:navigation'

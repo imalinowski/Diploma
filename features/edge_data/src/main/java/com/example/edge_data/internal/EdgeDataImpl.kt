@@ -4,8 +4,8 @@ import com.example.edge_data.api.EdgeDataDependencies
 import com.example.edge_data.internal.mappers.EdgeToNetworkTaskMapper
 import com.example.edge_domain.api.dependecies.data.EdgeData
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent
-import com.example.edge_entities.EdgeDevice
-import com.example.edge_entities.tasks.EdgeSubTaskBasic
+import com.example.entities.EdgeDevice
+import com.example.entities.tasks.EdgeSubTaskBasic
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.serialization.encodeToString

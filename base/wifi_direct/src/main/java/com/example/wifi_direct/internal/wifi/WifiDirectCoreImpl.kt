@@ -15,6 +15,7 @@ import android.net.wifi.p2p.WifiP2pManager.NO_SERVICE_REQUESTS
 import android.net.wifi.p2p.WifiP2pManager.P2P_UNSUPPORTED
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener
 import android.util.Log
+import com.example.entities.Logs
 import com.example.wifi_direct.api.DiscoverPeersResult
 import com.example.wifi_direct.api.Message
 import com.example.wifi_direct.api.WifiDirectCore
@@ -51,7 +52,8 @@ class WifiDirectCoreImpl
     private val context: Context,
     private val intentFilter: IntentFilter,
     private val manager: WifiP2pManager,
-    private val managerChannel: WifiP2pManager.Channel
+    private val managerChannel: WifiP2pManager.Channel,
+    private val logs: Logs
 ) : WifiDirectCore, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
@@ -75,6 +77,9 @@ class WifiDirectCoreImpl
     }
 
     private fun sendToDataFlow(event: WifiDirectEvents) {
+        if (event is LogData) {
+            logs.logData(event.log)
+        }
         launch {
             _dataFlow.emit(event)
         }

@@ -1,6 +1,6 @@
 package com.malinowski.wifi_direct_data.internal
 
-import com.example.edge_entities.EdgeDevice
+import com.example.entities.EdgeDevice
 import com.example.wifi_direct.api.DiscoverPeersResult.Error
 import com.example.wifi_direct.api.DiscoverPeersResult.Peers
 import com.example.wifi_direct.api.WifiDirectCore

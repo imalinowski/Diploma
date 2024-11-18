@@ -13,7 +13,7 @@ import com.example.edge_domain.internal.executor.EdgeTaskExecutorEvent
 import com.example.edge_domain.internal.executor.EdgeTaskExecutorEvent.RemoteTaskCompleted
 import com.example.edge_domain.internal.executor.EdgeTaskExecutorEvent.SendTaskToRemote
 import com.example.edge_domain.internal.executor.EdgeTaskExecutorEvent.TaskCompleted
-import com.example.edge_entities.tasks.EdgeTaskBasic
+import com.example.entities.tasks.EdgeTaskBasic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

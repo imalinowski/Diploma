@@ -22,8 +22,6 @@ class EdgeUIModule {
         @ViewModelKey(EdgeUIViewModel::class)
         abstract fun bindEdgeUIViewModel(viewModel: EdgeUIViewModel): ViewModel
 
-        // todo move to ui module
-
         @Binds
         fun getEdgeUI(edgeData: EdgeUiImpl): EdgeUI
     }

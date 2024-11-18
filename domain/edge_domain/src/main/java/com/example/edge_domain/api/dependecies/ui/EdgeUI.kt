@@ -1,6 +1,6 @@
 package com.example.edge_domain.api.dependecies.ui
 
-import com.example.edge_entities.EdgeResult
+import com.example.entities.tasks.EdgeResult
 import kotlinx.coroutines.flow.Flow
 
 /*

@@ -2,10 +2,9 @@ package com.example.edge_ui.internal.view
 
 import androidx.lifecycle.viewModelScope
 import com.example.common_arch.Store
-import com.example.edge_entities.EdgeParams.MatrixMultiplyParams
+import com.example.entities.tasks.EdgeParams.MatrixMultiplyParams
 import com.example.edge_ui.internal.domain.EdgeUiImpl
 import com.example.edge_ui.internal.presentation.EdgeUIEffects.ShowToast
-import com.example.edge_ui.internal.presentation.EdgeUIEvents
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate.ClickGenerateMatrixA
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate.ClickGenerateMatrixB

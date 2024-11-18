@@ -53,6 +53,6 @@ dependencies {
 
     //local
     implementation project(':base:common_arch')
-    implementation project(':base:edge_entities')
+    implementation project(':base:entities')
     implementation project(':domain:edge_domain')
 }

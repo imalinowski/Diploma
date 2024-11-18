@@ -1,8 +1,8 @@
 package com.example.edge_domain.api.dependecies.data
 
-import com.example.edge_entities.EdgeDevice
-import com.example.edge_entities.EdgeResult
-import com.example.edge_entities.tasks.EdgeSubTaskBasic
+import com.example.entities.EdgeDevice
+import com.example.entities.tasks.EdgeResult
+import com.example.entities.tasks.EdgeSubTaskBasic
 
 sealed interface EdgeDataEvent {
 

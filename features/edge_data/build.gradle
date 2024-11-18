@@ -24,6 +24,5 @@ dependencies {
 
     //local
     implementation project(':domain:edge_domain')
-    implementation project(':base:edge_entities')
-
+    implementation project(':base:entities')
 }

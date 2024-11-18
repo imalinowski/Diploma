@@ -64,8 +64,10 @@ dependencies {
     implementation project(':features:edge_ui')
     implementation project(':features:edge_data')
     implementation project(':features:wifi_direct_data')
+    implementation project(':features:logs')
     implementation project(':domain:edge_domain')
     implementation project(':base:common_arch')
     implementation project(':base:wifi_direct')
-    implementation project(':base:base_logs')
+    implementation project(':base:entities')
+    implementation project(':base:navigation')
 }

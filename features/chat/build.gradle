@@ -54,5 +54,6 @@ dependencies {
     //local
     implementation project(':base:common_arch')
     implementation project(':base:wifi_direct')
-    implementation project(':base:base_logs')
+    implementation project(':base:entities')
+    implementation project(':base:navigation')
 }

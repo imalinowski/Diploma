@@ -3,11 +3,11 @@ package com.example.edge_domain.internal.executor
 import com.example.edge_domain.internal.executor.EdgeTaskExecutorEvent.RemoteTaskCompleted
 import com.example.edge_domain.internal.executor.EdgeTaskExecutorEvent.SendTaskToRemote
 import com.example.edge_domain.internal.executor.EdgeTaskExecutorEvent.TaskCompleted
-import com.example.edge_entities.EdgeDevice
-import com.example.edge_entities.EdgeResult
-import com.example.edge_entities.tasks.EdgeSubTaskBasic
-import com.example.edge_entities.tasks.EdgeTaskBasic
-import com.example.edge_entities.tasks.TaskStatus.READY
+import com.example.entities.EdgeDevice
+import com.example.entities.tasks.EdgeResult
+import com.example.entities.tasks.EdgeSubTaskBasic
+import com.example.entities.tasks.EdgeTaskBasic
+import com.example.entities.tasks.TaskStatus.READY
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import javax.inject.Inject

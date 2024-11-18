@@ -1,6 +1,6 @@
 package com.example.edge_domain.api
 
-import com.example.edge_entities.tasks.EdgeTaskBasic
+import com.example.entities.tasks.EdgeTaskBasic
 
 /*
 *                       Схема архитектуры

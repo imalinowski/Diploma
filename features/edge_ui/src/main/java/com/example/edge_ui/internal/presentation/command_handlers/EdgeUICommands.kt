@@ -1,6 +1,6 @@
 package com.example.edge_ui.internal.presentation.command_handlers
 
-import com.example.edge_entities.EdgeParams.MatrixMultiplyParams
+import com.example.entities.tasks.EdgeParams.MatrixMultiplyParams
 
 internal sealed interface EdgeUICommands {
 

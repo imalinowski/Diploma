@@ -2,7 +2,7 @@ package com.malinowski.diploma.di
 
 import android.content.Context
 import com.example.edge_ui.api.di.EdgeUIComponent
-import com.malinowski.base_logs.api.di.LogsComponent
+import com.malinowski.logs.api.di.LogsComponent
 import com.malinowski.chat.api.di.ChatComponent
 import dagger.BindsInstance
 import dagger.Component
