@@ -12,7 +12,7 @@ class LogMapper
     ): LogEvents? {
         return when (event) {
             is WifiDirectEvents.LogData ->
-                LogEvents.AddLog(event.log)
+                LogEvents.NewLog
 
             else -> null
         }

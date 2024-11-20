@@ -21,7 +21,7 @@ class LogsCommandHandler
             return null
         }
         when (command) {
-            is AddLog -> logs.logData(command.text)
+            is AddLog -> Unit //logs.logData(command.text)
             Clear -> logs.clearLogs()
             is Save -> Unit // logs.saveLogs(context, command.fileName)
             Restore -> Unit // just return logs.data

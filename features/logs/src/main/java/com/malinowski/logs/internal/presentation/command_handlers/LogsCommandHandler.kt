@@ -23,10 +23,11 @@ class LogsCommandHandler
 
     override suspend fun handle(command: LogCommands): LogEvents? {
         when (command) {
-            is LogCommands.AddLog -> logs.logData(command.text)
+            is LogCommands.Update -> Unit // just refresh logs
             LogCommands.Clear -> logs.clearLogs()
             is LogCommands.Save -> saveLogs(context, command.fileName)
-            LogCommands.Restore -> Unit // just return logs.data
+            LogCommands.Restore -> Unit // just restore from logs
+            else -> return null
         }
         return LogEvents.UpdateLog(logs.getLogs())
     }
