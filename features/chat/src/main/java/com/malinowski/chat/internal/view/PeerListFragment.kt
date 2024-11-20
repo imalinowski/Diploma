@@ -65,7 +65,7 @@ class PeerListFragment : Fragment() {
     }
 
     private fun update(state: ChatUiState) {
-        binding.swiperefresh.isRefreshing = false
+        binding.swiperefresh.isRefreshing = state.isRefreshing
         binding.noPeersFound.isVisible = state.peers.isEmpty()
         adapter.submitList(state.peers)
     }

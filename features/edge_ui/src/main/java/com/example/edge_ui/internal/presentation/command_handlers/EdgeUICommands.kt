@@ -4,6 +4,8 @@ import com.example.entities.tasks.EdgeParams.MatrixMultiplyParams
 
 internal sealed interface EdgeUICommands {
 
+    data object EnterNetwork : EdgeUICommands
+
     data object ExitFromNetwork : EdgeUICommands
 
     data object RequestUpdatePeersCounter : EdgeUICommands

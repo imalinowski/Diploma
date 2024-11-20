@@ -3,8 +3,11 @@ package com.malinowski.chat.internal.presentation
 import com.malinowski.chat.internal.model.ChatPeer
 
 sealed interface ChatCommands {
+
     data object CheckPermissions : ChatCommands
+
     data object SearchPeers : ChatCommands
+
     data class ConnectPeer(
         val peer: ChatPeer
     ) : ChatCommands
@@ -13,15 +16,7 @@ sealed interface ChatCommands {
         val message: String
     ) : ChatCommands
 
-    sealed interface LogCommands : ChatCommands {
-        data class AddLog(
-            val text: String
-        ) : LogCommands
+    data object EnterNetwork: ChatCommands
 
-        data object Clear : LogCommands
-        data object Restore : LogCommands
-        data class Save(
-            val fileName: String
-        ) : LogCommands
-    }
+    data object ExitFromNetwork: ChatCommands
 }

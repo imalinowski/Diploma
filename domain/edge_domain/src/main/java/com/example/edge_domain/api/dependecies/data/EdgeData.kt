@@ -25,6 +25,8 @@ interface EdgeData {
     // уходят в domain
     val eventsFromData: Flow<EdgeDataEvent>
 
+    fun enterNetwork()
+
     suspend fun exitFromNetwork()
 
     suspend fun getOnlineDevices(): List<EdgeDevice>

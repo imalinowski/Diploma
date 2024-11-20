@@ -22,7 +22,9 @@ import com.example.edge_ui.internal.presentation.EdgeUIEvents.PeersCounterClicke
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowInfo
 import com.example.edge_ui.internal.presentation.command_handlers.CommandDomainHandler
 import com.example.edge_ui.internal.presentation.command_handlers.CommandMatrixHandler
+import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.AddMatrixTask
+import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.EnterNetwork
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.ExitFromNetwork
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.GenerateMatrix.GenerateMatrixA
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.GenerateMatrix.GenerateMatrixB
@@ -59,6 +61,7 @@ internal class EdgeUIViewModel
         commands {
             val size = state.matrixSize
             listOf(
+                EnterNetwork,
                 GenerateMatrixA(size),
                 GenerateMatrixB(size),
                 RequestUpdatePeersCounter

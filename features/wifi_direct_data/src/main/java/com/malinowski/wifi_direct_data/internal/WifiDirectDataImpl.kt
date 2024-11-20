@@ -15,6 +15,10 @@ class WifiDirectDataImpl
     override val eventsFromData: Flow<EdgeDataEvent>
         get() = repository.eventsFlow
 
+    override fun enterNetwork() {
+        repository.enter()
+    }
+
     override suspend fun exitFromNetwork() {
         repository.exit()
     }

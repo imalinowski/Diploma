@@ -15,15 +15,11 @@ sealed interface ChatEvents {
 
     sealed interface ChatUIEvents : ChatEvents {
 
-        data object ClearLogs : ChatUIEvents
-
         data object SearchForDevices : ChatUIEvents
 
         data class ConnectToPeer(
             val peer: ChatPeer
         ) : ChatUIEvents
-
-        data object SaveLogs : ChatUIEvents
     }
 
     // wifi direct
@@ -40,14 +36,6 @@ sealed interface ChatEvents {
         data class ChatConnectionChanged(val connected: Boolean) : WifiDirectEvents
 
         data class PeersUpdate(val peers: List<ChatPeer>) : WifiDirectEvents
-    }
-
-    // logs
-
-    sealed interface LogEvents : ChatEvents {
-
-        data class AddLog(val log: String) : LogEvents
-        data class UpdateLog(val log: String) : LogEvents
     }
 
     // common

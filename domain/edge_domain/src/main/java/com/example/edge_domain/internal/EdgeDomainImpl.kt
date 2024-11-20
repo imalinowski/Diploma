@@ -53,6 +53,10 @@ internal class EdgeDomainImpl
         taskExecutor.executeTask(task, devices)
     }
 
+    override fun enterNetwork() {
+        edgeData.enterNetwork()
+    }
+
     override suspend fun exitFromNetwork() {
         edgeData.exitFromNetwork()
     }

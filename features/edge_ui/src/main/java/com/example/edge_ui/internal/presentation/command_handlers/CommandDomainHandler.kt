@@ -8,6 +8,7 @@ import com.example.edge_ui.internal.presentation.EdgeUIEvents
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.DomainEvents.UpdatePeersCounter
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowInfo
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.AddMatrixTask
+import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.EnterNetwork
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.ExitFromNetwork
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.GenerateMatrix
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.RequestUpdatePeersCounter
@@ -21,12 +22,19 @@ internal class CommandDomainHandler
 
     override suspend fun handle(command: EdgeUICommands): EdgeUIEvents? {
         return when (command) {
+            EnterNetwork -> handleEnterNetwork()
             ExitFromNetwork -> handleExitFromNetwork()
             RequestUpdatePeersCounter -> handleUpdatePeersCounter()
             is AddMatrixTask -> handlerMatrixTask(command)
             is GenerateMatrix -> null
         }
     }
+
+    private fun handleEnterNetwork(): EdgeUIEvents? {
+        edgeDomain.enterNetwork()
+        return null
+    }
+
 
     private suspend fun handleExitFromNetwork(): EdgeUIEvents? {
         edgeDomain.exitFromNetwork()

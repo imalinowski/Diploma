@@ -11,9 +11,6 @@ class ChatMapper
         event: WifiDirectEvents?
     ): ChatEvents? {
         return when (event) {
-            is WifiDirectEvents.LogData ->
-                ChatEvents.LogEvents.AddLog(event.log)
-
             is WifiDirectEvents.MessageData -> {
                 ChatEvents.NewMessage(event.message)
             }

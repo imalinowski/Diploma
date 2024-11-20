@@ -2,8 +2,8 @@ package com.malinowski.diploma.di
 
 import android.content.Context
 import com.example.edge_ui.api.di.EdgeUIComponent
-import com.malinowski.logs.api.di.LogsComponent
 import com.malinowski.chat.api.di.ChatComponent
+import com.malinowski.logs.api.di.LogsComponent
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton

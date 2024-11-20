@@ -20,6 +20,10 @@ internal class EdgeDataImpl(
     override val eventsFromData: SharedFlow<EdgeDataEvent>
         get() = repository.eventsFlow.asSharedFlow()
 
+    override fun enterNetwork() {
+        // entered by default
+    }
+
     override suspend fun exitFromNetwork() {
         repository.exit()
     }

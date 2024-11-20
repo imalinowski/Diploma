@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class LogViewModel @Inject constructor(
-    private val wifiDirectCore: WifiDirectCore,
+    wifiDirectCore: WifiDirectCore,
     logsCommandHandler: LogsCommandHandler,
     wifiDirectCommandHandler: WifiDirectCommandHandler,
     logMapper: LogMapper
@@ -37,7 +37,6 @@ class LogViewModel @Inject constructor(
     override val storeScope: CoroutineScope = viewModelScope
 
     init {
-        wifiDirectCore.registerReceiver()
         storeScope.launch {
             wifiDirectCore.dataFlow
                 .map(logMapper)
@@ -73,10 +72,5 @@ class LogViewModel @Inject constructor(
 
     private fun saveLogs(): LogCommands {
         return LogCommands.Save(fileName = "DIPLOMA_EXPERIMENT_${getTime()}")
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        wifiDirectCore.unRegisterReceiver()
     }
 }

@@ -11,6 +11,8 @@ import com.example.wifi_direct.internal.ext.getTime
 import com.malinowski.chat.internal.model.ChatPeer
 import com.malinowski.chat.internal.presentation.ChatCommands
 import com.malinowski.chat.internal.presentation.ChatCommands.ConnectPeer
+import com.malinowski.chat.internal.presentation.ChatCommands.EnterNetwork
+import com.malinowski.chat.internal.presentation.ChatCommands.ExitFromNetwork
 import com.malinowski.chat.internal.presentation.ChatCommands.SearchPeers
 import com.malinowski.chat.internal.presentation.ChatCommands.SendMessage
 import com.malinowski.chat.internal.presentation.ChatEvents
@@ -24,6 +26,8 @@ class WifiDirectCommandHandler
 
     override suspend fun handle(command: ChatCommands): ChatEvents? {
         return when (command) {
+            EnterNetwork -> enterNetwork()
+            ExitFromNetwork -> exitFromNetwork()
             SearchPeers -> searchForPeers()
             is ConnectPeer -> connectPeer(command.peer)
             is SendMessage -> sendMessage(command.message)
@@ -66,5 +70,15 @@ class WifiDirectCommandHandler
         } catch (error: Throwable) {
             ChatEvents.Error(error)
         }
+    }
+
+    private fun enterNetwork(): ChatEvents? {
+        wifiDirectCore.registerReceiver()
+        return null
+    }
+
+    private fun exitFromNetwork(): ChatEvents? {
+        wifiDirectCore.unRegisterReceiver()
+        return null
     }
 }

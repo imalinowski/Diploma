@@ -20,9 +20,11 @@ import com.example.entities.tasks.EdgeTaskBasic
 // Ручка общения с Контроллером для слоев более низкого порядка
 interface EdgeDomain {
 
-    suspend fun addTaskFromUI(task: EdgeTaskBasic)
+    fun enterNetwork()
 
     suspend fun exitFromNetwork()
+
+    suspend fun addTaskFromUI(task: EdgeTaskBasic)
 
     suspend fun updatePeersCounter(): Int
 }
