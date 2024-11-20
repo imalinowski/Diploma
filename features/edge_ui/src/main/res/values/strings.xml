@@ -10,4 +10,5 @@
     </string>
     <string name="matrix_sample_size_5">5</string>
     <string name="peers_online">Peers online %1$s</string>
+    <string name="common_logs">LOGS</string>
 </resources>

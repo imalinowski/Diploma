@@ -61,7 +61,7 @@ class ChatActivity : AppCompatActivity() {
 
         viewModel.collect(lifecycleScope, {}, ::handleEffects)
 
-        supportFragmentManager.commit(allowStateLoss = true) {
+        supportFragmentManager.commit {
             replace(R.id.app_fragment_container, MainFragment.newInstance())
         }
     }
