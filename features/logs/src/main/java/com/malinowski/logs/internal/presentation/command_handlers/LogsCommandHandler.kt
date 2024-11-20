@@ -25,14 +25,14 @@ class LogsCommandHandler
         when (command) {
             is LogCommands.Update -> Unit // just refresh logs
             LogCommands.Clear -> logs.clearLogs()
-            is LogCommands.Save -> saveLogs(context, command.fileName)
+            is LogCommands.Save -> return saveLogs(context, command.fileName)
             LogCommands.Restore -> Unit // just restore from logs
             else -> return null
         }
         return LogEvents.UpdateLog(logs.getLogs())
     }
 
-    private fun saveLogs(context: Context, fileName: String) {
+    private fun saveLogs(context: Context, fileName: String): LogEvents {
         val outputStream: OutputStream? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val values = ContentValues()
             values.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
@@ -52,5 +52,6 @@ class LogsCommandHandler
         val bytes = logs.getLogs().toByteArray()
         outputStream?.write(bytes)
         outputStream?.close()
+        return LogEvents.ShowToast("logs saved!")
     }
 }

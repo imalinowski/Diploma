@@ -7,12 +7,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.malinowski.logs.databinding.FragmentLogBinding
 import com.malinowski.logs.internal.ext.getComponent
+import com.malinowski.logs.internal.presentation.LogEffects
+import com.malinowski.logs.internal.presentation.LogEffects.ShowToast
 import com.malinowski.logs.internal.presentation.LogEvents.ClearLogs
 import com.malinowski.logs.internal.presentation.LogEvents.SaveLogs
 import com.malinowski.logs.internal.presentation.LogEvents.SearchForDevices
@@ -48,7 +51,7 @@ class LogFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.collect(lifecycleScope, ::render)
+        viewModel.collect(lifecycleScope, ::render, ::handleEffects)
 
         searchDevicesBtn.setOnClickListener {
             viewModel.dispatch(SearchForDevices)
@@ -63,6 +66,12 @@ class LogFragment : Fragment() {
 
     private fun render(state: LogUiState) {
         logView.text = state.logText
+    }
+
+    private fun handleEffects(effect: LogEffects) {
+        when (effect) {
+            is ShowToast -> Toast.makeText(context, effect.text, Toast.LENGTH_LONG).show()
+        }
     }
 
     companion object {

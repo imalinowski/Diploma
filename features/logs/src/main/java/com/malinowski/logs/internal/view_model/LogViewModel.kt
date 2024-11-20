@@ -11,6 +11,7 @@ import com.malinowski.logs.internal.presentation.LogEvents
 import com.malinowski.logs.internal.presentation.LogEvents.ClearLogs
 import com.malinowski.logs.internal.presentation.LogEvents.NewLog
 import com.malinowski.logs.internal.presentation.LogEvents.SaveLogs
+import com.malinowski.logs.internal.presentation.LogEvents.ShowToast
 import com.malinowski.logs.internal.presentation.LogEvents.UpdateLog
 import com.malinowski.logs.internal.presentation.LogUiState
 import com.malinowski.logs.internal.presentation.command_handlers.LogsCommandHandler
@@ -66,6 +67,10 @@ class LogViewModel @Inject constructor(
 
             LogEvents.SearchForDevices -> command {
                 LogCommands.SearchForDevices
+            }
+
+            is ShowToast -> newEffect {
+                LogEffects.ShowToast(event.text)
             }
         }
     }
