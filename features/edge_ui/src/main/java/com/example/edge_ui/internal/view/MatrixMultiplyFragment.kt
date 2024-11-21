@@ -17,7 +17,9 @@ import com.example.edge_ui.R
 import com.example.edge_ui.databinding.FragmentMatrixMultiplyBinding
 import com.example.edge_ui.internal.ext.getComponent
 import com.example.edge_ui.internal.ext.setVisibilityAnimated
+import com.example.edge_ui.internal.factory.AlertFactory
 import com.example.edge_ui.internal.presentation.EdgeUIEffects
+import com.example.edge_ui.internal.presentation.EdgeUIEffects.ShowAlertView
 import com.example.edge_ui.internal.presentation.EdgeUIEffects.ShowToast
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate.ClickGenerateMatrixA
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate.ClickGenerateMatrixB
@@ -39,6 +41,9 @@ class MatrixMultiplyFragment : Fragment() {
 
     @Inject
     lateinit var logsNavigation: LogsNavigation
+
+    @Inject
+    lateinit var alertFactory: AlertFactory
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -119,6 +124,10 @@ class MatrixMultiplyFragment : Fragment() {
         when (event) {
             is ShowToast -> {
                 Toast.makeText(context, event.text, Toast.LENGTH_LONG).show()
+            }
+
+            is ShowAlertView -> {
+                alertFactory.createAlertDialog(requireContext(), event.title, event.text).show()
             }
         }
     }

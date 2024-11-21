@@ -2,8 +2,9 @@ package com.example.edge_ui.internal.view
 
 import androidx.lifecycle.viewModelScope
 import com.example.common_arch.Store
-import com.example.entities.tasks.EdgeParams.MatrixMultiplyParams
 import com.example.edge_ui.internal.domain.EdgeUiImpl
+import com.example.edge_ui.internal.presentation.EdgeUIEffects
+import com.example.edge_ui.internal.presentation.EdgeUIEffects.ShowAlertView
 import com.example.edge_ui.internal.presentation.EdgeUIEffects.ShowToast
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate.ClickGenerateMatrixA
@@ -19,10 +20,10 @@ import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixGenerated.Ge
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixGenerated.GeneratedMatrixB
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.MatrixSizeChanged
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.PeersCounterClicked
+import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowErrorAlert
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ShowInfo
 import com.example.edge_ui.internal.presentation.command_handlers.CommandDomainHandler
 import com.example.edge_ui.internal.presentation.command_handlers.CommandMatrixHandler
-import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.AddMatrixTask
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.EnterNetwork
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.ExitFromNetwork
@@ -31,6 +32,7 @@ import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands
 import com.example.edge_ui.internal.presentation.command_handlers.EdgeUICommands.RequestUpdatePeersCounter
 import com.example.edge_ui.internal.presentation.command_handlers.MATRIX_SIZE_LIMIT
 import com.example.edge_ui.internal.view.model.EdgeUiTaskInfoState
+import com.example.entities.tasks.EdgeParams.MatrixMultiplyParams
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -64,7 +66,6 @@ internal class EdgeUIViewModel
                 EnterNetwork,
                 GenerateMatrixA(size),
                 GenerateMatrixB(size),
-                RequestUpdatePeersCounter
             )
         }
         viewModelScope.launch {
@@ -80,6 +81,10 @@ internal class EdgeUIViewModel
         when (event) {
             is ShowInfo -> newEffect {
                 ShowToast(event.info)
+            }
+
+            is ShowErrorAlert -> newEffect {
+                ShowAlertView(event.title, event.info)
             }
 
             PeersCounterClicked -> {

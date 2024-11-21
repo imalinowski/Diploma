@@ -27,7 +27,6 @@ class EdgeActivity : AppCompatActivity() {
         getComponent().inject(this)
         supportFragmentManager.commit {
             replace(R.id.app_fragment_container, MatrixMultiplyFragment.newInstance())
-            addToBackStack(MatrixMultiplyFragment::class.simpleName)
         }
     }
 }

@@ -79,7 +79,7 @@ internal class EdgeDomainImpl
             }
 
             is Error -> launch {
-                edgeUi.showInfo("Error On Data Layer ${event.cause.javaClass.name}")
+                edgeUi.showError("Ошибка", "Error On Data Layer ${event.cause}")
             }
 
             is PeersChanged -> launch {

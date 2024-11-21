@@ -32,6 +32,12 @@ internal class EdgeUiImpl
         )
     }
 
+    override suspend fun showError(title: String, text: String) {
+        eventsFromDomain.emit(
+            EdgeUIEvents.ShowErrorAlert(title, text)
+        )
+    }
+
     override suspend fun showResult(result: EdgeResult) {
         when (result) {
             is MatrixMultiplyResult -> {

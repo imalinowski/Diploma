@@ -7,6 +7,11 @@ sealed interface EdgeUIEvents: EdgeUiEvent {
 
     data class ShowInfo(val info: String) : EdgeUIEvents
 
+    data class ShowErrorAlert(
+        val title: String,
+        val info: String
+    ) : EdgeUIEvents
+
     data class MatrixSizeChanged(
         val matrixSize: CharSequence?
     ) : EdgeUIEvents

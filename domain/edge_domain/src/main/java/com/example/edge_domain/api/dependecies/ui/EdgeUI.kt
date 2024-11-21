@@ -28,6 +28,8 @@ interface EdgeUI {
 
     suspend fun showInfo(text: String)
 
+    suspend fun showError(title: String, text: String)
+
     suspend fun showResult(result: EdgeResult)
 
     suspend fun localTaskInProgress(info: String)
