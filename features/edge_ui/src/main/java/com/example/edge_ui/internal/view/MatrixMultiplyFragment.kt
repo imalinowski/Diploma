@@ -2,7 +2,6 @@ package com.example.edge_ui.internal.view
 
 import android.content.Context
 import android.os.Bundle
-import android.text.TextUtils.replace
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.edge_ui.R
 import com.example.edge_ui.databinding.FragmentMatrixMultiplyBinding
 import com.example.edge_ui.internal.ext.getComponent
+import com.example.edge_ui.internal.ext.setVisibilityAnimated
 import com.example.edge_ui.internal.presentation.EdgeUIEffects
 import com.example.edge_ui.internal.presentation.EdgeUIEffects.ShowToast
 import com.example.edge_ui.internal.presentation.EdgeUIEvents.ClickedGenerate.ClickGenerateMatrixA
@@ -105,7 +105,7 @@ class MatrixMultiplyFragment : Fragment() {
         localTaskInfo: EdgeUiTaskInfoState?,
         remoteTaskInfo: EdgeUiTaskInfoState?,
     ) = with(binding) {
-        taskInfo.isVisible = localTaskInfo != null || remoteTaskInfo != null
+        taskInfo.setVisibilityAnimated(localTaskInfo != null || remoteTaskInfo != null)
         if (localTaskInfo != null) {
             taskInfoText.text = localTaskInfo.info
             taskInfoLoader.isVisible = localTaskInfo.showProgress
