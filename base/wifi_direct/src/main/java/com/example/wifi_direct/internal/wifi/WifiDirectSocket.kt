@@ -13,6 +13,9 @@ import java.net.Socket
 import kotlin.coroutines.CoroutineContext
 
 private const val BUFFER_SIZE = 1024
+private const val DELAY_FOR_READING = 100L
+private const val LIMIT_FOR_REPEATS_READING = 50
+private const val END_OF_MESSAGE = "<EOFin+E+C9Vj3uxS5IxDZtZ6J9Alo=>"
 
 abstract class WifiDirectSocket(
     val hostAddress: String
@@ -67,9 +70,14 @@ abstract class WifiDirectSocket(
     }
 
     private suspend fun readAllBytes(inputStream: InputStream, buffer: ByteArray): String {
-        delay(100)
-        if(inputStream.available() == 0) {
-            return ""
+        // ожидание ответа конец если ответ не приходит слишком долго
+        var waitCounter = 0
+        while (inputStream.available() == 0) {
+            delay(DELAY_FOR_READING)
+            waitCounter += 1
+            if (waitCounter == LIMIT_FOR_REPEATS_READING) {
+                return ""
+            }
         }
         var text = ""
         while (inputStream.available() > 0) {
@@ -77,11 +85,17 @@ abstract class WifiDirectSocket(
             Log.i("RASPBERRY_MESSAGE", "received message len $len")
             text += String(buffer, 0, len)
         }
-        return text + readAllBytes(inputStream, buffer)
+        // конец рекурсии если конец сообшения
+        return if (text.endsWith(END_OF_MESSAGE)) {
+            text.take(text.length - END_OF_MESSAGE.length)
+        } else {
+            text + readAllBytes(inputStream, buffer)
+        }
     }
 
     suspend fun write(message: String) = withContext(Dispatchers.IO) {
-        outputStream.write(message.toByteArray())
+        val packedMessage = message + END_OF_MESSAGE
+        outputStream.write(packedMessage.toByteArray())
         log("RASPBERRY_MESSAGE : send message $message")
         Log.i("RASPBERRY_MESSAGE", "${getTime()} : send message $message")
     }
