@@ -15,9 +15,9 @@ class Logs
 
 ) {
 
-    private var logs: String = ""
+    private var logs: StringBuilder = StringBuilder()
 
-    fun getLogs() = logs
+    fun getLogs() = logs.toString()
 
     fun logData(log: String) {
         synchronized(logs) {
@@ -26,11 +26,11 @@ class Logs
             } else {
                 log
             }
-            logs += LINE_SEPARATOR + getTime(MinSec) + LINE_SEPARATOR + shortedLog
+            logs.append(LINE_SEPARATOR + getTime(MinSec) + LINE_SEPARATOR + shortedLog)
         }
     }
 
     fun clearLogs() {
-        logs = ""
+        logs.clear()
     }
 }
