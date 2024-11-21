@@ -7,17 +7,27 @@ import javax.inject.Singleton
 // !!! пока нет потребности делать Thread Save но это не точно
 
 private const val LINE_SEPARATOR = "\n"
+private const val MAX_LOG_SIZE = 500
 
 @Singleton
 class Logs
-@Inject constructor() {
+@Inject constructor(
+
+) {
 
     private var logs: String = ""
 
     fun getLogs() = logs
 
     fun logData(log: String) {
-        logs += LINE_SEPARATOR + log
+        synchronized(logs) {
+            val shortedLog = if (log.length > MAX_LOG_SIZE) {
+                "${log.take(MAX_LOG_SIZE)}..."
+            } else {
+                log
+            }
+            logs += LINE_SEPARATOR + getTime(MinSec) + LINE_SEPARATOR + shortedLog
+        }
     }
 
     fun clearLogs() {

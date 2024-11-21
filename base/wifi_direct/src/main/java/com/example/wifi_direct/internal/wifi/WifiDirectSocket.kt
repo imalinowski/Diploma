@@ -1,7 +1,7 @@
 package com.example.wifi_direct.internal.wifi
 
 import android.util.Log
-import com.example.wifi_direct.internal.ext.getTime
+import com.example.entities.getTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

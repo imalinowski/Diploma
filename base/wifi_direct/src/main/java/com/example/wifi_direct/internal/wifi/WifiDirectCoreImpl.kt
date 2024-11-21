@@ -16,6 +16,7 @@ import android.net.wifi.p2p.WifiP2pManager.P2P_UNSUPPORTED
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener
 import android.util.Log
 import com.example.entities.Logs
+import com.example.entities.getTime
 import com.example.wifi_direct.api.DiscoverPeersResult
 import com.example.wifi_direct.api.Message
 import com.example.wifi_direct.api.WifiDirectCore
@@ -23,7 +24,6 @@ import com.example.wifi_direct.api.WifiDirectEvents
 import com.example.wifi_direct.api.WifiDirectEvents.LogData
 import com.example.wifi_direct.api.WifiDirectEvents.PeersChangedAction
 import com.example.wifi_direct.api.WifiDirectEvents.WifiConnectionChanged
-import com.example.wifi_direct.internal.ext.getTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -91,7 +91,7 @@ class WifiDirectCoreImpl
 
         val peerListListener = PeerListListener {
             peers = it.deviceList.toList()
-            sendToDataFlow(LogData("\n Peers : ${peers.joinToString("\n")}"))
+            sendToDataFlow(LogData("\nPeers ${peers.size} \n ${peers.joinToString("\n")}"))
             launch { channel.send(DiscoverPeersResult.Peers(peers)) }
         }
 
@@ -201,7 +201,7 @@ class WifiDirectCoreImpl
     }
 
     override suspend fun discoverPeers(): DiscoverPeersResult {
-        sendToDataFlow(LogData("searching for devices ..."))
+        sendToDataFlow(LogData("Searching for devices ..."))
         return withContext(Dispatchers.Default) {
             peerFlow.first()
         }

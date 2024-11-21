@@ -2,12 +2,12 @@ package com.malinowski.chat.internal.presentation.command_handlers
 
 import android.net.wifi.p2p.WifiP2pDevice
 import com.example.common_arch.CommandHandler
+import com.example.entities.HoursMinSec
+import com.example.entities.getTime
 import com.example.wifi_direct.api.DiscoverPeersResult
 import com.example.wifi_direct.api.Message
 import com.example.wifi_direct.api.WifiDirectCore
 import com.example.wifi_direct.internal.exceptions.ConnectionToPeerError
-import com.example.wifi_direct.internal.ext.HoursMinSec
-import com.example.wifi_direct.internal.ext.getTime
 import com.malinowski.chat.internal.model.ChatPeer
 import com.malinowski.chat.internal.presentation.ChatCommands
 import com.malinowski.chat.internal.presentation.ChatCommands.ConnectPeer

@@ -35,9 +35,9 @@ class WifiDirectDataRepository
 
     private suspend fun mapToEdgeEvents(event: WifiDirectEvents?): EdgeDataEvent? {
         return when (event) {
-            PeersChangedAction -> {
-                PeersChanged(messageInterceptor.getOnlineDevices())
-            }
+//            PeersChangedAction -> {
+//                PeersChanged(messageInterceptor.getOnlineDevices())
+//            }
             is MessageData -> {
                 messageInterceptor.tryInterceptSyn(event)
                 messageMapper(event)

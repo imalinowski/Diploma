@@ -2,8 +2,8 @@ package com.malinowski.logs.internal.view_model
 
 import androidx.lifecycle.viewModelScope
 import com.example.common_arch.Store
+import com.example.entities.getTime
 import com.example.wifi_direct.api.WifiDirectCore
-import com.example.wifi_direct.internal.ext.getTime
 import com.malinowski.logs.internal.mappers.LogMapper
 import com.malinowski.logs.internal.presentation.LogCommands
 import com.malinowski.logs.internal.presentation.LogEffects

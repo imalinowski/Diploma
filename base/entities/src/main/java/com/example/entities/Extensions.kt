@@ -1,9 +1,10 @@
-package com.example.wifi_direct.internal.ext
+package com.example.entities
 
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
+const val MinSec = "mm:ss.SSS"
 const val HoursMinSec = "hh:mm:ss.SSS"
 const val DayMonthYearHoursMinSec = "dd/MM/yyyy hh:mm:ss.SSS"
 
