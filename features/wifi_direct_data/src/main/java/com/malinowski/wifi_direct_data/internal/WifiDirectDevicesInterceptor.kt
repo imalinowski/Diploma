@@ -2,10 +2,9 @@ package com.malinowski.wifi_direct_data.internal
 
 import com.example.entities.EdgeDevice
 import com.example.entities.Logs
-import com.example.wifi_direct.api.DiscoverPeersResult.Error
-import com.example.wifi_direct.api.DiscoverPeersResult.Peers
 import com.example.wifi_direct.api.WifiDirectCore
 import com.example.wifi_direct.api.WifiDirectEvents.MessageData
+import com.example.wifi_direct.internal.wifi.WifiService
 import com.malinowski.wifi_direct_data.internal.model.WifiDirectTaskMessage
 import com.malinowski.wifi_direct_data.internal.model.WifiDirectTaskMessageType.Ack
 import com.malinowski.wifi_direct_data.internal.model.WifiDirectTaskMessageType.Syn
@@ -21,18 +20,22 @@ private const val AWAIT_TIMEOUT_MLS = 5000L
 class WifiDirectDevicesInterceptor
 @Inject constructor(
     private val logs: Logs,
-    private val wifiDirectCore: WifiDirectCore
+    private val wifiDirectCore: WifiDirectCore,
+    private val wifiDirectService: WifiService,
 ) {
 
     suspend fun getOnlineDevices(): List<EdgeDevice> {
         logs.logData("Update counter : launch search for candidates... ")
-        val candidates = when (
-            val result = wifiDirectCore.discoverPeers()
-        ) {
-            is Error -> throw result.error
-            is Peers -> result.peers.map {
-                EdgeDevice(it.deviceName, it.deviceAddress)
-            }
+//        val candidates = when (
+//            val result = wifiDirectCore.discoverPeers()
+//        ) {
+//            is Error -> throw result.error
+//            is Peers -> result.peers.map {
+//                EdgeDevice(it.deviceName, it.deviceAddress)
+//            }
+//        }
+        val candidates = listOf(wifiDirectService.discoverService()).map {
+            EdgeDevice(it.deviceName, it.deviceAddress)
         }
         logs.logData("Update counter : candidates ${candidates.size}")
         return candidates.filter {

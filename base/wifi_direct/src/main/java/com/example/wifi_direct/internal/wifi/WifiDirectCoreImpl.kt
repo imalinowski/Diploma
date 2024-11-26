@@ -8,11 +8,7 @@ import android.net.wifi.p2p.WifiP2pConfig
 import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pInfo
 import android.net.wifi.p2p.WifiP2pManager
-import android.net.wifi.p2p.WifiP2pManager.ActionListener
-import android.net.wifi.p2p.WifiP2pManager.BUSY
 import android.net.wifi.p2p.WifiP2pManager.CONNECTION_REQUEST_ACCEPT
-import android.net.wifi.p2p.WifiP2pManager.NO_SERVICE_REQUESTS
-import android.net.wifi.p2p.WifiP2pManager.P2P_UNSUPPORTED
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener
 import android.util.Log
 import com.example.entities.Logs
@@ -24,6 +20,7 @@ import com.example.wifi_direct.api.WifiDirectEvents
 import com.example.wifi_direct.api.WifiDirectEvents.LogData
 import com.example.wifi_direct.api.WifiDirectEvents.PeersChangedAction
 import com.example.wifi_direct.api.WifiDirectEvents.WifiConnectionChanged
+import com.example.wifi_direct.internal.exceptions.WifiErrorHandlerFactory
 import com.example.wifi_direct.internal.wifi.sockets.WifiDirectClient
 import com.example.wifi_direct.internal.wifi.sockets.WifiDirectServer
 import com.example.wifi_direct.internal.wifi.sockets.WifiDirectSocket
@@ -44,10 +41,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
 
-const val POSSIBLE_ERROR_SOLUTIONS = """
-Check following : 
-- location services must be enabled for wifi direct to work 
-"""
+private const val CACHE_EXPIRATION_TIME = 1000L
 
 @Singleton
 class WifiDirectCoreImpl
@@ -56,7 +50,8 @@ class WifiDirectCoreImpl
     private val intentFilter: IntentFilter,
     private val manager: WifiP2pManager,
     private val managerChannel: WifiP2pManager.Channel,
-    private val logs: Logs
+    private val logs: Logs,
+    private val handlerFactory: WifiErrorHandlerFactory
 ) : WifiDirectCore, CoroutineScope {
 
     override val coroutineContext: CoroutineContext
@@ -98,7 +93,8 @@ class WifiDirectCoreImpl
             launch { channel.send(DiscoverPeersResult.Peers(peers)) }
         }
 
-        manager.discoverPeers(managerChannel, actionListener(
+        manager.discoverPeers(
+            managerChannel, handlerFactory.actionListener(
             onSuccess = { manager.requestPeers(managerChannel, peerListListener) },
             onFail = { _, it -> launch { channel.send(DiscoverPeersResult.Error(Exception(it))) } }
         ))
@@ -160,7 +156,7 @@ class WifiDirectCoreImpl
             wps.setup = WpsInfo.PBC
         }
 
-        val actionListener = actionListener(
+        val actionListener = handlerFactory.actionListener(
             onSuccess = { launch { channel.send(true) } },
             onFail = { code, _ ->
                 launch { channel.send(code == CONNECTION_REQUEST_ACCEPT) }
@@ -183,7 +179,7 @@ class WifiDirectCoreImpl
 
     private fun disconnectFlow() = flow {
         val channel = Channel<Boolean>()
-        val actionListener = actionListener(
+        val actionListener = handlerFactory.actionListener(
             onSuccess = { launch { channel.send(true) } },
             onFail = { _, _ -> launch { channel.send(false) } }
         )
@@ -225,30 +221,5 @@ class WifiDirectCoreImpl
     override suspend fun sendMessage(message: String) {
         wifiDirectSocket?.write(message)
             ?: throw IllegalStateException("wifiDirectSocket is null")
-    }
-
-    private fun actionListener(
-        onSuccess: () -> Unit,
-        onFail: (Int, String) -> Unit
-    ) = object : ActionListener {
-        override fun onSuccess() {
-            onSuccess()
-        }
-
-        override fun onFailure(reason: Int) {
-            val message = when (reason) {
-                P2P_UNSUPPORTED -> "P2P_UNSUPPORTED"
-                BUSY -> "BUSY"
-                NO_SERVICE_REQUESTS -> "NO_SERVICE_REQUESTS"
-                else -> "ERROR! $POSSIBLE_ERROR_SOLUTIONS"
-            }
-            Log.e("RASPBERRY", "Error : $reason $message")
-            sendToDataFlow(LogData("Error : $reason $message"))
-            onFail(reason, message)
-        }
-    }
-
-    companion object {
-        private const val CACHE_EXPIRATION_TIME = 1000L
     }
 }

@@ -1,14 +1,12 @@
 package com.malinowski.wifi_direct_data.internal
 
 import com.example.edge_domain.api.dependecies.data.EdgeDataEvent
-import com.example.edge_domain.api.dependecies.data.EdgeDataEvent.PeersChanged
 import com.example.entities.EdgeDevice
 import com.example.entities.tasks.EdgeResult
 import com.example.entities.tasks.EdgeSubTaskBasic
 import com.example.wifi_direct.api.WifiDirectCore
 import com.example.wifi_direct.api.WifiDirectEvents
 import com.example.wifi_direct.api.WifiDirectEvents.MessageData
-import com.example.wifi_direct.api.WifiDirectEvents.PeersChangedAction
 import com.example.wifi_direct.internal.wifi.WifiService
 import com.malinowski.wifi_direct_data.internal.model.WifiDirectTaskMessage
 import com.malinowski.wifi_direct_data.internal.model.WifiDirectTaskMessageType
@@ -47,11 +45,12 @@ class WifiDirectDataRepository
 
     fun enter() {
         wifiDirectCore.registerReceiver()
-        wifiDirectService.startRegistration()
+        wifiDirectService.registerService()
     }
 
     fun exit() {
         wifiDirectCore.unRegisterReceiver()
+        wifiDirectService.unregisterService()
     }
 
     suspend fun getOnlineDevices(): List<EdgeDevice> {
