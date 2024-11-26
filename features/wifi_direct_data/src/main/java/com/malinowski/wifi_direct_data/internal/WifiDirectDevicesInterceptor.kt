@@ -36,6 +36,8 @@ class WifiDirectDevicesInterceptor
         }
         logs.logData("Update counter : candidates ${candidates.size}")
         return candidates.filter {
+            it.name.endsWith("RASP")
+        }.filter {
             checkCandidate(it)
         }
     }

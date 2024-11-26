@@ -3,7 +3,6 @@ package com.example.wifi_direct.api
 import android.Manifest
 import android.net.wifi.p2p.WifiP2pInfo
 import android.os.Build
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 
 val WIFI_CORE_PERMISSIONS by lazy {

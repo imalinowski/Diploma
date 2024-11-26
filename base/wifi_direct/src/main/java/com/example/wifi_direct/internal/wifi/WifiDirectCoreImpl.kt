@@ -8,11 +8,7 @@ import android.net.wifi.p2p.WifiP2pConfig
 import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pInfo
 import android.net.wifi.p2p.WifiP2pManager
-import android.net.wifi.p2p.WifiP2pManager.ActionListener
-import android.net.wifi.p2p.WifiP2pManager.BUSY
 import android.net.wifi.p2p.WifiP2pManager.CONNECTION_REQUEST_ACCEPT
-import android.net.wifi.p2p.WifiP2pManager.NO_SERVICE_REQUESTS
-import android.net.wifi.p2p.WifiP2pManager.P2P_UNSUPPORTED
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener
 import android.util.Log
 import com.example.entities.Logs
@@ -24,6 +20,8 @@ import com.example.wifi_direct.api.WifiDirectEvents
 import com.example.wifi_direct.api.WifiDirectEvents.LogData
 import com.example.wifi_direct.api.WifiDirectEvents.PeersChangedAction
 import com.example.wifi_direct.api.WifiDirectEvents.WifiConnectionChanged
+import com.example.wifi_direct.internal.exceptions.WifiDirectErrorHandlerFactory
+import com.example.wifi_direct.internal.exceptions.markDeviceName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -40,11 +38,14 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
+import kotlin.random.Random
 
 const val POSSIBLE_ERROR_SOLUTIONS = """
 Check following : 
 - location services must be enabled for wifi direct to work 
 """
+
+private const val CACHE_EXPIRATION_TIME = 1000L
 
 @Singleton
 class WifiDirectCoreImpl
@@ -53,8 +54,13 @@ class WifiDirectCoreImpl
     private val intentFilter: IntentFilter,
     private val manager: WifiP2pManager,
     private val managerChannel: WifiP2pManager.Channel,
-    private val logs: Logs
+    private val logs: Logs,
+    private val errorHandlerFactory: WifiDirectErrorHandlerFactory
 ) : WifiDirectCore, CoroutineScope {
+
+    init {
+        setDeviceName()
+    }
 
     override val coroutineContext: CoroutineContext
         get() = Job() + Dispatchers.Default
@@ -95,10 +101,12 @@ class WifiDirectCoreImpl
             launch { channel.send(DiscoverPeersResult.Peers(peers)) }
         }
 
-        manager.discoverPeers(managerChannel, actionListener(
-            onSuccess = { manager.requestPeers(managerChannel, peerListListener) },
-            onFail = { _, it -> launch { channel.send(DiscoverPeersResult.Error(Exception(it))) } }
-        ))
+        setDeviceName()
+
+        manager.discoverPeers(managerChannel, errorHandlerFactory.actionListener(
+            onFail = { _, it -> launch { channel.send(DiscoverPeersResult.Error(Exception(it))) } },
+        ) { manager.requestPeers(managerChannel, peerListListener) }
+        )
 
         emit(channel.receive())
     }.catch {
@@ -157,14 +165,15 @@ class WifiDirectCoreImpl
             wps.setup = WpsInfo.PBC
         }
 
-        val actionListener = actionListener(
+        val actionListener = errorHandlerFactory.actionListener(
             onSuccess = { launch { channel.send(true) } },
             onFail = { code, _ ->
                 launch { channel.send(code == CONNECTION_REQUEST_ACCEPT) }
             }
         )
 
-        manager.connect(managerChannel, config, actionListener)
+//        manager.connect(managerChannel, config, actionListener)
+        manager.createGroup(managerChannel, config, actionListener)
 
         emit(channel.receive())
     }.shareIn(
@@ -180,7 +189,7 @@ class WifiDirectCoreImpl
 
     private fun disconnectFlow() = flow {
         val channel = Channel<Boolean>()
-        val actionListener = actionListener(
+        val actionListener = errorHandlerFactory.actionListener(
             onSuccess = { launch { channel.send(true) } },
             onFail = { _, _ -> launch { channel.send(false) } }
         )
@@ -190,6 +199,22 @@ class WifiDirectCoreImpl
 
     override fun registerReceiver() {
         context.registerReceiver(receiver, intentFilter)
+    }
+
+    private fun setDeviceName() {
+//        peers.first()
+        sendToDataFlow(LogData("Trying to clearLocalServices"))
+        manager.clearLocalServices(managerChannel, errorHandlerFactory.actionListener {
+            val name = "${Random.nextInt(10)}_RASP"
+            sendToDataFlow(LogData("Trying to set device name to $name"))
+            manager.markDeviceName(managerChannel, name, errorHandlerFactory.actionListener {
+                sendToDataFlow(LogData("set name succeed"))
+            })
+//            sendToDataFlow(LogData("Trying to call another function via reflection"))
+//            manager.reflectDiscoverPeers(managerChannel, name, errorHandlerFactory.actionListener {
+//                sendToDataFlow(LogData("call function via reflection succeed"))
+//            })
+        })
     }
 
     override fun unRegisterReceiver() {
@@ -222,30 +247,5 @@ class WifiDirectCoreImpl
     override suspend fun sendMessage(message: String) {
         wifiDirectSocket?.write(message)
             ?: throw IllegalStateException("wifiDirectSocket is null")
-    }
-
-    private fun actionListener(
-        onSuccess: () -> Unit,
-        onFail: (Int, String) -> Unit
-    ) = object : ActionListener {
-        override fun onSuccess() {
-            onSuccess()
-        }
-
-        override fun onFailure(reason: Int) {
-            val message = when (reason) {
-                P2P_UNSUPPORTED -> "P2P_UNSUPPORTED"
-                BUSY -> "BUSY"
-                NO_SERVICE_REQUESTS -> "NO_SERVICE_REQUESTS"
-                else -> "ERROR! $POSSIBLE_ERROR_SOLUTIONS"
-            }
-            Log.e("RASPBERRY", "Error : $reason $message")
-            sendToDataFlow(LogData("Error : $reason $message"))
-            onFail(reason, message)
-        }
-    }
-
-    companion object {
-        private const val CACHE_EXPIRATION_TIME = 1000L
     }
 }
