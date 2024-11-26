@@ -24,6 +24,9 @@ import com.example.wifi_direct.api.WifiDirectEvents
 import com.example.wifi_direct.api.WifiDirectEvents.LogData
 import com.example.wifi_direct.api.WifiDirectEvents.PeersChangedAction
 import com.example.wifi_direct.api.WifiDirectEvents.WifiConnectionChanged
+import com.example.wifi_direct.internal.wifi.sockets.WifiDirectClient
+import com.example.wifi_direct.internal.wifi.sockets.WifiDirectServer
+import com.example.wifi_direct.internal.wifi.sockets.WifiDirectSocket
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

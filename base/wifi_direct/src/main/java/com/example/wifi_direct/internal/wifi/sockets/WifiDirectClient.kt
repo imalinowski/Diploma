@@ -1,4 +1,4 @@
-package com.example.wifi_direct.internal.wifi
+package com.example.wifi_direct.internal.wifi.sockets
 
 import android.util.Log
 import kotlinx.coroutines.Dispatchers

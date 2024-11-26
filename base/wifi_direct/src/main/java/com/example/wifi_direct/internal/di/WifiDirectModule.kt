@@ -9,6 +9,7 @@ import com.example.wifi_direct.internal.wifi.WifiDirectCoreImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
+import javax.inject.Singleton
 
 @Module(
     includes = [WifiDirectModule.BindsModule::class]
@@ -32,11 +33,13 @@ class WifiDirectModule {
         }
     }
 
+    @Singleton
     @Provides
     fun injectWifiP2pManager(context: Context): WifiP2pManager {
         return context.getSystemService(AppCompatActivity.WIFI_P2P_SERVICE) as WifiP2pManager
     }
 
+    @Singleton
     @Provides
     fun injectChannel(
         context: Context,

@@ -9,6 +9,7 @@ import com.example.wifi_direct.api.WifiDirectCore
 import com.example.wifi_direct.api.WifiDirectEvents
 import com.example.wifi_direct.api.WifiDirectEvents.MessageData
 import com.example.wifi_direct.api.WifiDirectEvents.PeersChangedAction
+import com.example.wifi_direct.internal.wifi.WifiService
 import com.malinowski.wifi_direct_data.internal.model.WifiDirectTaskMessage
 import com.malinowski.wifi_direct_data.internal.model.WifiDirectTaskMessageType
 import kotlinx.coroutines.flow.catch
@@ -23,6 +24,7 @@ import javax.inject.Singleton
 class WifiDirectDataRepository
 @Inject constructor(
     private val wifiDirectCore: WifiDirectCore,
+    private val wifiDirectService: WifiService,
     private val messageInterceptor: WifiDirectDevicesInterceptor,
     private val messageMapper: WifiDirectMessageMapper,
 ) {
@@ -35,9 +37,6 @@ class WifiDirectDataRepository
 
     private suspend fun mapToEdgeEvents(event: WifiDirectEvents?): EdgeDataEvent? {
         return when (event) {
-//            PeersChangedAction -> {
-//                PeersChanged(messageInterceptor.getOnlineDevices())
-//            }
             is MessageData -> {
                 messageInterceptor.tryInterceptSyn(event)
                 messageMapper(event)
@@ -48,6 +47,7 @@ class WifiDirectDataRepository
 
     fun enter() {
         wifiDirectCore.registerReceiver()
+        wifiDirectService.startRegistration()
     }
 
     fun exit() {
