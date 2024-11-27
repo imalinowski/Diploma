@@ -49,8 +49,8 @@ class WifiDirectDataRepository
     }
 
     fun exit() {
-        wifiDirectCore.unRegisterReceiver()
         wifiDirectService.unregisterService()
+        wifiDirectCore.unRegisterReceiver()
     }
 
     suspend fun getOnlineDevices(): List<EdgeDevice> {

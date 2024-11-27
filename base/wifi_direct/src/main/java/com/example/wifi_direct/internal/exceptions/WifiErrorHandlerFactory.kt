@@ -12,6 +12,7 @@ private const val POSSIBLE_ERROR_SOLUTIONS = """
 Check following ( но это не точно ): 
 - location services must be enabled for wifi direct to work 
 - check enabled permissions in settings
+- check enabled wifi
 """
 
 class WifiErrorHandlerFactory
